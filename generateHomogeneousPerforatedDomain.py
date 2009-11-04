@@ -1,27 +1,40 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import sys
-import math
-import os
-import time
+import sys, math, os, time
+from optparse import OptionParser
 
 ## global defines
+parser.add_option("-x", "--length_x", dest="domain_length_x", default=1.,
+                  help="domain_length_x", type='float')
+parser.add_option("-y", "--length_y", dest="domain_length_y", default=1.,
+                  help="domain_length_y", type='float')
+parser.add_option("-r", "--size_x", dest="standard_cell_size_x", default=0.01,
+                  help="standard_cell_size_x", type='float')
+parser.add_option("-s", "--size_y", dest="standard_cell_size_y", default=0.01.,
+                  help="standard_cell_size_y", type='float')
+parser.add_option("-p", "--porosity", dest="porosity", default=0.4,
+                  help="porosity", type='float')
+parser.add_option("-n", "--num_points", dest="number_of_points_per_quarter", default=4,
+                  help="number of points per quarter", type='int')
+parser.add_option("-p", "--prefix", dest="filename_prefix", default='homogeneous_perforated_domain_2d_porosity',
+                  help="filename_prefix", type='string')
+(options, args) = parser.parse_args()
 
 # about the material
 # porosity = volume_of_fluid_part / overall_volume
 # sand: 0.36 ... 0.43
 # clay soil: 0.51 ... 0.58
-porosity = 0.4
+porosity = options.porosity
 #print 'porosity is %f' %( porosity )
 
 # about the domain
-domain_length_x = 1.0
-domain_length_y = 1.0
+domain_length_x = options.domain_length_x
+domain_length_y = options.domain_length_y
 
 # typical size of the standard cell
-standard_cell_size_x = 0.01
-standard_cell_size_y = 0.01
+standard_cell_size_x = options.standard_cell_size_x
+standard_cell_size_y = options.standard_cell_size_y
 standard_cell_area = standard_cell_size_x * standard_cell_size_y
 #print 'standard cell size is %f x %f, standard cell area is %f' %( standard_cell_size_x, standard_cell_size_y, standard_cell_area )
 
@@ -34,7 +47,7 @@ computed_length_domain_y = number_of_cells_y * standard_cell_size_y
 #print 'there are %i x %i = %i standard cells' %( number_of_cells_x, number_of_cells_y, number_of_cells_x * number_of_cells_y )
 
 # about the files to be written
-triangle_filename = 'homogeneous_perforated_domain_2d_porosity_%s_%i_holes.poly' %( str( porosity ), number_of_cells_x * number_of_cells_y )
+triangle_filename = '%s_%s_%i_holes.poly' %( options.filename_prefix, str( porosity ), number_of_cells_x * number_of_cells_y )
 
 # about the ellipses
 standard_circle_radius = math.sqrt( ( 1.0 - porosity ) * standard_cell_area * ( 1.0 / math.pi ) )
@@ -45,7 +58,7 @@ ellipse_center_y = standard_cell_size_y / 2.0;
 #print 'standard circle radius is %f, standard circles center is ( %f, %f )' %( standard_circle_radius, ellipse_center_x, ellipse_center_y )
 
 # about the number of points to approximate the ellipses
-number_of_points_per_quarter = 4
+number_of_points_per_quarter = options.number_of_points_per_quarter
 
 # about the boundary ids
 id_of_ellipse_faces = 2
