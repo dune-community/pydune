@@ -25,6 +25,9 @@ parser.add_option("-n", "--num_verts", dest="num_verts", default=6,
 parser.add_option("-m", "--num_midrings", dest="num_midrings", default=0,
                   help="number midrings inserted between boundary faces", type='int')
 
+parser.add_option("-f", "--filename", dest="filename", default='out.smesh',
+                  help="output filename", type='string')
+
 (options, args) = parser.parse_args()
 
 area 			= options.area
@@ -52,16 +55,16 @@ grid = FullGrid( bound_L, 4 )
 
 """ midrings, if num > 0 """
 incr = tube_length / float( num_midrings + 1 )
-for i in range( 1, num_midrings + 1 ):	
+for i in range( 1, num_midrings + 1 ):
 	points_M = PLCPointList( 3 )
 	bound_M = InbetweenRing( )
 	M = functor.scale( Vector3( L_x, 0, incr*float(i) ) )
 	bound_M.addVertex( points_M.appendVert( M ) )
-	for i in range( 1, num_verts  ):		
+	for i in range( 1, num_verts  ):
 		M = rot_mat  * M
 		bound_M.addVertex(points_M.appendVert( M ))
 	grid.connect(bound_M)
-	
+
 """right boundary"""
 kipp_mat = Matrix4.new_rotatey( math.radians(15) )
 origin_R = Vector3(0,0,tube_length )
@@ -75,10 +78,5 @@ for i in range( 1, num_verts  ):
 	bound_R.addVertex(points_R.appendVert( R ))
 bound_R.close()
 
-
-
 grid.connect(bound_R)
-grid.outputPLC( 'out.smesh' )
-
-
-print grid
+grid.outputPLC( options.filename )
