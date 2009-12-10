@@ -24,9 +24,21 @@ to the extent permitted by applicable law.
   0. You just DO WHAT THE FUCK YOU WANT TO.
 """
 
-B = 0.8
-A = 0.1
-C = 0.3
+from optparse import OptionParser
+
+## global defines
+parser = OptionParser()
+parser.add_option("-a", "--length_a", dest="length_a", default=0.1,
+                  help="length_a", type='float')
+parser.add_option("-b", "--length_b", dest="length_b", default=0.7,
+                  help="length_b", type='float')
+parser.add_option("-c", "--length_c", dest="length_c", default=0.2,
+                  help="length_c", type='float')
+(options, args) = parser.parse_args()
+
+A = options.length_a
+B = options.length_b
+C = options.length_c
 
 nBids = 3
 
