@@ -29,6 +29,11 @@ from functors import *
 from optparse import OptionParser
 import math, copy
 
+use_hyperbole_functor = False
+def functor_callback(option, opt_str, value, parser):
+  setattr(parser.values, option.dest, 1)
+  use_hyperbole_functor = True
+
 parser = OptionParser()
 parser.add_option("-a", "--area", dest="area", default=math.pi,
                   help="area of boundary", type='float')
@@ -37,10 +42,12 @@ parser.add_option("-l", "--length", dest="tube_length", default=10,
                   help="tube length", type='float')
 
 parser.add_option("-y", "--hyp_fac", dest="hyp_fac", default=4.,
-                  help="hyperbole factor", type='float')
+                  help="hyperbole factor", type='float',
+				  action='callback',callback=functor_callback )
 
 parser.add_option("-d", "--hyp_add", dest="hyp_add", default=1.,
-                  help="hyperbole additive", type='float')
+                  help="hyperbole additive", type='float',
+				  action='callback',callback=functor_callback )
 
 parser.add_option("-n", "--num_verts", dest="num_verts", default=6,
                   help="number of vertices in circle approx", type='int')
@@ -61,7 +68,12 @@ alpha_half		= alpha / 2.
 num_midrings	= int(options.num_midrings)
 area_one_tri = math.pi / float(num_verts)
 L_x = math.sqrt( area_one_tri / ( math.sin( alpha_half ) * math.cos( alpha_half ) ) )
-functor = HyperboleFunctorZ(tube_length, options.hyp_fac, options.hyp_add )
+if use_hyperbole_functor:
+  functor = HyperboleFunctorZ(tube_length, options.hyp_fac, options.hyp_add )
+  print "using hyperbole functor"
+else:
+  functor = IdentityFunctor()
+  print "using identity functor"
 
 """left boundary area"""
 origin_L = Vector3(0,0,0)
