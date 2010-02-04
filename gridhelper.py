@@ -161,12 +161,13 @@ class FullGrid:
 		ret += 25*'=' + 'GRID'+ 25*'='
 		return ret
 
-	def outputPLC(self,fn):
+	def outputPLC(self, fn, args ):
 		out = None
 		try:
 			out = open(fn,'w')
 		except:
 			raise ImpossibleException()
+		out.write( '# commandline: %s\n'%' '.join( args ) )
 		out.write( '%d 3 0 %d\n'%(len(PLCPointList.global_vertices),3) )#3 bids
 		cVert = 1
 		for v in PLCPointList.global_vertices:

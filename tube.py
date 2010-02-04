@@ -27,7 +27,7 @@ to the extent permitted by applicable law.
 from gridhelper import *
 from functors import *
 from optparse import OptionParser
-import math, copy
+import math, copy, sys
 
 use_hyperbole_functor = False
 def functor_callback(option, opt_str, value, parser):
@@ -114,4 +114,4 @@ for i in range( 1, num_verts  ):
 bound_R.close()
 
 grid.connect(bound_R)
-grid.outputPLC( options.filename )
+grid.outputPLC( options.filename, sys.argv )
