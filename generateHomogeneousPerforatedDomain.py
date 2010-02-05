@@ -5,19 +5,20 @@ import sys, math, os, time
 from optparse import OptionParser
 
 ## global defines
+parser = OptionParser()
 parser.add_option("-x", "--length_x", dest="domain_length_x", default=1.,
                   help="domain_length_x", type='float')
 parser.add_option("-y", "--length_y", dest="domain_length_y", default=1.,
                   help="domain_length_y", type='float')
-parser.add_option("-r", "--size_x", dest="standard_cell_size_x", default=0.01,
+parser.add_option("-r", "--size_x", dest="standard_cell_size_x", default=0.1,
                   help="standard_cell_size_x", type='float')
-parser.add_option("-s", "--size_y", dest="standard_cell_size_y", default=0.01.,
+parser.add_option("-s", "--size_y", dest="standard_cell_size_y", default=0.1,
                   help="standard_cell_size_y", type='float')
 parser.add_option("-p", "--porosity", dest="porosity", default=0.4,
                   help="porosity", type='float')
 parser.add_option("-n", "--num_points", dest="number_of_points_per_quarter", default=4,
                   help="number of points per quarter", type='int')
-parser.add_option("-p", "--prefix", dest="filename_prefix", default='homogeneous_perforated_domain_2d_porosity',
+parser.add_option("-f", "--prefix", dest="filename_prefix", default='homogeneous_perforated_domain_2d_porosity',
                   help="filename_prefix", type='string')
 (options, args) = parser.parse_args()
 
@@ -27,6 +28,14 @@ parser.add_option("-p", "--prefix", dest="filename_prefix", default='homogeneous
 # clay soil: 0.51 ... 0.58
 porosity = options.porosity
 #print 'porosity is %f' %( porosity )
+
+do_shift = False
+if do_shift :
+	shift_x = -1.0
+	shift_y = -1.0
+else :
+	shift_x = 0.0
+	shift_y = 0.0
 
 # about the domain
 domain_length_x = options.domain_length_x
@@ -247,6 +256,21 @@ print 'epsilon_suqare is %f' %( standard_cell_area )
 
 # generate the outer rectangle
 outer_rectangle = generate_rectangle( computed_length_domain_x, computed_length_domain_y, [ id_of_bottom_rectangle_faces, id_of_right_rectangle_faces, id_of_top_rectangle_faces, id_of_left_rectangle_faces ] )
+
+# shift if desired
+if do_shift :
+	for ellipsoid in ellipsoids:
+		for ellipsoid_point_with_id in ellipsoid :
+			ellipsoid_point = ellipsoid_point_with_id[ 0 ]
+			ellipsoid_point[ 0 ] += shift_x
+			ellipsoid_point[ 1 ] += shift_y
+	for outer_rectangle_point_with_id in outer_rectangle :
+		outer_rectangle_point = outer_rectangle_point_with_id[ 0 ]
+		outer_rectangle_point[ 0 ] += shift_x
+		outer_rectangle_point[ 1 ] += shift_y
+	for hole in holes :
+		hole[ 0 ] += shift_x
+		hole[ 1 ] += shift_y
 
 # write to triangle .poly file
 print 'writing to %s' %( triangle_filename )
