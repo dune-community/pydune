@@ -31,8 +31,9 @@ import math, copy, sys
 
 use_hyperbole_functor = False
 def functor_callback(option, opt_str, value, parser):
-  setattr(parser.values, option.dest, 1)
-  use_hyperbole_functor = True
+	global use_hyperbole_functor
+	setattr(parser.values, option.dest, 1)
+	use_hyperbole_functor = True
 
 parser = OptionParser()
 parser.add_option("-a", "--area", dest="area", default=math.pi,
@@ -66,14 +67,14 @@ num_verts 		= options.num_verts
 alpha			= math.radians( 360. / (num_verts ) )
 alpha_half		= alpha / 2.
 num_midrings	= int(options.num_midrings)
-area_one_tri = math.pi / float(num_verts)
+area_one_tri = area * math.pi / float(num_verts)
 L_x = math.sqrt( area_one_tri / ( math.sin( alpha_half ) * math.cos( alpha_half ) ) )
 if use_hyperbole_functor:
-  functor = HyperboleFunctorZ(tube_length, options.hyp_fac, options.hyp_add )
-  print "using hyperbole functor"
+	functor = HyperboleFunctorZ(tube_length, options.hyp_fac, options.hyp_add )
+	print "using hyperbole functor"
 else:
-  functor = IdentityFunctor()
-  print "using identity functor"
+	functor = IdentityFunctor()
+	print "using identity functor"
 
 """left boundary area"""
 origin_L = Vector3(0,0,0)
@@ -114,4 +115,4 @@ for i in range( 1, num_verts  ):
 bound_R.close()
 
 grid.connect(bound_R)
-grid.outputPLC( options.filename, sys.argv )
+grid.outputPLC( options.filename, sys.argv, options )

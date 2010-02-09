@@ -121,14 +121,14 @@ class FullGrid:
 	def connect(self,new_f):
 		f1 = f2 = None
 		if isinstance( new_f, InbetweenRing ):
-			print 'connceting InbetweenRing\n'
+			print 'connecting InbetweenRing\n'
 			self.rings.append( new_f )
 			if len(self.rings) > 1:
 				f1 = self.rings[-2]
 			else:
 				f1 = self.fans[-1]
 		elif isinstance( new_f, FanningSimplexList ):
-			print 'connceting FanningSimplexList\n'
+			print 'connecting FanningSimplexList\n'
 			self.fans.append( new_f )
 			if len(self.rings) > 0:
 				f1 = self.rings[-1]
@@ -161,13 +161,16 @@ class FullGrid:
 		ret += 25*'=' + 'GRID'+ 25*'='
 		return ret
 
-	def outputPLC(self, fn, args ):
+	def outputPLC(self, fn, args, options ):
 		out = None
+		if not fn.endswith( '.smesh' ):
+			fn += '.smesh'
 		try:
 			out = open(fn,'w')
 		except:
 			raise ImpossibleException()
 		out.write( '# commandline: %s\n'%' '.join( args ) )
+		out.write( '# options: %s\n'%options )
 		out.write( '%d 3 0 %d\n'%(len(PLCPointList.global_vertices),3) )#3 bids
 		cVert = 1
 		for v in PLCPointList.global_vertices:
