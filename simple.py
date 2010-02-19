@@ -69,5 +69,3 @@ for bid,vertIds in bSegs.items():
 
 out.write( '%d\n'%(0))
 out.close()
-
-
