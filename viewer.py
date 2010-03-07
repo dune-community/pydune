@@ -59,13 +59,15 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	
 	glEnable(GL_NORMALIZE)
 	light_position = ( 0., 0., 1., 0. )
-	white_light = ( 1., 1., 1., 0.1 )
+	white_light = ( 1., 1., 1., 0.01 )
 	d_light = ( 1., 0., 1., 0.1 )
 	red_light = ( 0., 1., 0., 1. )
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position)
+	glLightfv(GL_LIGHT1, GL_POSITION, light_position)
 	glLightfv(GL_LIGHT0, GL_AMBIENT, white_light)
-	glLightfv(GL_LIGHT0, GL_SPECULAR, red_light)
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, d_light)
+	glLightfv(GL_LIGHT1, GL_AMBIENT, ( 1., 1., 1., 0.8 ) )
+	#glLightfv(GL_LIGHT0, GL_SPECULAR, red_light)
+	#glLightfv(GL_LIGHT0, GL_DIFFUSE, d_light)
 
 	glEnable(GL_LIGHTING)
 	glEnable(GL_LIGHT0)
@@ -99,14 +101,20 @@ def DrawGLScene():
 	glTranslatef(0,0.0,-20.0)				# Move Left And Into The Screen
 	glRotatef(x_arc,0,1,0);
 	glRotatef(y_arc,1,0,0);
-	mesh.draw()
+	glEnable(GL_LIGHT1)
+	#mesh.drawAdjacentFaces(0)
+	glDisable(GL_LIGHT1)
+	mesh.draw(1)
 	glutSwapBuffers()
 
 # The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)
 def keyPressed(*args):
+	global mesh
 	# If escape is pressed, kill everything.
 	if args[0] == ESCAPE:
 		sys.exit()
+	if args[0] == 's':
+		mesh.smooth()
 
 def mouseMotion(x,y):
 	global mouse_x,	mouse_y,x_arc,y_arc 

@@ -258,31 +258,33 @@ class Simplex3():
 		assert isinstance(a,int)
 		assert isinstance(b,int)
 		assert isinstance(c,int)
-		self.a = a
-		self.b = b
-		self.c = c
+		assert a!=b and b !=c and b!=c
+		self.idx = ( a,b,c )
+		self.edge_idx = ( (a,b), (b,c), (c,a) )
 		self.reset(pl)
 		
 	def reset(self,pl):
 		self.v = []
-		self.v.append( pl.verts[self.a] )
-		self.v.append( pl.verts[self.b] )
-		self.v.append( pl.verts[self.c] )
+		for id in self.idx:
+			self.v.append( pl.verts[id] )
 		self.n = (self.v[0] + self.v[1]).cross(self.v[0] + self.v[2])
+		self.edges = ( self.v[1] - self.v[0], self.v[2] - self.v[1], self.v[0] - self.v[2] )
+
+	def __repr__(self):
+		return 'simplex (%d,%d,%d) -- (%s,%s,%s)'%(self.idx[0],self.idx[1],self.idx[2],self.v[0],self.v[1],self.v[2])
 
 class Simplex2():
 	def __init__(self,a,b,pl):
 		assert isinstance(pl,PLCPointList)
 		assert isinstance(a,int)
 		assert isinstance(b,int)
-		self.a = a
-		self.b = b
-		reset(pl)
+		self.idx = ( a, b)
+		self.reset(pl)
 		
 	def reset(self,pl):
 		self.v = []
-		self.v.append( pl.verts[self.a] )
-		self.v.append( pl.verts[self.b] )
+		for id in self.idx:
+			self.v.append( pl.verts[id] )
 		self.n = (self.v[0]).cross(self.v[1])
 		
 def simplex(pl,a,b,c=None):
