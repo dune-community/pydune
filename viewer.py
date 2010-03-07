@@ -121,6 +121,8 @@ def keyPressed(*args):
 		sys.exit()
 	if args[0] == 's':
 		mesh.smooth(0.1)
+	if args[0] == 'n':
+		mesh.noise(0.1)
 
 def mouseMotion(x,y):
 	global mouse_x,	mouse_y,x_arc,y_arc 

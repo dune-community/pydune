@@ -25,6 +25,7 @@ to the extent permitted by applicable law.
 """
 from gridhelper import *
 from euclid import *
+import random
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 
@@ -161,6 +162,14 @@ class Mesh():
 		for i,v in self.vertices.verts.iteritems():
 			if self.adj_points.has_key(i):
 				self.vertices.verts[i] += step * self.laplacianDisplacement( self.adj_points[i], self.vertices.verts[i] )
+		for f in self.faces:
+			f.reset(self.vertices)
+		self. bounding_box = BoundingVolume( self )
+
+	def noise(self,factor):
+		for i,v in self.vertices.verts.iteritems():
+			#self.vertices.verts[i] += random.gauss( factor, 1 ) * self.vertices.verts[i]
+			self.vertices.verts[i] += random.random( ) * factor * self.vertices.verts[i]
 		for f in self.faces:
 			f.reset(self.vertices)
 		self. bounding_box = BoundingVolume( self )
