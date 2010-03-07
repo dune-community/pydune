@@ -58,7 +58,7 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	glShadeModel(GL_SMOOTH)				# Enables Smooth Color Shading
 	
 	glEnable(GL_NORMALIZE)
-	light_position = ( 0., 0., 10., 0. )
+	light_position = ( 0., 0., 1., 0. )
 	white_light = ( 1., 1., 1., 0.1 )
 	d_light = ( 1., 0., 1., 0.1 )
 	red_light = ( 0., 1., 0., 1. )

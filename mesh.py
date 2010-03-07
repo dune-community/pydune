@@ -42,6 +42,9 @@ class Mesh():
 		self.dim = dim
 		self.vertices = PLCPointList(dim)
 		self.faces = []
+		self.draw_outline = True
+		self.draw_faces = True
+		self.outline_color = ( 1,1,1 )
 
 	def parseSMESH(self, filename):
 		self.parseSMESH_vertices(filename + '.vertices')
@@ -72,14 +75,28 @@ class Mesh():
 		print len(self.faces)
 			
 	def draw(self):
-		glBegin(GL_TRIANGLES)					# Start Drawing The Pyramid
-		i = 0
-		for f in self.faces:
-			n = f.n
-			if i % 2 == 0:
-				n = -1.0 * n
-			glNormal3f(n.x,n.y,n.z)
-			for v in f.v:
-				glColor3f(1.0,0,0)
-				glVertex3f(v.x, v.y, v.z )
-		glEnd()
+		if self.draw_faces:
+			glBegin(GL_TRIANGLES)					# Start Drawing The Pyramid
+			i = 0
+			for f in self.faces:
+				n = f.n
+				#if i % 2 == 0:
+					#n = -1.0 * n
+				glNormal3f(n.x,n.y,n.z)
+				for v in f.v:
+					glColor3f(1.0,0,0)
+					glVertex3f(v.x, v.y, v.z )
+			glEnd()
+		if self.draw_outline:
+			for f in self.faces:
+				glLineWidth(5)
+				glBegin(GL_LINE_STRIP)
+				n = f.n
+				glNormal3f(n.x,n.y,n.z)
+				for v in f.v:
+					c = self.outline_color
+					glColor3f(c[0],c[1],c[2])
+					glVertex3f(v.x, v.y, v.z )
+				glEnd()
+
+	#def smo	

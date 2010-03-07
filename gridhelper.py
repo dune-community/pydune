@@ -261,21 +261,29 @@ class Simplex3():
 		self.a = a
 		self.b = b
 		self.c = c
+		self.reset(pl)
+		
+	def reset(self,pl):
 		self.v = []
-		self.v.append( pl.verts[a] )
-		self.v.append( pl.verts[b] )
-		self.v.append( pl.verts[c] )
+		self.v.append( pl.verts[self.a] )
+		self.v.append( pl.verts[self.b] )
+		self.v.append( pl.verts[self.c] )
 		self.n = (self.v[0] + self.v[1]).cross(self.v[0] + self.v[2])
 
 class Simplex2():
-	def __init__(self,a,b):
+	def __init__(self,a,b,pl):
 		assert isinstance(pl,PLCPointList)
 		assert isinstance(a,int)
 		assert isinstance(b,int)
 		self.a = a
 		self.b = b
-		self.v.append( pl.verts[a] )
-		self.v.append( pl.verts[b] )
+		reset(pl)
+		
+	def reset(self,pl):
+		self.v = []
+		self.v.append( pl.verts[self.a] )
+		self.v.append( pl.verts[self.b] )
+		self.n = (self.v[0]).cross(self.v[1])
 		
 def simplex(pl,a,b,c=None):
 	if c:
