@@ -120,7 +120,7 @@ def keyPressed(*args):
 	if args[0] == ESCAPE:
 		sys.exit()
 	if args[0] == 's':
-		mesh.smooth()
+		mesh.smooth(0.1)
 
 def mouseMotion(x,y):
 	global mouse_x,	mouse_y,x_arc,y_arc 

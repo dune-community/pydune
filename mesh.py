@@ -56,7 +56,7 @@ class Mesh():
 		self.outline_color = ( 1,1,1 )
 		self.adj_points = dict()
 
-	def parseSMESH(self, filename):
+	def parseSMESH(self, filename,zero_based_idx=False):
 		self.parseSMESH_vertices(filename + '.vertices')
 		self.parseSMESH_faces(filename + '.faces')
 		self.buildAdjacencyList()
@@ -64,7 +64,7 @@ class Mesh():
 			#print self.faces[k].edge_idx
 		#print '--\n',self.faces[4].edge_idx
 		#print '---'
-		self. bounding_box = BoundingVolume( self )
+		self.bounding_box = BoundingVolume( self )
 
 	def parseSMESH_vertices(self,filename):
 		fn = open( filename, 'r' )
@@ -76,7 +76,7 @@ class Mesh():
 			line.append(None)
 			v = vector( line[1], line[2], line[3] )
 			self.vertices.appendVert( v )
-		print len(self.vertices)
+		print 'read %d vertices'%len(self.vertices)
 		fn.close()
 
 	def parseSMESH_faces(self,filename):
@@ -96,7 +96,7 @@ class Mesh():
 			else:
 				self.adj_points[v0] = [ v1, v2 ]
 			self.faces.append( s )
-		print len(self.faces)
+		print 'read %d faces'%len(self.faces)
 		fn.close()
 
 	def buildAdjacencyList(self):
@@ -114,8 +114,6 @@ class Mesh():
 	def drawFace(self, f,opacity=1.):
 		glBegin(GL_POLYGON)					# Start Drawing The Pyramid
 		n = f.n
-				#if i % 2 == 0:
-					#n = -1.0 * n
 		glNormal3f(n.x,n.y,n.z)
 		for v in f.v:
 			glColor4f(1.0,0,0,opacity)
@@ -149,22 +147,22 @@ class Mesh():
 			for f in self.faces:
 				self.drawOutline(f)
 
-	def smooth(self,weight=1.0):
-		print '%d -- %d'%(len(self.adj_points) ,len(self.vertices.verts))
+	def laplacianDisplacement(self,N_1_p,p):
+		n = len( N_1_p )
+		s = Vector3()
+		if n > 0:
+			for j in N_1_p:
+				s += self.vertices.verts[j] - p
+			s /= float(n)
+		return s
+
+	def smooth(self,step):
+		#print '%d -- %d'%(len(self.adj_points) ,len(self.vertices.verts))
 		for i,v in self.vertices.verts.iteritems():
 			if self.adj_points.has_key(i):
-				n = len( self.adj_points[i] )
-				if n > 0:
-					s = Vector3()
-					for j in self.adj_points[i]:
-						s += weight * self.vertices.verts[j]
-					s /= float(n)
-					self.vertices.verts[i] = s
+				self.vertices.verts[i] += step * self.laplacianDisplacement( self.adj_points[i], self.vertices.verts[i] )
 		for f in self.faces:
 			f.reset(self.vertices)
-		print self.adj_points.keys()
-		print self.vertices.verts[1]
-		print self.vertices.verts[26]
 		self. bounding_box = BoundingVolume( self )
 
 class BoundingVolume:
