@@ -26,6 +26,7 @@ to the extent permitted by applicable law.
 from gridhelper import *
 from euclid import *
 from OpenGL.GL import *
+from OpenGL.GLUT import *
 
 def skipComments(fn):
 	while fn:
@@ -63,6 +64,7 @@ class Mesh():
 			#print self.faces[k].edge_idx
 		#print '--\n',self.faces[4].edge_idx
 		#print '---'
+		self. bounding_box = BoundingVolume( self )
 
 
 	def parseSMESH_vertices(self,filename):
@@ -164,3 +166,54 @@ class Mesh():
 		print self.adj_points.keys()
 		print self.vertices.verts[1]
 		print self.vertices.verts[26]
+
+class BoundingVolume:
+	def __init__(s,mesh):
+		s.outline_color = ( 1,1,1 )
+		vertices = mesh.vertices.verts.values()
+		minV = Vector3()
+		maxV = Vector3()
+		vertices.sort( lambda x, y: cmp(y.x, x.x ) )
+		minV.x = vertices[0].x
+		maxV.x = vertices[-1].x
+		vertices.sort( lambda x, y: cmp(y.y, x.y ) )
+		minV.y = vertices[0].y
+		maxV.y = vertices[-1].y
+		vertices.sort( lambda x, y: cmp(y.z, x.z ) )
+		minV.z = vertices[0].z
+		maxV.z = vertices[-1].z
+
+		s.points = []
+		for i in range(8):
+			s.points.append(Vector3())
+		for i in range(2):
+			for j in range(2):
+				s.points[int('%d%d%d'%(0,i,j),2)].x = minV.x
+				s.points[int('%d%d%d'%(1,i,j),2)].x = maxV.x
+				s.points[int('%d%d%d'%(i,0,j),2)].y = minV.y
+				s.points[int('%d%d%d'%(i,1,j),2)].y = maxV.y
+				s.points[int('%d%d%d'%(i,j,0),2)].z = minV.z
+				s.points[int('%d%d%d'%(i,j,1),2)].z = maxV.z
+
+		s.center = Vector3()
+		for p in s.points:
+			s.center += p
+		s.center /= float(8)
+
+	def drawFrame(s):
+		glLineWidth(5)
+		glBegin(GL_LINE_STRIP)
+		for v in s.points:
+			c = s.outline_color
+			glColor3f(c[0],c[1],c[2])
+			glVertex3f(v.x, v.y, v.z )
+		glEnd()
+		
+	def draw(s):
+		s.drawFrame()
+		glPushMatrix(  )
+		glTranslatef(s.center.x,s.center.y,s.center.z)
+		glutSolidSphere( GLdouble(0.25), GLint(10), GLint(10) )
+		glPopMatrix(  )
+		
+		

@@ -99,12 +99,18 @@ def DrawGLScene():
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
 	glLoadIdentity()					# Reset The View
 	glTranslatef(0,0.0,-20.0)				# Move Left And Into The Screen
+	#glPushMatrix(  )
+	#glutSolidSphere( GLdouble(0.25), GLint(10), GLint(10) )
+	#glPopMatrix(  )
 	glRotatef(x_arc,0,1,0);
 	glRotatef(y_arc,1,0,0);
+	center = -mesh.bounding_box.center
+	glTranslatef(center.x,center.y,center.z)
 	glEnable(GL_LIGHT1)
 	#mesh.drawAdjacentFaces(0)
 	glDisable(GL_LIGHT1)
 	mesh.draw(1)
+	mesh.bounding_box.draw()
 	glutSwapBuffers()
 
 # The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)
@@ -128,46 +134,17 @@ def main():
 	global window
 	glutInit(sys.argv)
 
-	# Select type of Display mode:
-	#  Double buffer
-	#  RGBA color
-	# Alpha components supported
-	# Depth buffer
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-
-	# get a 640 x 480 window
 	glutInitWindowSize(640, 480)
-
-	# the window starts at the upper left corner of the screen
 	glutInitWindowPosition(0, 0)
-
-	# Okay, like the C version we retain the window id to use when closing, but for those of you new
-	# to Python (like myself), remember this assignment would make the variable local and not global
-	# if it weren't for the global declaration at the start of main.
 	window = glutCreateWindow("Jeff Molofee's GL Code Tutorial ... NeHe '99")
-
-	# Register the drawing function with glut, BUT in Python land, at least using PyOpenGL, we need to
-	# set the function pointer and invoke a function to actually register the callback, otherwise it
-	# would be very much like the C version of the code.
 	glutDisplayFunc(DrawGLScene)
-
-	# Uncomment this line to get full screen.
-	# glutFullScreen()
-
-	# When we are doing nothing, redraw the scene.
 	glutIdleFunc(DrawGLScene)
-
-	# Register the function called when our window is resized.
 	glutReshapeFunc(ReSizeGLScene)
-
-	# Register the function called when the keyboard is pressed.
 	glutKeyboardFunc(keyPressed)
 	glutMotionFunc(mouseMotion)
 
-	# Initialize our window.
 	InitGL(640, 480)
-
-	# Start Event Processing Engine
 	glutMainLoop()
 
 if __name__ == "__main__":
