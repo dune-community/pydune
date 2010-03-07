@@ -66,7 +66,6 @@ class Mesh():
 		#print '---'
 		self. bounding_box = BoundingVolume( self )
 
-
 	def parseSMESH_vertices(self,filename):
 		fn = open( filename, 'r' )
 		for line in fn.readlines():
@@ -166,6 +165,7 @@ class Mesh():
 		print self.adj_points.keys()
 		print self.vertices.verts[1]
 		print self.vertices.verts[26]
+		self. bounding_box = BoundingVolume( self )
 
 class BoundingVolume:
 	def __init__(s,mesh):
