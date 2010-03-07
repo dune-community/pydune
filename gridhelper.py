@@ -57,6 +57,9 @@ class PLCPointList:
 			ret += 'Vertix %4d \t%s\n'% (idx,str(p))
 		return ret
 
+	def __len__(self):
+		return len(self.verts)
+
 class Simplex:
 	def __init__(self,v1,v2,v3):
 		assert isinstance( v1, int )
@@ -249,11 +252,42 @@ class BoundarySurface:
 		#this is exposed to FullGrid
 		self.vertex_idx = self.outer_vertices_idx
 
+class Simplex3():
+	def __init__(self,a,b,c,pl):
+		assert isinstance(pl,PLCPointList)
+		assert isinstance(a,int)
+		assert isinstance(b,int)
+		assert isinstance(c,int)
+		self.a = a
+		self.b = b
+		self.c = c
+		self.v = []
+		self.v.append( pl.verts[a] )
+		self.v.append( pl.verts[b] )
+		self.v.append( pl.verts[c] )
+		self.n = (self.v[0] + self.v[1]).cross(self.v[0] + self.v[2])
+
+class Simplex2():
+	def __init__(self,a,b):
+		assert isinstance(pl,PLCPointList)
+		assert isinstance(a,int)
+		assert isinstance(b,int)
+		self.a = a
+		self.b = b
+		self.v.append( pl.verts[a] )
+		self.v.append( pl.verts[b] )
 		
-
-
-
-
+def simplex(pl,a,b,c=None):
+	if c:
+		return Simplex3(a,b,c,pl)
+	else:
+		return Simplex2(a,b,pl)
+		
+def vector( x,y,z=None ):
+	if z:
+		return Vector3( float(x),float(y),float(z) )
+	else:
+		return Vector2( float(x),float(y) )
 
 
 
