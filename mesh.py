@@ -267,11 +267,45 @@ class BoundingVolume:
 		s.dl = glGenLists(1)
 		glNewList(s.dl,GL_COMPILE)
 		glLineWidth(5)
+		c = s.outline_color
+		glColor4f(c[0],c[1],c[2],0.2)
 		glBegin(GL_LINE_STRIP)
 		for v in s.points:
-			c = s.outline_color
-			glColor3f(c[0],c[1],c[2])
 			glVertex3f(v.x, v.y, v.z )
+		glEnd()
+		c = s.points
+		glBegin(GL_LINES)
+		
+		glVertex3fv(adaptVec(c[0]))
+		glVertex3fv(adaptVec(c[2]))
+		glVertex3fv(adaptVec(c[6]))
+		glVertex3fv(adaptVec(c[4]))
+
+		glVertex3fv(adaptVec(c[1]))
+		glVertex3fv(adaptVec(c[3]))
+		glVertex3fv(adaptVec(c[7]))
+		glVertex3fv(adaptVec(c[5]))
+
+		glVertex3fv(adaptVec(c[0]))
+		glVertex3fv(adaptVec(c[1]))
+		glVertex3fv(adaptVec(c[3]))
+		glVertex3fv(adaptVec(c[2]))
+
+		glVertex3fv(adaptVec(c[2]))
+		glVertex3fv(adaptVec(c[3]))
+		glVertex3fv(adaptVec(c[7]))
+		glVertex3fv(adaptVec(c[6]))
+
+		glVertex3fv(adaptVec(c[7]))
+		glVertex3fv(adaptVec(c[6]))
+		glVertex3fv(adaptVec(c[4]))
+		glVertex3fv(adaptVec(c[5]))
+
+		glVertex3fv(adaptVec(c[0]))
+		glVertex3fv(adaptVec(c[1]))
+		glVertex3fv(adaptVec(c[5]))
+		glVertex3fv(adaptVec(c[4]))
+		
 		glEnd()
 		glEndList()
 

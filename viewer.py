@@ -114,8 +114,8 @@ def DrawGLScene():
 	center = -mesh.bounding_box.center
 	glTranslatef(center.x,center.y,center.z)
 	#mesh.draw(1)
-	mesh.bounding_box.draw()
 	mesh.quad.draw()
+	mesh.bounding_box.draw()
 	glutSwapBuffers()
 
 # The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)
