@@ -100,12 +100,33 @@ class Quadtree:
 		s.children = []
 		p = mesh.bounding_box.points[:]
 		b = Box( p )
+		v = p[7]
+		b.translate( -v )
 		b.scale(0.5)
-		b.translate( 0.5*p[7] )
+		b.translate( v )
+		
 		s.children.append( b )
 		c = Box(b.corners)
-		c.translate( (0.5*p[5] - p[7]) )
+		c.translate( (p[6] - p[7]) )
 		s.children.append( c )
+		d = Box(c.corners)
+		d.translate( p[5] - p[7] - p[1] )
+		s.children.append( d )
+		e = Box(d.corners)
+		e.translate( - p[7] - p[1] )
+		s.children.append( e )
+		f = Box(e.corners)
+		f.translate( - p[5] +p[4] )
+		s.children.append( f )
+		g = Box(e.corners)
+		g.translate( +p[4] - p[0] )
+		s.children.append( g )
+		h = Box(e.corners)
+		h.translate( +p[3] - p[2] )
+		s.children.append( h )
+		i = Box(e.corners)
+		i.translate( - p[7] + p[4] )
+		s.children.append( i )
 
 	def draw(s):
 		n = float( len(s.children) ) 
