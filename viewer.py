@@ -63,17 +63,18 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	glEnable(GL_NORMALIZE)
 	light_position = ( 0., 0., 1., 0. )
 	white_light = ( 1., 1., 1., 0.01 )
-	d_light = ( 1., 0., 1., 0.1 )
-	red_light = ( 0., 1., 0., 1. )
+	d_light = ( 1., 1., 1., 0.1 )
+	red_light = ( 1., 1., 1., 0.2 )
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position)
 	glLightfv(GL_LIGHT1, GL_POSITION, light_position)
 	glLightfv(GL_LIGHT0, GL_AMBIENT, white_light)
-	glLightfv(GL_LIGHT1, GL_AMBIENT, ( 1., 1., 1., 0.8 ) )
-	#glLightfv(GL_LIGHT0, GL_SPECULAR, red_light)
-	#glLightfv(GL_LIGHT0, GL_DIFFUSE, d_light)
+	#glLightfv(GL_LIGHT1, GL_AMBIENT, ( 1., 1., 1., 0.8 ) )
+	glLightfv(GL_LIGHT1, GL_SPECULAR, red_light)
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, d_light)
 
 	glEnable(GL_LIGHTING)
 	glEnable(GL_LIGHT0)
+	#glEnable(GL_LIGHT1)
 
 	glEnable(GL_BLEND)
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
@@ -97,16 +98,19 @@ def ReSizeGLScene(Width, Height):
 	glViewport(0, 0, Width, Height)		# Reset The Current Viewport And Perspective Transformation
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()
-	gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
+	gluPerspective(45.0, float(Width)/float(Height), 0.1, 1000000.0)
 	glMatrixMode(GL_MODELVIEW)
 
 def DrawGLScene():
 	global mesh, zoom
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
 	glLoadIdentity()					# Reset The View
+
 	glTranslatef(0,0.0,zoom)				# Move Left And Into The Screen
 	glRotatef(x_arc,0,1,0);
 	glRotatef(y_arc,1,0,0);
+	light_position = ( 0., 0., 1., 0. )
+	glLightfv(GL_LIGHT1, GL_POSITION, light_position)
 	center = -mesh.bounding_box.center
 	glTranslatef(center.x,center.y,center.z)
 	mesh.draw(1)
@@ -124,9 +128,9 @@ def keyPressed(*args):
 	if args[0] == 'n':
 		mesh.noise(0.1)
 	if args[0] == '+':
-		zoom -= 5
-	if args[0] == '-':
 		zoom += 5
+	if args[0] == '-':
+		zoom -= 5
 
 def mouseMotion(x,y):
 	global mouse_x,	mouse_y,x_arc,y_arc 
@@ -136,6 +140,10 @@ def mouseMotion(x,y):
 	mouse_x = x;
 	mouse_y = y;
 
+def processMouse( wheel, direction,x,y):
+	global zoom
+	zoom += direction * 5
+
 def main():
 	global window
 	glutInit(sys.argv)
@@ -143,12 +151,13 @@ def main():
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
 	glutInitWindowSize(640, 480)
 	glutInitWindowPosition(0, 0)
-	window = glutCreateWindow("Jeff Molofee's GL Code Tutorial ... NeHe '99")
+	window = glutCreateWindow("")
 	glutDisplayFunc(DrawGLScene)
 	glutIdleFunc(DrawGLScene)
 	glutReshapeFunc(ReSizeGLScene)
 	glutKeyboardFunc(keyPressed)
 	glutMotionFunc(mouseMotion)
+	glutMouseWheelFunc(processMouse)
 
 	InitGL(640, 480)
 	glutMainLoop()

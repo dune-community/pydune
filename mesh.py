@@ -188,10 +188,12 @@ class Mesh():
 		avg = 0.0
 		for i,v in self.vertices.verts.iteritems():
 			if self.adj_points.has_key(i):
-				displacement = step * self.laplacianDisplacement( self.adj_points[i], self.vertices.verts[i] )
-				self.vertices.verts[i] += displacement
-				avg = ( abs(displacement) + n * avg ) / float( n + 1 )
+				p_old = self.vertices.verts[i]
+				p_new = self.vertices.verts[i] + step * self.laplacianDisplacement( self.adj_points[i], self.vertices.verts[i] )
+				self.vertices.verts[i] = p_new
+				avg = ( abs(p_old)/abs(p_new) + n * avg ) / float( n + 1 )
 				n += 1
+		self.scale( avg )
 		self.prepDraw()
 
 	def noise(self,factor):
@@ -206,15 +208,19 @@ class Mesh():
 		self.main_dl = glGenLists(2)
 		self. bounding_box = BoundingVolume( self )
 		glNewList(1,GL_COMPILE)
+		i = 0
 		if self.draw_faces:
 			glBegin(GL_TRIANGLES)					# Start Drawing The Pyramid
 			for f in self.faces:
 				#glBegin(GL_POLYGON)					# Start Drawing The Pyramid
 				n = f.n
+				if i % 2 == 0:
+					n *= -1
 				glNormal3f(n.x,n.y,n.z)
 				for v in f.v:
 					glColor4f(1.0,0,0,opacity)
 					glVertex3f(v.x, v.y, v.z )
+				i += 1
 			glEnd()
 
 		#if self.draw_outline:
