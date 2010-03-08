@@ -252,7 +252,7 @@ class BoundarySurface:
 		#this is exposed to FullGrid
 		self.vertex_idx = self.outer_vertices_idx
 
-class Simplex3():
+class Simplex3:
 	def __init__(self,a,b,c,pl):
 		assert isinstance(pl,PLCPointList)
 		assert isinstance(a,int)
@@ -273,7 +273,7 @@ class Simplex3():
 	def __repr__(self):
 		return 'simplex (%d,%d,%d) -- (%s,%s,%s)'%(self.idx[0],self.idx[1],self.idx[2],self.v[0],self.v[1],self.v[2])
 
-class Simplex2():
+class Simplex2:
 	def __init__(self,a,b,pl):
 		assert isinstance(pl,PLCPointList)
 		assert isinstance(a,int)

@@ -48,9 +48,10 @@ y_arc =0
 #float up[3] = { 0.0f,1.0f,0.f};
 mouse_y = 0
 mouse_x = 0
-
+zoom = -20.
 # A general OpenGL initialization function.  Sets all of the initial parameters.
 def InitGL(Width, Height):				# We call this right after our OpenGL window is created.
+	global mesh
 	glClearColor(0.0, 0.0, 0.0, 0.0)	# This Will Clear The Background Color To Black
 	glClearDepth(1.0)					# Enables Clearing Of The Depth Buffer
 	glDepthFunc(GL_LESS)				# The Type Of Depth Test To Do
@@ -74,6 +75,8 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 
 	glEnable(GL_BLEND)
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
+	#glEnable(GL_COLOR_MATERIAL)
+	#glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
     
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()					# Reset The Projection Matrix
@@ -82,6 +85,7 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 
 	glMatrixMode(GL_MODELVIEW)
 	glLoadIdentity()
+	mesh.prepDraw()
 
 # The function called when our window is resized (which shouldn't happen if you enable fullscreen, below)
 def ReSizeGLScene(Width, Height):
@@ -95,27 +99,21 @@ def ReSizeGLScene(Width, Height):
 	glMatrixMode(GL_MODELVIEW)
 
 def DrawGLScene():
-	global mesh
+	global mesh, zoom
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
 	glLoadIdentity()					# Reset The View
-	glTranslatef(0,0.0,-20.0)				# Move Left And Into The Screen
-	#glPushMatrix(  )
-	#glutSolidSphere( GLdouble(0.25), GLint(10), GLint(10) )
-	#glPopMatrix(  )
+	glTranslatef(0,0.0,zoom)				# Move Left And Into The Screen
 	glRotatef(x_arc,0,1,0);
 	glRotatef(y_arc,1,0,0);
 	center = -mesh.bounding_box.center
 	glTranslatef(center.x,center.y,center.z)
-	glEnable(GL_LIGHT1)
-	#mesh.drawAdjacentFaces(0)
-	glDisable(GL_LIGHT1)
 	mesh.draw(1)
 	mesh.bounding_box.draw()
 	glutSwapBuffers()
 
 # The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)
 def keyPressed(*args):
-	global mesh
+	global mesh, zoom
 	# If escape is pressed, kill everything.
 	if args[0] == ESCAPE:
 		sys.exit()
@@ -123,6 +121,10 @@ def keyPressed(*args):
 		mesh.smooth(0.1)
 	if args[0] == 'n':
 		mesh.noise(0.1)
+	if args[0] == '+':
+		zoom -= 5
+	if args[0] == '-':
+		zoom += 5
 
 def mouseMotion(x,y):
 	global mouse_x,	mouse_y,x_arc,y_arc 

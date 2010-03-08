@@ -29,14 +29,15 @@ import random
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 
-def skipComments(fn):
-	while fn:
-		line = fn.readline()
+def skipCommentsAndEmptyLines(fd):
+	while fd:
+		line = fd.readline()
+		#if line.startswith( '#' ) or len(line) < 3:
 		if line.startswith( '#' ):
 			continue
 		else:
 			break
-	return fn
+	return fd
 
 def isAdjacentFace(fs,fa):
 	for e in fs.edge_idx:
@@ -57,21 +58,44 @@ class Mesh():
 		self.outline_color = ( 1,1,1 )
 		self.adj_points = dict()
 
-	def parseSMESH(self, filename,zero_based_idx=False):
-		self.parseSMESH_vertices(filename + '.vertices')
-		self.parseSMESH_faces(filename + '.faces')
-		self.buildAdjacencyList()
-		#for k in self.adj[4]:
-			#print self.faces[k].edge_idx
-		#print '--\n',self.faces[4].edge_idx
-		#print '---'
-		self.bounding_box = BoundingVolume( self )
+	def parseSMESH(self, filename,zero_based_idx=True):
+		vert_fn_ = filename + '.vertices'
+		face_fn_ = filename + '.faces'
+		verts = open(vert_fn_, 'w')
+		faces = open(face_fn_, 'w')
+		fd = open( filename, 'r' )
+		#fd = skipCommentsAndEmptyLines( fd )
+		#print fd.readline()
+		while fd:
+			line = fd.readline()
+			if line.startswith( '#' ):
+				continue
+			if len(line.split()) < self.dim + 1:
+				break
+			verts.write(line)
+		print 'vertice writing complete'
+		fd = skipCommentsAndEmptyLines( fd )
+		print fd.readline()
+		while fd:
+			line = fd.readline()
+			if line.startswith( '#' ):
+				continue
+			if len(line.split()) < self.dim + 2:
+				break
+			faces.write(line)
+		print 'face writing complete'
+		verts.close()
+		faces.close()
+		self.parseSMESH_vertices(vert_fn_)
+		print 'vert parsing complete'
+		self.parseSMESH_faces(face_fn_, zero_based_idx)
+		print 'face parsing complete'
+		#self.buildAdjacencyList()
+		#print 'buildAdjacencyList complete'
 
 	def parseSMESH_vertices(self,filename):
 		fn = open( filename, 'r' )
 		for line in fn.readlines():
-			if line.startswith( '#' ):
-				continue
 			line = line.split()
 			#this way I can use vector for either dim
 			line.append(None)
@@ -80,17 +104,20 @@ class Mesh():
 		print 'read %d vertices'%len(self.vertices)
 		fn.close()
 
-	def parseSMESH_faces(self,filename):
+	def parseSMESH_faces(self,filename,zero_based_idx):
 		fn = open( filename, 'r' )
 		for line in fn.readlines():
-			if line.startswith( '#' ):
-				continue
 			line = line.split()
 			#this way I can use vector for either dim
 			line.append(None)
-			v0 = int(line[1])
-			v1 = int(line[2])
-			v2 = int(line[3])
+			if zero_based_idx:
+				v0 = int(line[1]) + 1
+				v1 = int(line[2]) + 1
+				v2 = int(line[3]) + 1
+			else:
+				v0 = int(line[1])
+				v1 = int(line[2])
+				v2 = int(line[3])
 			s = simplex(self.vertices, v0,v1,v2 )
 			if self.adj_points.has_key(v0) :
 				self.adj_points[v0] += [ v1, v2 ] 
@@ -140,13 +167,8 @@ class Mesh():
 		self.drawOutline( self.faces[f_idx] )
 
 	def draw(self, opacity=1.):
-		if self.draw_faces:
-			for f in self.faces:
-				self.drawFace( f,opacity )
-				
-		if self.draw_outline:
-			for f in self.faces:
-				self.drawOutline(f)
+		glCallList(1)
+		
 
 	def laplacianDisplacement(self,N_1_p,p):
 		n = len( N_1_p )
@@ -162,17 +184,35 @@ class Mesh():
 		for i,v in self.vertices.verts.iteritems():
 			if self.adj_points.has_key(i):
 				self.vertices.verts[i] += step * self.laplacianDisplacement( self.adj_points[i], self.vertices.verts[i] )
-		for f in self.faces:
-			f.reset(self.vertices)
-		self. bounding_box = BoundingVolume( self )
+		self.prepDraw()
 
 	def noise(self,factor):
 		for i,v in self.vertices.verts.iteritems():
 			#self.vertices.verts[i] += random.gauss( factor, 1 ) * self.vertices.verts[i]
 			self.vertices.verts[i] += random.random( ) * factor * self.vertices.verts[i]
+		self.prepDraw()
+
+	def prepDraw(self,opacity=1.):
 		for f in self.faces:
 			f.reset(self.vertices)
 		self. bounding_box = BoundingVolume( self )
+		self.main_dl = glGenLists(2)
+		glNewList(1,GL_COMPILE)
+		if self.draw_faces:
+			#glBegin(GL_TRIANGLES)					# Start Drawing The Pyramid
+			for f in self.faces:
+				glBegin(GL_POLYGON)					# Start Drawing The Pyramid
+				n = f.n
+				glNormal3f(n.x,n.y,n.z)
+				for v in f.v:
+					glColor4f(1.0,0,0,opacity)
+					glVertex3f(v.x, v.y, v.z )
+				glEnd()
+
+		#if self.draw_outline:
+			#for f in self.faces:
+				#self.drawOutline(f)
+		glEndList()
 
 class BoundingVolume:
 	def __init__(s,mesh):
@@ -206,8 +246,7 @@ class BoundingVolume:
 		for p in s.points:
 			s.center += p
 		s.center /= float(8)
-
-	def drawFrame(s):
+		glNewList(2,GL_COMPILE)
 		glLineWidth(5)
 		glBegin(GL_LINE_STRIP)
 		for v in s.points:
@@ -215,6 +254,11 @@ class BoundingVolume:
 			glColor3f(c[0],c[1],c[2])
 			glVertex3f(v.x, v.y, v.z )
 		glEnd()
+		glEndList()
+
+	def drawFrame(s):
+		glCallList(2)
+		
 		
 	def draw(s):
 		s.drawFrame()
