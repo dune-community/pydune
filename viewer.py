@@ -29,7 +29,9 @@ import mesh,sys
 filename = sys.argv[1]
 
 mesh = mesh.Mesh( 3 )
-mesh.parseSMESH( filename )
+dd = filename.find('phantom') != -1
+print dd
+mesh.parseSMESH( filename, dd )
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
@@ -81,7 +83,7 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()					# Reset The Projection Matrix
 										# Calculate The Aspect Ratio Of The Window
-	gluPerspective(45.0, float(Width)/float(Height), 0.1, 100.0)
+	gluPerspective(45.0, float(Width)/float(Height), 0.1, 1000000.0)
 
 	glMatrixMode(GL_MODELVIEW)
 	glLoadIdentity()

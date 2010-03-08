@@ -58,14 +58,15 @@ class Mesh():
 		self.outline_color = ( 1,1,1 )
 		self.adj_points = dict()
 
-	def parseSMESH(self, filename,zero_based_idx=True):
+	def parseSMESH(self, filename,zero_based_idx):
 		vert_fn_ = filename + '.vertices'
 		face_fn_ = filename + '.faces'
 		verts = open(vert_fn_, 'w')
 		faces = open(face_fn_, 'w')
 		fd = open( filename, 'r' )
-		#fd = skipCommentsAndEmptyLines( fd )
-		#print fd.readline()
+		#if not zero_based_idx:
+		fd = skipCommentsAndEmptyLines( fd )
+		print fd.readline()
 		while fd:
 			line = fd.readline()
 			if line.startswith( '#' ):
@@ -74,6 +75,7 @@ class Mesh():
 				break
 			verts.write(line)
 		print 'vertice writing complete'
+		#if zero_based_idx:
 		fd = skipCommentsAndEmptyLines( fd )
 		print fd.readline()
 		while fd:
@@ -90,8 +92,6 @@ class Mesh():
 		print 'vert parsing complete'
 		self.parseSMESH_faces(face_fn_, zero_based_idx)
 		print 'face parsing complete'
-		#self.buildAdjacencyList()
-		#print 'buildAdjacencyList complete'
 
 	def parseSMESH_vertices(self,filename):
 		fn = open( filename, 'r' )
@@ -168,7 +168,6 @@ class Mesh():
 
 	def draw(self, opacity=1.):
 		glCallList(1)
-		
 
 	def laplacianDisplacement(self,N_1_p,p):
 		n = len( N_1_p )
@@ -179,11 +178,20 @@ class Mesh():
 			s /= float(n)
 		return s
 
+	def scale(self,factor):
+		for i,v in self.vertices.verts.iteritems():
+			self.vertices.verts[i] *= factor
+		self.prepDraw()
+
 	def smooth(self,step):
-		#print '%d -- %d'%(len(self.adj_points) ,len(self.vertices.verts))
+		n = 0
+		avg = 0.0
 		for i,v in self.vertices.verts.iteritems():
 			if self.adj_points.has_key(i):
-				self.vertices.verts[i] += step * self.laplacianDisplacement( self.adj_points[i], self.vertices.verts[i] )
+				displacement = step * self.laplacianDisplacement( self.adj_points[i], self.vertices.verts[i] )
+				self.vertices.verts[i] += displacement
+				avg = ( abs(displacement) + n * avg ) / float( n + 1 )
+				n += 1
 		self.prepDraw()
 
 	def noise(self,factor):
@@ -195,19 +203,19 @@ class Mesh():
 	def prepDraw(self,opacity=1.):
 		for f in self.faces:
 			f.reset(self.vertices)
-		self. bounding_box = BoundingVolume( self )
 		self.main_dl = glGenLists(2)
+		self. bounding_box = BoundingVolume( self )
 		glNewList(1,GL_COMPILE)
 		if self.draw_faces:
-			#glBegin(GL_TRIANGLES)					# Start Drawing The Pyramid
+			glBegin(GL_TRIANGLES)					# Start Drawing The Pyramid
 			for f in self.faces:
-				glBegin(GL_POLYGON)					# Start Drawing The Pyramid
+				#glBegin(GL_POLYGON)					# Start Drawing The Pyramid
 				n = f.n
 				glNormal3f(n.x,n.y,n.z)
 				for v in f.v:
 					glColor4f(1.0,0,0,opacity)
 					glVertex3f(v.x, v.y, v.z )
-				glEnd()
+			glEnd()
 
 		#if self.draw_outline:
 			#for f in self.faces:

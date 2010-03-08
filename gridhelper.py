@@ -178,6 +178,7 @@ class FullGrid:
 		out.write( '# commandline: %s\n'%' '.join( args ) )
 		out.write( '# options: %s\n'%options )
 		out.write( '%d 3 0 %d\n'%(len(PLCPointList.global_vertices),3) )#3 bids
+		out.write( '# all vertices\n#\n' )
 		cVert = 1
 		for v in PLCPointList.global_vertices:
 				out.write( '%d %f %f %f\n'%(cVert,v.x,v.y,v.z) )
@@ -185,7 +186,8 @@ class FullGrid:
 		boundary_segment_count = len(self.connecting_simplices)
 		for f in self.fans:
 			boundary_segment_count += len(f.simplices)
-		out.write( '%d 1\n'%(boundary_segment_count) )
+		out.write( '\n# number of facets (= number of triangles), border marker\n#\n%d 1\n'%(boundary_segment_count) )
+		out.write( '# all faces\n#\n' )
 		cBseg = 0
 		for f in self.fans:
 			assert isinstance( f, BoundarySurface )
