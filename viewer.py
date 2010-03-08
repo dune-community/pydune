@@ -113,8 +113,9 @@ def DrawGLScene():
 	glLightfv(GL_LIGHT1, GL_POSITION, light_position)
 	center = -mesh.bounding_box.center
 	glTranslatef(center.x,center.y,center.z)
-	mesh.draw(1)
+	#mesh.draw(1)
 	mesh.bounding_box.draw()
+	mesh.quad.draw()
 	glutSwapBuffers()
 
 # The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)
@@ -124,7 +125,7 @@ def keyPressed(*args):
 	if args[0] == ESCAPE:
 		sys.exit()
 	if args[0] == 's':
-		mesh.smooth(0.1)
+		mesh.smooth(0.3)
 	if args[0] == 'n':
 		mesh.noise(0.1)
 	if args[0] == '+':

@@ -301,5 +301,9 @@ def vector( x,y,z=None ):
 	else:
 		return Vector2( float(x),float(y) )
 
-
+class adaptVec(list):
+	def __init__(s,v):
+		s.append(v.x)
+		s.append(v.y)
+		s.append(v.z)
 

@@ -24,6 +24,7 @@ to the extent permitted by applicable law.
   0. You just DO WHAT THE FUCK YOU WANT TO.
 """
 from gridhelper import *
+from quadtree import Quadtree,Box
 from euclid import *
 import random
 from OpenGL.GL import *
@@ -92,6 +93,7 @@ class Mesh():
 		print 'vert parsing complete'
 		self.parseSMESH_faces(face_fn_, zero_based_idx)
 		print 'face parsing complete'
+		#self.buildAdjacencyList()
 
 	def parseSMESH_vertices(self,filename):
 		fn = open( filename, 'r' )
@@ -205,9 +207,11 @@ class Mesh():
 	def prepDraw(self,opacity=1.):
 		for f in self.faces:
 			f.reset(self.vertices)
-		self.main_dl = glGenLists(2)
-		self. bounding_box = BoundingVolume( self )
-		glNewList(1,GL_COMPILE)
+		self.dl = glGenLists(1)
+		self.bounding_box = BoundingVolume( self )
+		print self.bounding_box
+		self.quad = Quadtree(self)
+		glNewList(self.dl,GL_COMPILE)
 		i = 0
 		if self.draw_faces:
 			glBegin(GL_TRIANGLES)					# Start Drawing The Pyramid
@@ -260,7 +264,8 @@ class BoundingVolume:
 		for p in s.points:
 			s.center += p
 		s.center /= float(8)
-		glNewList(2,GL_COMPILE)
+		s.dl = glGenLists(1)
+		glNewList(s.dl,GL_COMPILE)
 		glLineWidth(5)
 		glBegin(GL_LINE_STRIP)
 		for v in s.points:
@@ -271,7 +276,7 @@ class BoundingVolume:
 		glEndList()
 
 	def drawFrame(s):
-		glCallList(2)
+		glCallList(s.dl)
 		
 		
 	def draw(s):
@@ -281,4 +286,9 @@ class BoundingVolume:
 		glutSolidSphere( GLdouble(0.25), GLint(10), GLint(10) )
 		glPopMatrix(  )
 		
-		
+	def __repr__(s):
+		ret = 'bounding box\n'
+		for p in s.points:
+			ret += '%s\n'%str(p)
+		ret += '---\n'
+		return ret
