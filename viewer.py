@@ -83,7 +83,7 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
 	#glBlendFunc(GL_SRC_ALPHA,GL_ONE)
 	glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE  )
-	glEnable(GL_COLOR_MATERIAL)
+	#glEnable(GL_COLOR_MATERIAL)
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
     
 	glMatrixMode(GL_PROJECTION)

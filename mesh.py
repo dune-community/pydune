@@ -134,7 +134,24 @@ class Mesh():
 					self.adj_faces[v].append( len(self.faces) - 1 )
 				else:
 					self.adj_faces[v] = [ len(self.faces) - 1 ]
-			
+			#normal flipping
+			#for f in range(len(self.faces)):
+				#s = 0
+				#if self.adj_faces.has_key(f):
+					#count = len(self.adj_faces[f])
+					#v = Vector3()
+					#for k in self.adj_faces[f]:
+						##s += self.faces[k].n.dot( self.faces[f].n )
+						#v += self.faces[k].n
+					#abs_v = abs(v)
+					#if abs_v > 0:
+						#v /= abs(v)
+					##print 's %f -- %d'%(s,count)
+					#d = v.dot(self.faces[f].n)
+					##print 'v %f - %s -- %s'%(d,str(v),(self.faces[f].n))
+					#eps = 0.1
+					#if d < 1 - eps:
+						#self.faces[f].n *= -1
 		print 'read %d faces'%len(self.faces)
 		fn.close()
 

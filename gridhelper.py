@@ -270,7 +270,11 @@ class Simplex3:
 		self.v = []
 		for id in self.idx:
 			self.v.append( pl.verts[id] )
-		self.n = (self.v[0] + self.v[1]).cross(self.v[0] + self.v[2])
+		if self.v[0] < self.v[1]  and self.v[1] < self.v[2]:
+			self.n = ( - self.v[0] + self.v[1] ).cross( - self.v[0] + self.v[2] )
+		else:
+			self.n = (self.v[0] - self.v[1] ).cross(   self.v[1] - self.v[2] )
+		self.n /= abs(self.n)
 		self.edges = ( self.v[1] - self.v[0], self.v[2] - self.v[1], self.v[0] - self.v[2] )
 
 	def __repr__(self):
