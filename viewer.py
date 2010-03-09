@@ -51,10 +51,13 @@ y_arc =0
 mouse_y = 0
 mouse_x = 0
 zoom = -20.
+
+draw_bounding_box = draw_octree = False
+draw_mesh = True
 # A general OpenGL initialization function.  Sets all of the initial parameters.
 def InitGL(Width, Height):				# We call this right after our OpenGL window is created.
-	global mesh,zoom
-	glClearColor(0.0, 0.0, 0.0, 0.0)	# This Will Clear The Background Color To Black
+	global mesh
+	glClearColor(0.0, 0.0, 0.0, 1.0)	# This Will Clear The Background Color To Black
 	glClearDepth(1.0)					# Enables Clearing Of The Depth Buffer
 	glDepthFunc(GL_LESS)				# The Type Of Depth Test To Do
 	glEnable(GL_DEPTH_TEST)				# Enables Depth Testing
@@ -78,20 +81,20 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 
 	glEnable(GL_BLEND)
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
-	#glEnable(GL_COLOR_MATERIAL)
-	#glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
+	#glBlendFunc(GL_SRC_ALPHA,GL_ONE)
+	glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE  )
+	glEnable(GL_COLOR_MATERIAL)
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
     
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()					# Reset The Projection Matrix
 										# Calculate The Aspect Ratio Of The Window
-	mesh.prepDraw()
-	zoom = - mesh.bounding_box.minViewDistance()
-	print zoom
 	gluPerspective(45.0, float(Width)/float(Height), 0.1, 1000000.0)
 
 	glMatrixMode(GL_MODELVIEW)
 	glLoadIdentity()
-	
+	mesh.prepDraw()
+	#glEnable(GL_CULL_FACE)
 
 # The function called when our window is resized (which shouldn't happen if you enable fullscreen, below)
 def ReSizeGLScene(Width, Height):
@@ -105,39 +108,47 @@ def ReSizeGLScene(Width, Height):
 	glMatrixMode(GL_MODELVIEW)
 
 def DrawGLScene():
-	global mesh, zoom
+	global mesh, zoom, draw_bounding_box, draw_octree, draw_mesh
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
 	glLoadIdentity()					# Reset The View
 
-	glTranslatef(0,0.0,zoom)				# Move Left And Into The Screen
+	glTranslatef(0,0.0,zoom)
 	glRotatef(x_arc,0,1,0);
 	glRotatef(y_arc,1,0,0);
-	light_position = ( 0., 0., 1., 0. )
-	glLightfv(GL_LIGHT1, GL_POSITION, light_position)
+
 	center = -mesh.bounding_box.center
 	glTranslatef(center.x,center.y,center.z)
-	mesh.draw(1)
-	#mesh.quad.draw()
-	mesh.bounding_box.draw()
+
+	if draw_mesh:
+		mesh.draw(1.0)
+	if draw_bounding_box:
+		mesh.bounding_box.draw()
+	if draw_octree:
+		mesh.quad.draw()
 	glutSwapBuffers()
+
 
 # The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)
 def keyPressed(*args):
-	global mesh, zoom,filename
+	global mesh, zoom, draw_bounding_box, draw_octree, draw_mesh
 	# If escape is pressed, kill everything.
 	if args[0] == ESCAPE:
 		sys.exit()
 	if args[0] == 's':
-		mesh.smooth(0.1)
+		mesh.smooth(0.3)
 	if args[0] == 'n':
 		mesh.noise(0.1)
 	if args[0] == '+':
 		zoom += 5
 	if args[0] == '-':
 		zoom -= 5
-	if args[0] == 'w':
-		mesh.write(filename+'.smoothed')
-
+	if args[0] == 'b':
+		draw_bounding_box = not draw_bounding_box
+	if args[0] == 'o':
+		draw_octree = not draw_octree
+	if args[0] == 'm':
+		draw_mesh = not draw_mesh
+		
 def mouseMotion(x,y):
 	global mouse_x,	mouse_y,x_arc,y_arc 
 	sensitivity = 0.2

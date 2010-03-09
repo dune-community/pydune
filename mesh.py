@@ -129,10 +129,10 @@ class Mesh():
 			else:
 				self.adj_points[v0] = [ v1, v2 ]
 			self.faces.append( s )
-			for v in [v0,v1,v2]
+			for v in [v0,v1,v2]:
 				if self.adj_faces.has_key(v):
 					self.adj_faces[v].append( len(self.faces) - 1 )
-				else
+				else:
 					self.adj_faces[v] = [ len(self.faces) - 1 ]
 			
 		print 'read %d faces'%len(self.faces)
@@ -160,13 +160,11 @@ class Mesh():
 		glEnd()
 
 	def drawOutline(self,f,opacity=1):
-		glLineWidth(5)
-		glBegin(GL_LINE_STRIP)
+		glLineWidth(1)
+		glBegin(GL_LINE_LOOP)
 		n = f.n
-		glNormal3f(n.x,n.y,n.z)
+		#glNormal3f(n.x,n.y,n.z)
 		for v in f.v:
-			c = self.outline_color
-			glColor4f(c[0],c[1],c[2],opacity)
 			glVertex3f(v.x, v.y, v.z )
 		glEnd()
 				
@@ -205,7 +203,7 @@ class Mesh():
 				self.vertices.verts[i] += displacement
 				avg = ( abs(p_old)/abs(p_new) + n * avg ) / float( n + 1 )
 				n += 1
-		self.scale( avg )
+		self.scale( 1.1*avg )
 		self.prepDraw()
 
 	def noise(self,factor):
@@ -221,27 +219,26 @@ class Mesh():
 			glDeleteLists( self.dl, 1 )
 		self.dl = glGenLists(1)
 		self.bounding_box = BoundingVolume( self )
-		print self.bounding_box
 		self.quad = Quadtree(self)
 		glNewList(self.dl,GL_COMPILE)
+		glColor4f(1.0,0,0,opacity)
 		i = 0
 		if self.draw_faces:
 			glBegin(GL_TRIANGLES)					# Start Drawing The Pyramid
 			for f in self.faces:
-				#glBegin(GL_POLYGON)					# Start Drawing The Pyramid
 				n = f.n
 				#if i % 2 == 0:
 					#n *= -1
 				glNormal3f(n.x,n.y,n.z)
 				for v in f.v:
-					glColor4f(1.0,0,0,opacity)
 					glVertex3f(v.x, v.y, v.z )
 				i += 1
 			glEnd()
 
-		#if self.draw_outline:
-			#for f in self.faces:
-				#self.drawOutline(f)
+		if self.draw_outline:
+			for f in self.faces:
+				glColor4f(0.0,0,0,opacity)
+				self.drawOutline(f)
 		glEndList()
 
 	def write(self,fn):

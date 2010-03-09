@@ -131,9 +131,7 @@ class Quadtree:
 	def draw(s):
 		n = float( len(s.children) ) 
 		i = 0
-		glEnable(GL_COLOR_MATERIAL)
 		for b in s.children:
-			glColor4f(1-i/n,i/n,0,1)
+			glColor4f(1-i/n,i/n,0,0.5)
 			b.draw()
 			i += 1
-		glDisable(GL_COLOR_MATERIAL)
