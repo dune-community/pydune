@@ -58,6 +58,8 @@ class Mesh():
 		self.draw_faces = True
 		self.outline_color = ( 1,1,1 )
 		self.adj_points = dict()
+		self.adj_faces = dict()
+		self.dl = None
 
 	def parseSMESH(self, filename,zero_based_idx):
 		vert_fn_ = filename + '.vertices'
@@ -120,12 +122,19 @@ class Mesh():
 				v0 = int(line[1])
 				v1 = int(line[2])
 				v2 = int(line[3])
-			s = simplex(self.vertices, v0,v1,v2 )
+			b_id = int(line[4])
+			s = simplex(self.vertices, v0,v1,v2,b_id )
 			if self.adj_points.has_key(v0) :
 				self.adj_points[v0] += [ v1, v2 ] 
 			else:
 				self.adj_points[v0] = [ v1, v2 ]
 			self.faces.append( s )
+			for v in [v0,v1,v2]
+				if self.adj_faces.has_key(v):
+					self.adj_faces[v].append( len(self.faces) - 1 )
+				else
+					self.adj_faces[v] = [ len(self.faces) - 1 ]
+			
 		print 'read %d faces'%len(self.faces)
 		fn.close()
 
@@ -169,7 +178,7 @@ class Mesh():
 		self.drawOutline( self.faces[f_idx] )
 
 	def draw(self, opacity=1.):
-		glCallList(1)
+		glCallList(self.dl)
 
 	def laplacianDisplacement(self,N_1_p,p):
 		n = len( N_1_p )
@@ -191,8 +200,9 @@ class Mesh():
 		for i,v in self.vertices.verts.iteritems():
 			if self.adj_points.has_key(i):
 				p_old = self.vertices.verts[i]
-				p_new = self.vertices.verts[i] + step * self.laplacianDisplacement( self.adj_points[i], self.vertices.verts[i] )
-				self.vertices.verts[i] = p_new
+				displacement = step * self.laplacianDisplacement( self.adj_points[i], self.vertices.verts[i] )
+				p_new = self.vertices.verts[i] + displacement
+				self.vertices.verts[i] += displacement
 				avg = ( abs(p_old)/abs(p_new) + n * avg ) / float( n + 1 )
 				n += 1
 		self.scale( avg )
@@ -207,6 +217,8 @@ class Mesh():
 	def prepDraw(self,opacity=1.):
 		for f in self.faces:
 			f.reset(self.vertices)
+		if self.dl :
+			glDeleteLists( self.dl, 1 )
 		self.dl = glGenLists(1)
 		self.bounding_box = BoundingVolume( self )
 		print self.bounding_box
@@ -218,8 +230,8 @@ class Mesh():
 			for f in self.faces:
 				#glBegin(GL_POLYGON)					# Start Drawing The Pyramid
 				n = f.n
-				if i % 2 == 0:
-					n *= -1
+				#if i % 2 == 0:
+					#n *= -1
 				glNormal3f(n.x,n.y,n.z)
 				for v in f.v:
 					glColor4f(1.0,0,0,opacity)
@@ -231,6 +243,30 @@ class Mesh():
 			#for f in self.faces:
 				#self.drawOutline(f)
 		glEndList()
+
+	def write(self,fn):
+		out = None
+		if not fn.endswith( '.smesh' ):
+			fn += '.smesh'
+		try:
+			out = open(fn,'w')
+		except:
+			raise ImpossibleException()
+		out.write( '#\n%d 3 0 %d\n'%(len(PLCPointList.global_vertices),3) )#3 bids
+		out.write( '# all vertices\n#\n' )
+		cVert = 1
+		for v in PLCPointList.global_vertices:
+				out.write( '%d %f %f %f\n'%(cVert,v.x,v.y,v.z) )
+				cVert += 1
+
+		out.write( '\n# number of facets (= number of triangles), border marker\n#\n%d 1\n'%(len(self.faces)) )
+		out.write( '# all faces\n#\n' )
+		
+		for f in self.faces:
+			assert isinstance( f, Simplex3 )
+			out.write( '%d %d %d %d %d\n'%(3,f.idx[0],f.idx[1],f.idx[2],f.boundaryId)  )
+
+		out.write( '%d\n'%(0))
 
 class BoundingVolume:
 	def __init__(s,mesh):
@@ -312,7 +348,6 @@ class BoundingVolume:
 	def drawFrame(s):
 		glCallList(s.dl)
 		
-		
 	def draw(s):
 		s.drawFrame()
 		glPushMatrix(  )
@@ -326,3 +361,8 @@ class BoundingVolume:
 			ret += '%s\n'%str(p)
 		ret += '---\n'
 		return ret
+
+	def minViewDistance(s,viewangle=45.0):
+		r = abs(s.center - s.points[0] )
+		t = math.radians( (180 - viewangle)/ 2.0 )
+		return 5 * r * math.tan(t)

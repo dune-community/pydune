@@ -53,7 +53,7 @@ mouse_x = 0
 zoom = -20.
 # A general OpenGL initialization function.  Sets all of the initial parameters.
 def InitGL(Width, Height):				# We call this right after our OpenGL window is created.
-	global mesh
+	global mesh,zoom
 	glClearColor(0.0, 0.0, 0.0, 0.0)	# This Will Clear The Background Color To Black
 	glClearDepth(1.0)					# Enables Clearing Of The Depth Buffer
 	glDepthFunc(GL_LESS)				# The Type Of Depth Test To Do
@@ -84,11 +84,14 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()					# Reset The Projection Matrix
 										# Calculate The Aspect Ratio Of The Window
+	mesh.prepDraw()
+	zoom = - mesh.bounding_box.minViewDistance()
+	print zoom
 	gluPerspective(45.0, float(Width)/float(Height), 0.1, 1000000.0)
 
 	glMatrixMode(GL_MODELVIEW)
 	glLoadIdentity()
-	mesh.prepDraw()
+	
 
 # The function called when our window is resized (which shouldn't happen if you enable fullscreen, below)
 def ReSizeGLScene(Width, Height):
@@ -113,25 +116,27 @@ def DrawGLScene():
 	glLightfv(GL_LIGHT1, GL_POSITION, light_position)
 	center = -mesh.bounding_box.center
 	glTranslatef(center.x,center.y,center.z)
-	#mesh.draw(1)
-	mesh.quad.draw()
+	mesh.draw(1)
+	#mesh.quad.draw()
 	mesh.bounding_box.draw()
 	glutSwapBuffers()
 
 # The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)
 def keyPressed(*args):
-	global mesh, zoom
+	global mesh, zoom,filename
 	# If escape is pressed, kill everything.
 	if args[0] == ESCAPE:
 		sys.exit()
 	if args[0] == 's':
-		mesh.smooth(0.3)
+		mesh.smooth(0.1)
 	if args[0] == 'n':
 		mesh.noise(0.1)
 	if args[0] == '+':
 		zoom += 5
 	if args[0] == '-':
 		zoom -= 5
+	if args[0] == 'w':
+		mesh.write(filename+'.smoothed')
 
 def mouseMotion(x,y):
 	global mouse_x,	mouse_y,x_arc,y_arc 
