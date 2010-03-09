@@ -255,7 +255,7 @@ class BoundarySurface:
 		self.vertex_idx = self.outer_vertices_idx
 
 class Simplex3:
-	def __init__(self,a,b,c,pl):
+	def __init__(self,a,b,c,pl,boundaryId=1):
 		assert isinstance(pl,PLCPointList)
 		assert isinstance(a,int)
 		assert isinstance(b,int)
@@ -263,6 +263,7 @@ class Simplex3:
 		assert a!=b and b !=c and b!=c
 		self.idx = ( a,b,c )
 		self.edge_idx = ( (a,b), (b,c), (c,a) )
+		self.boundaryId = boundaryId
 		self.reset(pl)
 		
 	def reset(self,pl):
@@ -289,9 +290,9 @@ class Simplex2:
 			self.v.append( pl.verts[id] )
 		self.n = (self.v[0]).cross(self.v[1])
 		
-def simplex(pl,a,b,c=None):
+def simplex(pl,a,b,c=None,b_id=1):
 	if c:
-		return Simplex3(a,b,c,pl)
+		return Simplex3(a,b,c,pl,b_id)
 	else:
 		return Simplex2(a,b,pl)
 		
