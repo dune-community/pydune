@@ -24,7 +24,7 @@ to the extent permitted by applicable law.
   0. You just DO WHAT THE FUCK YOU WANT TO.
 """
 
-import mesh,sys
+import mesh,sys,time
 
 filename = sys.argv[1]
 
@@ -35,7 +35,7 @@ mesh.parseSMESH( filename, dd )
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
-import sys
+
 
 # Some api in the chain is translating the keystrokes to this octal string
 # so instead of saying: ESCAPE = 27, we use the following.
@@ -51,7 +51,7 @@ y_arc =0
 mouse_y = 0
 mouse_x = 0
 zoom = -20.
-
+count = 0
 draw_bounding_box = draw_octree = False
 draw_mesh = True
 # A general OpenGL initialization function.  Sets all of the initial parameters.
@@ -67,7 +67,7 @@ def InitGL(Width, Height):				# We call this right after our OpenGL window is cr
 	light_position = ( 0., 0., 1., 0. )
 	white_light = ( 1., 1., 1., 0.01 )
 	d_light = ( 1., 1., 1., 0.1 )
-	red_light = ( 1., 1., 1., 0.2 )
+	red_light = ( 1., 0., 0., 0.7 )
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position)
 	glLightfv(GL_LIGHT1, GL_POSITION, light_position)
 	glLightfv(GL_LIGHT0, GL_AMBIENT, white_light)
@@ -108,7 +108,7 @@ def ReSizeGLScene(Width, Height):
 	glMatrixMode(GL_MODELVIEW)
 
 def DrawGLScene():
-	global mesh, zoom, draw_bounding_box, draw_octree, draw_mesh
+	global mesh, zoom, draw_bounding_box, draw_octree, draw_mesh,count
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
 	glLoadIdentity()					# Reset The View
 
@@ -119,12 +119,17 @@ def DrawGLScene():
 	center = -mesh.bounding_box.center
 	glTranslatef(center.x,center.y,center.z)
 
-	if draw_mesh:
-		mesh.draw(1.0)
-	if draw_bounding_box:
-		mesh.bounding_box.draw()
-	if draw_octree:
-		mesh.quad.draw()
+	#if draw_mesh:
+		#mesh.draw(1.0)
+	#if draw_bounding_box:
+		#mesh.bounding_box.draw()
+	#if draw_octree:
+		#mesh.quad.draw()
+	mesh.drawAdjacentFaces( count )
+	count += 1
+	if count == len(mesh.faces):
+		count = 0
+	time.sleep(0.3)
 	glutSwapBuffers()
 
 
@@ -148,6 +153,8 @@ def keyPressed(*args):
 		draw_octree = not draw_octree
 	if args[0] == 'm':
 		draw_mesh = not draw_mesh
+	if args[0] == 'c':
+		glEnable(GL_COLOR_MATERIAL)
 		
 def mouseMotion(x,y):
 	global mouse_x,	mouse_y,x_arc,y_arc 

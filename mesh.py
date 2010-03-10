@@ -95,7 +95,7 @@ class Mesh():
 		print 'vert parsing complete'
 		self.parseSMESH_faces(face_fn_, zero_based_idx)
 		print 'face parsing complete'
-		#self.buildAdjacencyList()
+		self.buildAdjacencyList()
 
 	def parseSMESH_vertices(self,filename):
 		fn = open( filename, 'r' )
@@ -134,24 +134,6 @@ class Mesh():
 					self.adj_faces[v].append( len(self.faces) - 1 )
 				else:
 					self.adj_faces[v] = [ len(self.faces) - 1 ]
-			#normal flipping
-			#for f in range(len(self.faces)):
-				#s = 0
-				#if self.adj_faces.has_key(f):
-					#count = len(self.adj_faces[f])
-					#v = Vector3()
-					#for k in self.adj_faces[f]:
-						##s += self.faces[k].n.dot( self.faces[f].n )
-						#v += self.faces[k].n
-					#abs_v = abs(v)
-					#if abs_v > 0:
-						#v /= abs(v)
-					##print 's %f -- %d'%(s,count)
-					#d = v.dot(self.faces[f].n)
-					##print 'v %f - %s -- %s'%(d,str(v),(self.faces[f].n))
-					#eps = 0.1
-					#if d < 1 - eps:
-						#self.faces[f].n *= -1
 		print 'read %d faces'%len(self.faces)
 		fn.close()
 
@@ -160,11 +142,10 @@ class Mesh():
 		i_s = 0
 		for fs in self.faces:
 			self.adj[i_s] = []
-			ia = 0
-			for fa in self.faces:
-				if isAdjacentFace(fs,fa) and not ia == i_s:
-					self.adj[i_s].append(ia)
-				ia += 1
+			for v in fs.idx:
+				self.adj[i_s] += self.adj_faces[v]
+			self.adj[i_s] = list(set(self.adj[i_s])) #remove double entries
+			self.adj[i_s].remove(i_s)
 			i_s += 1
 			
 	def drawFace(self, f,opacity=1.):
@@ -187,9 +168,9 @@ class Mesh():
 				
 	def drawAdjacentFaces( self, face_idx ):
 		for f_idx in self.adj[face_idx]:
-			self.drawOutline( self.faces[f_idx] )
-			#self.drawFace( self.faces[f_idx], 0.5 )
-		self.drawFace( self.faces[f_idx], 1.0 )
+			#self.drawOutline( self.faces[f_idx] )
+			self.drawFace( self.faces[f_idx], 0.7 )
+		#self.drawFace( self.faces[f_idx], 1.0 )
 		self.drawOutline( self.faces[f_idx] )
 
 	def draw(self, opacity=1.):
