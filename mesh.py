@@ -60,6 +60,7 @@ class Mesh():
 		self.adj_points = dict()
 		self.adj_faces = dict()
 		self.dl = None
+		self.refine = False
 
 	def parseSMESH(self, filename,zero_based_idx):
 		vert_fn_ = filename + '.vertices'
@@ -67,7 +68,6 @@ class Mesh():
 		verts = open(vert_fn_, 'w')
 		faces = open(face_fn_, 'w')
 		fd = open( filename, 'r' )
-		#if not zero_based_idx:
 		fd = skipCommentsAndEmptyLines( fd )
 		print fd.readline()
 		while fd:
@@ -123,17 +123,31 @@ class Mesh():
 				v1 = int(line[2])
 				v2 = int(line[3])
 			b_id = int(line[4])
-			s = Simplex3(v0,v1,v2,self.vertices,len(self.faces),b_id )
-			if self.adj_points.has_key(v0) :
-				self.adj_points[v0] += [ v1, v2 ] 
+			if self.refine:
+				d0 = self.vertices.verts[v0]
+				d1 = self.vertices.verts[v1]
+				d2 = self.vertices.verts[v2]
+				c = (d0+d1+d2)/3.0
+				c_id = self.vertices.appendVert( c )
+				s0 = Simplex3(v0,v1,c_id,self.vertices,len(self.faces),b_id )
+				self.faces.append( s0 )
+				s1 = Simplex3(v1,v2,c_id,self.vertices,len(self.faces),b_id )
+				self.faces.append( s1 )
+				s2 = Simplex3(v2,v0,c_id,self.vertices,len(self.faces),b_id )
+				self.faces.append( s2 )
 			else:
-				self.adj_points[v0] = [ v1, v2 ]
-			self.faces.append( s )
-			for v in [v0,v1,v2]:
-				if self.adj_faces.has_key(v):
-					self.adj_faces[v].append( len(self.faces) - 1 )
-				else:
-					self.adj_faces[v] = [ len(self.faces) - 1 ]
+				s = Simplex3(v0,v1,v2,self.vertices,len(self.faces),b_id )
+				self.faces.append( s )
+				for v in [v0,v1,v2]:
+					if self.adj_points.has_key(v) :
+						self.adj_points[v] += [v0,v1,v2]
+					else:
+						self.adj_points[v] = [v0,v1,v2]
+					self.adj_points[v].remove(v)
+					if self.adj_faces.has_key(v):
+						self.adj_faces[v].append( len(self.faces) - 1 )
+					else:
+						self.adj_faces[v] = [ len(self.faces) - 1 ]
 		print 'read %d faces'%len(self.faces)
 		fn.close()
 
@@ -201,7 +215,7 @@ class Mesh():
 				self.vertices.verts[i] += displacement
 				avg = ( abs(p_old)/abs(p_new) + n * avg ) / float( n + 1 )
 				n += 1
-		self.scale( 1.0*avg )
+		self.scale( 1.10*avg )
 		self.prepDraw()
 
 	def smooth2(self,steps):
@@ -229,6 +243,7 @@ class Mesh():
 					displacement /= area_n_sum
 					p_new = self.vertices.verts[f.idx[i]] + displacement
 					self.vertices.verts[f.idx[i]] = p_old_i + displacement
+				#self.faces[f.id].reset(self.vertices)
 		self.prepDraw()
 		print 'smooth2 done'
 

@@ -277,8 +277,10 @@ class Simplex3:
 		self.center /= 3.0
 		if self.v[0] < self.v[1]  and self.v[1] < self.v[2]:
 			self.n = ( - self.v[0] + self.v[1] ).cross( - self.v[0] + self.v[2] )
+			#elif self.v[0] < self.v[1]  and self.v[1] > self.v[2]:
+				#self.n = (self.v[0] - self.v[1] ).cross(   self.v[1] - self.v[2] ) * -1
 		else:
-			self.n = (self.v[0] - self.v[1] ).cross(   self.v[1] - self.v[2] )
+			self.n = (self.v[0] - self.v[1] ).cross(   self.v[1] - self.v[2] ) 
 		n_abs = abs(self.n)
 		self.n /= n_abs
 		self.edges = ( self.v[1] - self.v[0], self.v[2] - self.v[1], self.v[0] - self.v[2] )
