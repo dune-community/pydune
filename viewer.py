@@ -119,17 +119,17 @@ def DrawGLScene():
 	center = -mesh.bounding_box.center
 	glTranslatef(center.x,center.y,center.z)
 
-	#if draw_mesh:
-		#mesh.draw(1.0)
-	#if draw_bounding_box:
-		#mesh.bounding_box.draw()
-	#if draw_octree:
-		#mesh.quad.draw()
-	mesh.drawAdjacentFaces( count )
-	count += 1
-	if count == len(mesh.faces):
-		count = 0
-	time.sleep(0.3)
+	if draw_mesh:
+		mesh.draw(1.0)
+	if draw_bounding_box:
+		mesh.bounding_box.draw()
+	if draw_octree:
+		mesh.quad.draw()
+	#mesh.drawAdjacentFaces( count )
+	#count += 1
+	#if count == len(mesh.faces):
+		#count = 0
+	#time.sleep(0.3)
 	glutSwapBuffers()
 
 
@@ -139,8 +139,10 @@ def keyPressed(*args):
 	# If escape is pressed, kill everything.
 	if args[0] == ESCAPE:
 		sys.exit()
-	if args[0] == 's':
-		mesh.smooth(0.3)
+	if args[0] == '1':
+		mesh.smooth(0.1)
+	if args[0] == '2':
+		mesh.smooth2(10)
 	if args[0] == 'n':
 		mesh.noise(0.1)
 	if args[0] == '+':

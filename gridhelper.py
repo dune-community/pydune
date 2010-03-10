@@ -255,7 +255,7 @@ class BoundarySurface:
 		self.vertex_idx = self.outer_vertices_idx
 
 class Simplex3:
-	def __init__(self,a,b,c,pl,boundaryId=1):
+	def __init__(self,a,b,c,pl,f_id,boundaryId=1):
 		assert isinstance(pl,PLCPointList)
 		assert isinstance(a,int)
 		assert isinstance(b,int)
@@ -264,42 +264,29 @@ class Simplex3:
 		self.idx = ( a,b,c )
 		self.edge_idx = ( (a,b), (b,c), (c,a) )
 		self.boundaryId = boundaryId
+		self.id = f_id
 		self.reset(pl)
+		self.m = Vector3()
 		
 	def reset(self,pl):
 		self.v = []
+		self.center = Vector3()
 		for id in self.idx:
 			self.v.append( pl.verts[id] )
+			self.center += pl.verts[id]
+		self.center /= 3.0
 		if self.v[0] < self.v[1]  and self.v[1] < self.v[2]:
 			self.n = ( - self.v[0] + self.v[1] ).cross( - self.v[0] + self.v[2] )
 		else:
 			self.n = (self.v[0] - self.v[1] ).cross(   self.v[1] - self.v[2] )
-		self.n /= abs(self.n)
+		n_abs = abs(self.n)
+		self.n /= n_abs
 		self.edges = ( self.v[1] - self.v[0], self.v[2] - self.v[1], self.v[0] - self.v[2] )
+		self.area  = n_abs * 0.5
 
 	def __repr__(self):
 		return 'simplex (%d,%d,%d) -- (%s,%s,%s)'%(self.idx[0],self.idx[1],self.idx[2],self.v[0],self.v[1],self.v[2])
 
-class Simplex2:
-	def __init__(self,a,b,pl):
-		assert isinstance(pl,PLCPointList)
-		assert isinstance(a,int)
-		assert isinstance(b,int)
-		self.idx = ( a, b)
-		self.reset(pl)
-		
-	def reset(self,pl):
-		self.v = []
-		for id in self.idx:
-			self.v.append( pl.verts[id] )
-		self.n = (self.v[0]).cross(self.v[1])
-		
-def simplex(pl,a,b,c=None,b_id=1):
-	if c:
-		return Simplex3(a,b,c,pl,b_id)
-	else:
-		return Simplex2(a,b,pl)
-		
 def vector( x,y,z=None ):
 	if z:
 		return Vector3( float(x),float(y),float(z) )

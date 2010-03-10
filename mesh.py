@@ -123,7 +123,7 @@ class Mesh():
 				v1 = int(line[2])
 				v2 = int(line[3])
 			b_id = int(line[4])
-			s = simplex(self.vertices, v0,v1,v2,b_id )
+			s = Simplex3(v0,v1,v2,self.vertices,len(self.faces),b_id )
 			if self.adj_points.has_key(v0) :
 				self.adj_points[v0] += [ v1, v2 ] 
 			else:
@@ -201,8 +201,36 @@ class Mesh():
 				self.vertices.verts[i] += displacement
 				avg = ( abs(p_old)/abs(p_new) + n * avg ) / float( n + 1 )
 				n += 1
-		self.scale( 1.1*avg )
+		self.scale( 1.0*avg )
 		self.prepDraw()
+
+	def smooth2(self,steps):
+		n = 0
+		avg = 0.0
+		for j in range(steps):
+			for f in self.faces:
+				m = Vector3()
+				area_sum = 0
+				for f_n_id in self.adj[f.id]:
+					f_n = self.faces[f_n_id]
+					m += f_n.n * f_n.area
+					area_sum += f_n.area
+				m /= float(area_sum)
+				self.faces[f_n_id].m = m / abs(m)
+				for i in range(3):
+					p_old_i = f.v[i]
+					displacement = Vector3()
+					area_n_sum = 0
+					for t_id in self.adj_faces[f.idx[i]]:
+						t = self.faces[t_id]
+						area_n_sum += t.area
+						v_t = (t.center - p_old_i).dot(t.m)*t.m
+						displacement += area_n_sum * v_t
+					displacement /= area_n_sum
+					p_new = self.vertices.verts[f.idx[i]] + displacement
+					self.vertices.verts[f.idx[i]] = p_old_i + displacement
+		self.prepDraw()
+		print 'smooth2 done'
 
 	def noise(self,factor):
 		for i,v in self.vertices.verts.iteritems():
