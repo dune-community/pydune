@@ -147,9 +147,9 @@ class FullGrid:
 		b_len = len(f1.vertex_idx)
 		for i in range ( 0, b_len  ):
 			self.connecting_simplices.append( \
-				Simplex(	f1.vertex_idx[i-1],
+				Simplex(	f1.vertex_idx[i],
 							f2.vertex_idx[i-1], \
-							f1.vertex_idx[i] ) )
+							f1.vertex_idx[i-1] ) )
 			self.connecting_simplices.append( \
 				Simplex(	f1.vertex_idx[i],
 							f2.vertex_idx[i], \
@@ -201,7 +201,7 @@ class FullGrid:
 		out.write( '%d\n'%(0))
 
 class BoundarySurface:
-	def __init__(self, mid, first, count_inner_rings, count_spokes, bid ):
+	def __init__(self, mid, first, count_inner_rings, count_spokes, bid, flip_face_def=False ):
 		self.mid 				= mid
 		self.first 				= first
 		self.count_inner_rings 	= count_inner_rings
@@ -245,11 +245,18 @@ class BoundarySurface:
 			right_spoke = self.spokes[i]
 			for j in range( 0, self.count_inner_rings - 1 ):
 				#print 'current spoke j,j+1, left spoke j: %f - %f - %f '%(current_spoke[j], current_spoke[j+1], left_spoke[j])
-				self.simplices.append( Simplex( current_spoke[j], current_spoke[j+1], left_spoke[j] ) )
-				self.simplices.append( Simplex( current_spoke[j], current_spoke[j+1], right_spoke[j+1] ) )
+				if flip_face_def:
+					self.simplices.append( Simplex( current_spoke[j], current_spoke[j+1], left_spoke[j]  ) )
+					self.simplices.append( Simplex( right_spoke[j+1], current_spoke[j+1], current_spoke[j] ) )
+				else:
+					self.simplices.append( Simplex( left_spoke[j], current_spoke[j+1], current_spoke[j] ) )
+					self.simplices.append( Simplex( current_spoke[j], current_spoke[j+1], right_spoke[j+1] ) )
 
 		for i in range( 0, len(self.inner_vertices_idx)  ):
-			self.simplices.append( Simplex( self.inner_vertices_idx[i], self.inner_vertices_idx[i-1], self.mid_idx ) )
+			if flip_face_def:
+				self.simplices.append( Simplex( self.inner_vertices_idx[i-1], self.inner_vertices_idx[i], self.mid_idx ) )
+			else:
+				self.simplices.append( Simplex( self.mid_idx, self.inner_vertices_idx[i],self.inner_vertices_idx[i-1] ) )
 
 		#this is exposed to FullGrid
 		self.vertex_idx = self.outer_vertices_idx

@@ -107,7 +107,7 @@ kipp_mat = Matrix4.new_rotatey( math.radians(15) )
 
 origin_R = Vector3(0,0,tube_length )
 R = functor.scale( Vector3( L_x, 0, tube_length ) )
-bound_R = BoundarySurface( origin_R, R, num_spoke_points, num_verts, 3 )
+bound_R = BoundarySurface( origin_R, R, num_spoke_points, num_verts, 3, True )
 
 grid.connect(bound_R)
 grid.outputPLC( options.filename, sys.argv, options )
