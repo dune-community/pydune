@@ -34,11 +34,9 @@ from PyQt4 import QtCore, QtGui, QtOpenGL
 
 # A general OpenGL initialization function.  Sets all of the initial parameters.
 class MeshWidget(QtOpenGL.QGLWidget):
-	ESCAPE = '\033'
 	GL_MULTISAMPLE = 0x809D
 	
 	def initializeGL(self):				# We call this right after our OpenGL window is created.
-		print 'kook'
 		glClearColor(0.0, 0.0, 0.0, 1.0)	# This Will Clear The Background Color To Black
 		glClearDepth(1.0)					# Enables Clearing Of The Depth Buffer
 		glDepthFunc(GL_LESS)				# The Type Of Depth Test To Do
@@ -114,38 +112,6 @@ class MeshWidget(QtOpenGL.QGLWidget):
 		#time.sleep(0.3)
 		#self.mesh.smooth(0.45)
 
-	def keyPressEvent(self, evt):
-		print 'keye'
-		args = [evt.text()]
-		# If escape is pressed, kill everything.
-		if args[0] == ESCAPE:
-			sys.exit()
-		if args[0] == '1':
-			self.mesh.smooth(0.1)
-		if args[0] == '3':
-			c = 40
-			for i in range(c):
-				self.mesh.smooth(0.01)
-			print '%d smooth1 iterations completed'%c
-		if args[0] == '2':
-			self.mesh.smooth2(10)
-		if args[0] == 'n':
-			self.mesh.noise(0.1)
-		if args[0] == '+':
-			self.zoom += 5
-		if args[0] == '-':
-			self.zoom -= 5
-		if args[0] == 'b':
-			self.draw_bounding_box = not self.draw_bounding_box
-		if args[0] == 'o':
-			self.draw_octree = not self.draw_octree
-		if args[0] == 'm':
-			self.draw_mesh = not self.draw_mesh
-		if args[0] == 'c':
-			glEnable(GL_COLOR_MATERIAL)
-		self.update()
-		event.accept()
-
 	def processMouse( wheel, direction,x,y):
 		self.zoom += direction * 5
 
@@ -180,11 +146,44 @@ class MeshWidget(QtOpenGL.QGLWidget):
 		self.setAutoBufferSwap(True)
 
 class MeshViewer(QtGui.QMainWindow):
+	ESCAPE = '\033'
+	
 	def __init__(self):
 		QtGui.QMainWindow.__init__(self)
-		widget = MeshWidget(self)
-		self.setCentralWidget(widget)
+		self.widget = MeshWidget(self)
+		self.setCentralWidget(self.widget)
 
+	def keyPressEvent(self, event):
+		args = [event.text()]
+		# If escape is pressed, kill everything.
+		if args[0] == MeshViewer.ESCAPE:
+			sys.exit()
+		if args[0] == '1':
+			self.widget.mesh.smooth(0.1)
+		if args[0] == '3':
+			c = 40
+			for i in range(c):
+				self.widget.mesh.smooth(0.01)
+			print '%d smooth1 iterations completed'%c
+		if args[0] == '2':
+			self.widget.mesh.smooth2(10)
+		if args[0] == 'n':
+			self.widget.mesh.noise(0.1)
+		if args[0] == '+':
+			self.widget.zoom += 5
+		if args[0] == '-':
+			self.widget.zoom -= 5
+		if args[0] == 'b':
+			self.widget.draw_bounding_box = not self.widget.draw_bounding_box
+		if args[0] == 'o':
+			self.widget.draw_octree = not self.widget.draw_octree
+		if args[0] == 'm':
+			self.widget.draw_mesh = not self.widget.draw_mesh
+		if args[0] == 'c':
+			glEnable(GL_COLOR_MATERIAL)
+		self.widget.update()
+		event.accept()
+		
 if __name__ == '__main__':
 	app = QtGui.QApplication(['MeshViewer'])
 	window = MeshViewer()
