@@ -141,8 +141,9 @@ class MeshWidget(QtOpenGL.QGLWidget):
 		#time.sleep(0.3)
 		#self.mesh.smooth(0.45)
 
-	def processMouse( wheel, direction,x,y):
-		self.zoom += direction * 5
+	def wheelEvent( self, event):
+		self.zoom += ( event.delta() / 120 ) * 5
+		self.update()
 
 	def mousePressEvent(self, event):
 		self.prev_mouse = (event.x(), event.y())
