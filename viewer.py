@@ -31,9 +31,15 @@ from OpenGL.GLU import *
 from PyQt4 import QtGui
 from PyQt4 import QtCore, QtGui, QtOpenGL
 
-class ControlPanel(QtGui.QWidget):
+class ControlPanel(QtGui.QDockWidget):
 	def __init__(self, parent=None):
 		super(ControlPanel, self).__init__(parent)
+		grid = QtGui.QGridLayout()
+		self.setLayout(grid)
+
+		self.setWindowTitle("Control Panel")
+		self.resize(200, 320)
+
 
 
 class MeshWidget(QtOpenGL.QGLWidget):
@@ -156,6 +162,8 @@ class MeshViewer(QtGui.QMainWindow):
 		QtGui.QMainWindow.__init__(self)
 		self.widget = MeshWidget(self)
 		self.setCentralWidget(self.widget)
+		self.cp = ControlPanel(self)
+		self.addDockWidget(0x2,self.cp )
 
 	def keyPressEvent(self, event):
 		args = [event.text()]
