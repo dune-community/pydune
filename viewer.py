@@ -31,15 +31,35 @@ from OpenGL.GLU import *
 from PyQt4 import QtGui
 from PyQt4 import QtCore, QtGui, QtOpenGL
 
-class ControlPanel(QtGui.QDockWidget):
-	def __init__(self, parent=None):
+class ControlPanel(QtGui.QWidget):
+	def __init__(self, parent):
 		super(ControlPanel, self).__init__(parent)
 		grid = QtGui.QGridLayout()
-		self.setLayout(grid)
+
+		assert parent
+		self.viewer = parent
 
 		self.setWindowTitle("Control Panel")
 		self.resize(200, 320)
-
+		lambdaLabel = QtGui.QLabel("Step Size")
+		grid.addWidget( lambdaLabel, 0,0 )
+		self.lambdaSpinBox = QtGui.QDoubleSpinBox()
+		self.lambdaSpinBox.setRange(0.0, 20.0)
+		self.lambdaSpinBox.setSingleStep(0.01)
+		self.lambdaSpinBox.setValue(0.01)
+		grid.addWidget( self.lambdaSpinBox, 0,1 )
+		iterationsLabel = QtGui.QLabel("# iterations")
+		grid.addWidget( iterationsLabel, 1,0 )
+		self.iterationsSpinBox = QtGui.QSpinBox()
+		self.iterationsSpinBox.setRange(1, 120.0)
+		self.iterationsSpinBox.setSingleStep(1)
+		self.iterationsSpinBox.setValue(1)
+		grid.addWidget( self.iterationsSpinBox, 1,1 )
+		laplaceButton = QtGui.QPushButton("&LaplaceSmooth")
+		laplaceButton.setFocusPolicy(QtCore.Qt.NoFocus)
+		laplaceButton.clicked.connect(self.viewer.smoothLaplace)
+		grid.addWidget( laplaceButton, 2,0 )
+		self.setLayout(grid)
 
 
 class MeshWidget(QtOpenGL.QGLWidget):
@@ -163,7 +183,10 @@ class MeshViewer(QtGui.QMainWindow):
 		self.widget = MeshWidget(self)
 		self.setCentralWidget(self.widget)
 		self.cp = ControlPanel(self)
-		self.addDockWidget(0x2,self.cp )
+		cpDock = QtGui.QDockWidget("Control Panel", self)
+		cpDock.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea)
+		cpDock.setWidget( self.cp )
+		self.addDockWidget(0x2,cpDock )
 
 	def keyPressEvent(self, event):
 		args = [event.text()]
@@ -195,6 +218,11 @@ class MeshViewer(QtGui.QMainWindow):
 			glEnable(GL_COLOR_MATERIAL)
 		self.widget.update()
 		event.accept()
+
+	def smoothLaplace(self):
+		for i in range(self.cp.iterationsSpinBox.value()):
+			self.widget.mesh.smooth(self.cp.lambdaSpinBox.value())
+		self.widget.update()
 		
 if __name__ == '__main__':
 	app = QtGui.QApplication(['MeshViewer'])
