@@ -24,169 +24,170 @@ to the extent permitted by applicable law.
   0. You just DO WHAT THE FUCK YOU WANT TO.
 """
 
-import mesh,sys,time
-
-filename = sys.argv[1]
-
-mesh = mesh.Mesh( 3 )
-dd = filename.find('phantom') != -1
-print dd
-mesh.parseSMESH( filename, dd )
+import mesh,sys,time,math
 from OpenGL.GL import *
-from OpenGL.GLUT import *
+#from OpenGL.GLUT import *
 from OpenGL.GLU import *
+from PyQt4 import QtGui
+from PyQt4 import QtCore, QtGui, QtOpenGL
 
 
-# Some api in the chain is translating the keystrokes to this octal string
-# so instead of saying: ESCAPE = 27, we use the following.
-ESCAPE = '\033'
-
-win_x = 500
-win_y = 500
-x_arc =0
-y_arc =0
-
-#float eye[3] = { 0.0f,0.0f,15.f};
-#float up[3] = { 0.0f,1.0f,0.f};
-mouse_y = 0
-mouse_x = 0
-zoom = -20.
-count = 0
-draw_bounding_box = draw_octree = False
-draw_mesh = True
 # A general OpenGL initialization function.  Sets all of the initial parameters.
-def InitGL(Width, Height):				# We call this right after our OpenGL window is created.
-	global mesh
-	glClearColor(0.0, 0.0, 0.0, 1.0)	# This Will Clear The Background Color To Black
-	glClearDepth(1.0)					# Enables Clearing Of The Depth Buffer
-	glDepthFunc(GL_LESS)				# The Type Of Depth Test To Do
-	glEnable(GL_DEPTH_TEST)				# Enables Depth Testing
-	glShadeModel(GL_SMOOTH)				# Enables Smooth Color Shading
+class MeshWidget(QtOpenGL.QGLWidget):
+	ESCAPE = '\033'
+	GL_MULTISAMPLE = 0x809D
 	
-	glEnable(GL_NORMALIZE)
-	light_position = ( 0., 0., 1., 0. )
-	white_light = ( 1., 1., 1., 0.01 )
-	d_light = ( 1., 1., 1., 0.1 )
-	red_light = ( 1., 0., 0., 0.7 )
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position)
-	glLightfv(GL_LIGHT1, GL_POSITION, light_position)
-	glLightfv(GL_LIGHT0, GL_AMBIENT, white_light)
-	#glLightfv(GL_LIGHT1, GL_AMBIENT, ( 1., 1., 1., 0.8 ) )
-	glLightfv(GL_LIGHT1, GL_SPECULAR, red_light)
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, d_light)
+	def initializeGL(self):				# We call this right after our OpenGL window is created.
+		print 'kook'
+		glClearColor(0.0, 0.0, 0.0, 1.0)	# This Will Clear The Background Color To Black
+		glClearDepth(1.0)					# Enables Clearing Of The Depth Buffer
+		glDepthFunc(GL_LESS)				# The Type Of Depth Test To Do
+		glEnable(GL_DEPTH_TEST)				# Enables Depth Testing
+		glShadeModel(GL_SMOOTH)				# Enables Smooth Color Shading
 
-	glEnable(GL_LIGHTING)
-	glEnable(GL_LIGHT0)
-	#glEnable(GL_LIGHT1)
+		glEnable(GL_NORMALIZE)
+		light_position = ( 0., 0., 1., 0. )
+		white_light = ( 1., 1., 1., 0.01 )
+		d_light = ( 1., 1., 1., 0.1 )
+		red_light = ( 1., 0., 0., 0.7 )
+		glLightfv(GL_LIGHT0, GL_POSITION, light_position)
+		glLightfv(GL_LIGHT1, GL_POSITION, light_position)
+		glLightfv(GL_LIGHT0, GL_AMBIENT, white_light)
+		#glLightfv(GL_LIGHT1, GL_AMBIENT, ( 1., 1., 1., 0.8 ) )
+		glLightfv(GL_LIGHT1, GL_SPECULAR, red_light)
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, d_light)
 
-	glEnable(GL_BLEND)
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
-	#glBlendFunc(GL_SRC_ALPHA,GL_ONE)
-	glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE  )
-	#glEnable(GL_COLOR_MATERIAL)
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
-    
-	glMatrixMode(GL_PROJECTION)
-	glLoadIdentity()					# Reset The Projection Matrix
-										# Calculate The Aspect Ratio Of The Window
-	gluPerspective(45.0, float(Width)/float(Height), 0.1, 1000000.0)
+		glEnable(GL_LIGHTING)
+		glEnable(GL_LIGHT0)
+		#glEnable(GL_LIGHT1)
 
-	glMatrixMode(GL_MODELVIEW)
-	glLoadIdentity()
-	mesh.prepDraw()
-	#glEnable(GL_CULL_FACE)
+		glEnable(GL_BLEND)
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
+		#glBlendFunc(GL_SRC_ALPHA,GL_ONE)
+		glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE  )
+		#glEnable(GL_COLOR_MATERIAL)
+		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
 
-# The function called when our window is resized (which shouldn't happen if you enable fullscreen, below)
-def ReSizeGLScene(Width, Height):
-	if Height == 0:						# Prevent A Divide By Zero If The Window Is Too Small
-		Height = 1
+		glMatrixMode(GL_PROJECTION)
+		glLoadIdentity()					# Reset The Projection Matrix
 
-	glViewport(0, 0, Width, Height)		# Reset The Current Viewport And Perspective Transformation
-	glMatrixMode(GL_PROJECTION)
-	glLoadIdentity()
-	gluPerspective(45.0, float(Width)/float(Height), 0.1, 1000000.0)
-	glMatrixMode(GL_MODELVIEW)
+		gluPerspective(45.0, float(self.size().height())/float(self.size().width()), 0.1, 1000000.0)
 
-def DrawGLScene():
-	global mesh, zoom, draw_bounding_box, draw_octree, draw_mesh,count
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
-	glLoadIdentity()					# Reset The View
+		glMatrixMode(GL_MODELVIEW)
+		glLoadIdentity()
+		self.rotation = [0.0, 0.0]
+		self.mesh.prepDraw()
+		#glEnable(GL_CULL_FACE)
 
-	glTranslatef(0,0.0,zoom)
-	glRotatef(x_arc,0,1,0);
-	glRotatef(y_arc,1,0,0);
+	# The function called when our window is resized (which shouldn't happen if you enable fullscreen, below)
+	def resizeGL(self, w, h):
+		if h == 0:						# Prevent A Divide By Zero If The Window Is Too Small
+			h = 1
 
-	center = -mesh.bounding_box.center
-	glTranslatef(center.x,center.y,center.z)
+		glViewport(0, 0, w, h)		# Reset The Current Viewport And Perspective Transformation
+		glMatrixMode(GL_PROJECTION)
+		glLoadIdentity()
+		gluPerspective(45.0, float(w)/float(h), 0.1, 1000000.0)
+		glMatrixMode(GL_MODELVIEW)
 
-	if draw_mesh:
-		mesh.draw(1.0)
-	if draw_bounding_box:
-		mesh.bounding_box.draw()
-	if draw_octree:
-		mesh.quad.draw()
-	#mesh.drawAdjacentFaces( count )
-	#count += 1
-	#if count == len(mesh.faces):
-		#count = 0
-	#time.sleep(0.3)
-	glutSwapBuffers()
+	def paintGL(self):
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
+		glLoadIdentity()					# Reset The View
+		glEnable(MeshWidget.GL_MULTISAMPLE)
+		glTranslatef(0,0.0,self.zoom)
+		glRotate(self.rotation[0], 0.0, 1.0, 0.0)
+		glRotate(self.rotation[1], 1.0, 0.0, 0.0)
 
+		center = -self.mesh.bounding_box.center
+		glTranslatef(center.x,center.y,center.z)
 
-# The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)
-def keyPressed(*args):
-	global mesh, zoom, draw_bounding_box, draw_octree, draw_mesh
-	# If escape is pressed, kill everything.
-	if args[0] == ESCAPE:
-		sys.exit()
-	if args[0] == '1':
-		mesh.smooth(0.1)
-	if args[0] == '2':
-		mesh.smooth2(10)
-	if args[0] == 'n':
-		mesh.noise(0.1)
-	if args[0] == '+':
-		zoom += 5
-	if args[0] == '-':
-		zoom -= 5
-	if args[0] == 'b':
-		draw_bounding_box = not draw_bounding_box
-	if args[0] == 'o':
-		draw_octree = not draw_octree
-	if args[0] == 'm':
-		draw_mesh = not draw_mesh
-	if args[0] == 'c':
-		glEnable(GL_COLOR_MATERIAL)
+		if self.draw_mesh:
+			self.mesh.draw(1.0)
+		#if self.draw_bounding_box:
+			#self.mesh.bounding_box.draw()
+		#if self.draw_octree:
+			#self.mesh.quad.draw()
+		#self.mesh.drawAdjacentFaces( self.count )
+		#self.count += 1
+		#if self.count == len(self.mesh.faces):
+			#self.count = 0
+		#time.sleep(0.3)
+		#self.mesh.smooth(0.45)
+
+	def keyPressEvent(self, evt):
+		print 'keye'
+		args = [evt.text()]
+		# If escape is pressed, kill everything.
+		if args[0] == ESCAPE:
+			sys.exit()
+		if args[0] == '1':
+			self.mesh.smooth(0.1)
+		if args[0] == '3':
+			c = 40
+			for i in range(c):
+				self.mesh.smooth(0.01)
+			print '%d smooth1 iterations completed'%c
+		if args[0] == '2':
+			self.mesh.smooth2(10)
+		if args[0] == 'n':
+			self.mesh.noise(0.1)
+		if args[0] == '+':
+			self.zoom += 5
+		if args[0] == '-':
+			self.zoom -= 5
+		if args[0] == 'b':
+			self.draw_bounding_box = not self.draw_bounding_box
+		if args[0] == 'o':
+			self.draw_octree = not self.draw_octree
+		if args[0] == 'm':
+			self.draw_mesh = not self.draw_mesh
+		if args[0] == 'c':
+			glEnable(GL_COLOR_MATERIAL)
+		self.update()
+		event.accept()
+
+	def processMouse( wheel, direction,x,y):
+		self.zoom += direction * 5
+
+	def mousePressEvent(self, event):
+		self.prev_mouse = (event.x(), event.y())
+
+	def mouseMoveEvent(self, event):
+		x = event.x()
+		y = event.y()
+
+		sensitivity = 0.2
+		mouse_x,mouse_y = self.prev_mouse
+		self.rotation[0] -= sensitivity*(mouse_x-x);
+		self.rotation[1] -= sensitivity*(mouse_y-y);
+		self.prev_mouse = (x,y)
+		self.update()
+		event.accept()
 		
-def mouseMotion(x,y):
-	global mouse_x,	mouse_y,x_arc,y_arc 
-	sensitivity = 0.2
-	x_arc -= sensitivity*(mouse_x-x);
-	y_arc += sensitivity*(mouse_y-y);
-	mouse_x = x;
-	mouse_y = y;
+	def __init__(self, parent):
+		super(QtOpenGL.QGLWidget, self).__init__(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
+		#super(GLWidget, self).__init__(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
+		self.setMinimumSize(1024, 768)
+		self.zoom = -20.
+		self.count = 0
+		self.draw_bounding_box = self.draw_octree = False
+		self.draw_mesh = True
+		filename = sys.argv[1]
 
-def processMouse( wheel, direction,x,y):
-	global zoom
-	zoom += direction * 5
+		self.mesh = mesh.Mesh( 3 )
+		dd = filename.find('phantom') != -1
+		self.mesh.parseSMESH( filename, dd )
+		self.setAutoBufferSwap(True)
 
-def main():
-	global window
-	glutInit(sys.argv)
+class MeshViewer(QtGui.QMainWindow):
+	def __init__(self):
+		QtGui.QMainWindow.__init__(self)
+		widget = MeshWidget(self)
+		self.setCentralWidget(widget)
 
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-	glutInitWindowSize(640, 480)
-	glutInitWindowPosition(0, 0)
-	window = glutCreateWindow("")
-	glutDisplayFunc(DrawGLScene)
-	glutIdleFunc(DrawGLScene)
-	glutReshapeFunc(ReSizeGLScene)
-	glutKeyboardFunc(keyPressed)
-	glutMotionFunc(mouseMotion)
-	glutMouseWheelFunc(processMouse)
+if __name__ == '__main__':
+	app = QtGui.QApplication(['MeshViewer'])
+	window = MeshViewer()
+	window.show()
+	app.exec_()
 
-	InitGL(640, 480)
-	glutMainLoop()
-
-if __name__ == "__main__":
-	main()

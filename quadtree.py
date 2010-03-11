@@ -40,11 +40,11 @@ class Box:
 		glNewList(s.dl,GL_COMPILE)
 		
 		c = s.corners
-		for h in c:
-			glPushMatrix(  )
-			glTranslatef(h.x,h.y,h.z)
-			glutSolidSphere( GLdouble(0.45), GLint(10), GLint(10) )
-			glPopMatrix(  )
+		#for h in c:
+			#glPushMatrix(  )
+			#glTranslatef(h.x,h.y,h.z)
+			#glutSolidSphere( GLdouble(0.45), GLint(10), GLint(10) )
+			#glPopMatrix(  )
 
 		glBegin(GL_QUADS)
 

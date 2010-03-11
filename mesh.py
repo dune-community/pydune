@@ -215,7 +215,8 @@ class Mesh():
 				self.vertices.verts[i] += displacement
 				avg = ( abs(p_old)/abs(p_new) + n * avg ) / float( n + 1 )
 				n += 1
-		self.scale( 1.10*avg )
+		#self.scale( 0.91*avg )
+		self.scale( 1.0*avg )
 		self.prepDraw()
 
 	def smooth2(self,steps):
@@ -388,11 +389,11 @@ class BoundingVolume:
 		
 	def draw(s):
 		s.drawFrame()
-		glPushMatrix(  )
-		glTranslatef(s.center.x,s.center.y,s.center.z)
-		glutSolidSphere( GLdouble(0.25), GLint(10), GLint(10) )
-		glPopMatrix(  )
-		
+		#glPushMatrix(  )
+		#glTranslatef(s.center.x,s.center.y,s.center.z)
+		#glutSolidSphere( GLdouble(0.25), GLint(10), GLint(10) )
+		#glPopMatrix(  )
+    		
 	def __repr__(s):
 		ret = 'bounding box\n'
 		for p in s.points:
