@@ -31,8 +31,11 @@ from OpenGL.GLU import *
 from PyQt4 import QtGui
 from PyQt4 import QtCore, QtGui, QtOpenGL
 
+class ControlPanel(QtGui.QWidget):
+	def __init__(self, parent=None):
+		super(ControlPanel, self).__init__(parent)
 
-# A general OpenGL initialization function.  Sets all of the initial parameters.
+
 class MeshWidget(QtOpenGL.QGLWidget):
 	GL_MULTISAMPLE = 0x809D
 	
@@ -101,10 +104,10 @@ class MeshWidget(QtOpenGL.QGLWidget):
 
 		if self.draw_mesh:
 			self.mesh.draw(1.0)
-		#if self.draw_bounding_box:
-			#self.mesh.bounding_box.draw()
-		#if self.draw_octree:
-			#self.mesh.quad.draw()
+		if self.draw_bounding_box:
+			self.mesh.bounding_box.draw()
+		if self.draw_octree:
+			self.mesh.quad.draw()
 		#self.mesh.drawAdjacentFaces( self.count )
 		#self.count += 1
 		#if self.count == len(self.mesh.faces):
@@ -144,6 +147,7 @@ class MeshWidget(QtOpenGL.QGLWidget):
 		dd = filename.find('phantom') != -1
 		self.mesh.parseSMESH( filename, dd )
 		self.setAutoBufferSwap(True)
+		self.initializeGL()
 
 class MeshViewer(QtGui.QMainWindow):
 	ESCAPE = '\033'

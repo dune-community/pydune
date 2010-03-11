@@ -28,7 +28,7 @@ from quadtree import Quadtree,Box
 from euclid import *
 import random
 from OpenGL.GL import *
-from OpenGL.GLUT import *
+from OpenGL.GLU import *
 
 def skipCommentsAndEmptyLines(fd):
 	while fd:
@@ -382,17 +382,15 @@ class BoundingVolume:
 		glVertex3fv(adaptVec(c[4]))
 		
 		glEnd()
+		glPushMatrix(  )
+		glTranslatef(s.center.x,s.center.y,s.center.z)
+		q = gluNewQuadric()
+		gluSphere( q, GLdouble(0.25), GLint(10), GLint(10) )
+		glPopMatrix(  )
 		glEndList()
 
-	def drawFrame(s):
-		glCallList(s.dl)
-		
 	def draw(s):
-		s.drawFrame()
-		#glPushMatrix(  )
-		#glTranslatef(s.center.x,s.center.y,s.center.z)
-		#glutSolidSphere( GLdouble(0.25), GLint(10), GLint(10) )
-		#glPopMatrix(  )
+		glCallList(s.dl)
     		
 	def __repr__(s):
 		ret = 'bounding box\n'
