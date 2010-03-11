@@ -86,7 +86,6 @@ class MeshWidget(QtOpenGL.QGLWidget):
 
 		glEnable(GL_LIGHTING)
 		glEnable(GL_LIGHT0)
-		#glEnable(GL_LIGHT1)
 
 		glEnable(GL_BLEND)
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
@@ -112,13 +111,18 @@ class MeshWidget(QtOpenGL.QGLWidget):
 			h = 1
 
 		glViewport(0, 0, w, h)		# Reset The Current Viewport And Perspective Transformation
+
+	def paintGL(self):
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
+		h = self.size().height()
+		w = self.size().width()
+		glEnable(GL_DEPTH_TEST)
+		glViewport(0, 0, w, h)		# Reset The Current Viewport And Perspective Transformation
 		glMatrixMode(GL_PROJECTION)
 		glLoadIdentity()
 		gluPerspective(45.0, float(w)/float(h), 0.1, 1000000.0)
 		glMatrixMode(GL_MODELVIEW)
-
-	def paintGL(self):
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)	# Clear The Screen And The Depth Buffer
+		
 		glLoadIdentity()					# Reset The View
 		glEnable(MeshWidget.GL_MULTISAMPLE)
 		glTranslatef(0,0.0,self.zoom)
@@ -134,12 +138,33 @@ class MeshWidget(QtOpenGL.QGLWidget):
 			self.mesh.bounding_box.draw()
 		if self.draw_octree:
 			self.mesh.quad.draw()
+
+
 		#self.mesh.drawAdjacentFaces( self.count )
 		#self.count += 1
 		#if self.count == len(self.mesh.faces):
 			#self.count = 0
 		#time.sleep(0.3)
 		#self.mesh.smooth(0.45)
+		w /= 5
+		h /= 5
+		glViewport(0, 0, w, h)		# Reset The Current Viewport And Perspective Transformation
+		glMatrixMode(GL_PROJECTION)
+		glLoadIdentity()
+		gluPerspective(45.0, float(w)/float(h), 0.1, 1000000.0)
+		glMatrixMode(GL_MODELVIEW)
+		glDisable(GL_DEPTH_TEST)
+		glLoadIdentity()					# Reset The View
+		glTranslatef(0,0.0,-self.mesh.bounding_box.minViewDistance())
+		glRotate(self.rotation[0], 0.0, 1.0, 0.0)
+		glRotate(self.rotation[1], 1.0, 0.0, 0.0)
+
+		center = -self.mesh.bounding_box.center
+		glTranslatef(center.x,center.y,center.z)
+
+		if self.draw_mesh:
+			self.mesh.draw(0.5)
+
 
 	def wheelEvent( self, event):
 		self.zoom += ( event.delta() / 120 ) * 5
@@ -164,7 +189,6 @@ class MeshWidget(QtOpenGL.QGLWidget):
 		super(QtOpenGL.QGLWidget, self).__init__(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
 		#super(GLWidget, self).__init__(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
 		self.setMinimumSize(1024, 768)
-		self.zoom = -20.
 		self.count = 0
 		self.draw_bounding_box = self.draw_octree = False
 		self.draw_mesh = True
@@ -175,6 +199,7 @@ class MeshWidget(QtOpenGL.QGLWidget):
 		self.mesh.parseSMESH( filename, dd )
 		self.setAutoBufferSwap(True)
 		self.initializeGL()
+		self.zoom = -self.mesh.bounding_box.minViewDistance()
 
 class MeshViewer(QtGui.QMainWindow):
 	ESCAPE = '\033'

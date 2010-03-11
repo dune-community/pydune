@@ -402,4 +402,4 @@ class BoundingVolume:
 	def minViewDistance(s,viewangle=45.0):
 		r = abs(s.center - s.points[0] )
 		t = math.radians( (180 - viewangle)/ 2.0 )
-		return 5 * r * math.tan(t)
+		return 1.12 * r * math.tan(t)
