@@ -34,14 +34,18 @@ from PyQt4 import QtCore, QtGui, QtOpenGL
 class ControlPanel(QtGui.QWidget):
 	def __init__(self, parent):
 		super(ControlPanel, self).__init__(parent)
-		grid = QtGui.QGridLayout()
+		box = QtGui.QVBoxLayout();
 
 		assert parent
 		self.viewer = parent
 
 		self.setWindowTitle("Control Panel")
 		self.resize(200, 320)
-		lambdaLabel = QtGui.QLabel("Step Size")
+		groupBox = QtGui.QGroupBox("Smoothing parameters");
+		grid = QtGui.QGridLayout()
+		groupBox.setLayout( grid )
+		box.addWidget( groupBox )
+		lambdaLabel = QtGui.QLabel("Step Size (lambda)")
 		grid.addWidget( lambdaLabel, 0,0 )
 		self.lambdaSpinBox = QtGui.QDoubleSpinBox()
 		self.lambdaSpinBox.setRange(0.0, 20.0)
@@ -55,11 +59,41 @@ class ControlPanel(QtGui.QWidget):
 		self.iterationsSpinBox.setSingleStep(1)
 		self.iterationsSpinBox.setValue(1)
 		grid.addWidget( self.iterationsSpinBox, 1,1 )
-		laplaceButton = QtGui.QPushButton("&LaplaceSmooth")
+		
+		grid2 = QtGui.QGridLayout()
+		groupBox2 = QtGui.QGroupBox("Smoothing algorithm");
+		laplaceButton = QtGui.QPushButton("&Laplace")
 		laplaceButton.setFocusPolicy(QtCore.Qt.NoFocus)
 		laplaceButton.clicked.connect(self.viewer.smoothLaplace)
-		grid.addWidget( laplaceButton, 2,0 )
-		self.setLayout(grid)
+		grid2.addWidget( laplaceButton, 0,0 )
+		normalButton = QtGui.QPushButton("Mean &Normal")
+		normalButton.setFocusPolicy(QtCore.Qt.NoFocus)
+		normalButton.clicked.connect(self.viewer.smoothMeanNormal)
+		grid2.addWidget( normalButton, 1,0 )
+		random_noiseButton = QtGui.QPushButton("Radom No&ise")
+		random_noiseButton.setFocusPolicy(QtCore.Qt.NoFocus)
+		random_noiseButton.clicked.connect(self.viewer.noise)
+		grid2.addWidget( random_noiseButton, 2,0 )
+		
+		groupBox2.setLayout( grid2 )
+		box.addWidget( groupBox2 )
+
+		grid3 = QtGui.QGridLayout()
+		groupBox3 = QtGui.QGroupBox("View");
+		resetButton = QtGui.QPushButton("&Reset")
+		resetButton.setFocusPolicy(QtCore.Qt.NoFocus)
+		resetButton.clicked.connect(self.viewer.reset)
+		grid3.addWidget( resetButton, 0,0 )
+		self.draw_bounding_box = QtGui.QCheckBox("Show &bounding box", self)
+		self.draw_bounding_box.stateChanged.connect(self.viewer.setOptions)
+		grid3.addWidget( self.draw_bounding_box, 1,0 )
+		self.draw_mesh = QtGui.QCheckBox("Show &mesh", self)
+		self.draw_mesh.stateChanged.connect(self.viewer.setOptions)
+		grid3.addWidget( self.draw_mesh, 2,0 )
+		groupBox3.setLayout( grid3 )
+		box.addWidget( groupBox3 )
+		
+		self.setLayout(box)
 
 
 class MeshWidget(QtOpenGL.QGLWidget):
@@ -201,6 +235,13 @@ class MeshWidget(QtOpenGL.QGLWidget):
 		self.initializeGL()
 		self.zoom = -self.mesh.bounding_box.minViewDistance()
 
+	def reset(s):
+		s.rotation=[0,0]
+		s.prev_mouse = (0,0)
+		s.zoom = -s.mesh.bounding_box.minViewDistance()
+		s.update()
+	
+
 class MeshViewer(QtGui.QMainWindow):
 	ESCAPE = '\033'
 	
@@ -209,6 +250,8 @@ class MeshViewer(QtGui.QMainWindow):
 		self.widget = MeshWidget(self)
 		self.setCentralWidget(self.widget)
 		self.cp = ControlPanel(self)
+		self.cp.draw_bounding_box.setChecked( self.widget.draw_bounding_box )
+		self.cp.draw_mesh.setChecked( self.widget.draw_mesh )
 		cpDock = QtGui.QDockWidget("Control Panel", self)
 		cpDock.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea)
 		cpDock.setWidget( self.cp )
@@ -249,6 +292,22 @@ class MeshViewer(QtGui.QMainWindow):
 		for i in range(self.cp.iterationsSpinBox.value()):
 			self.widget.mesh.smooth(self.cp.lambdaSpinBox.value())
 		self.widget.update()
+
+	def smoothMeanNormal(self):
+		self.widget.mesh.smooth2(self.cp.iterationsSpinBox.value())
+		self.widget.update()
+
+	def reset(self):
+		self.widget.reset()
+
+	def setOptions(s):
+		s.widget.draw_bounding_box = s.cp.draw_bounding_box.isChecked()
+		s.widget.draw_mesh = s.cp.draw_mesh.isChecked()
+		s.widget.update()
+
+	def noise(s):
+		s.widget.mesh.noise( s.cp.lambdaSpinBox.value())
+		s.widget.update()
 		
 if __name__ == '__main__':
 	app = QtGui.QApplication(['MeshViewer'])
