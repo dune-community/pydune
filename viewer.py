@@ -70,7 +70,7 @@ class ControlPanel(QtGui.QWidget):
 		normalButton.setFocusPolicy(QtCore.Qt.NoFocus)
 		normalButton.clicked.connect(self.viewer.smoothMeanNormal)
 		grid2.addWidget( normalButton, 1,0 )
-		random_noiseButton = QtGui.QPushButton("Radom No&ise")
+		random_noiseButton = QtGui.QPushButton("Random No&ise")
 		random_noiseButton.setFocusPolicy(QtCore.Qt.NoFocus)
 		random_noiseButton.clicked.connect(self.viewer.noise)
 		grid2.addWidget( random_noiseButton, 2,0 )
