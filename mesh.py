@@ -51,18 +51,19 @@ class Mesh():
 
 	def __init__(self,dim):
 		self.dim = dim
-		self.vertices = PLCPointList(dim)
-		self.faces = []
-		self.edges = []
 		self.draw_outline = True
 		self.draw_faces = True
 		self.outline_color = ( 1,1,1 )
-		self.adj_points = dict()
-		self.adj_faces = dict()
 		self.dl = None
 		self.refine = False
 
 	def parseSMESH(self, filename,zero_based_idx):
+		PLCPointList.global_vertices = []
+		self.vertices = PLCPointList(self.dim)
+		self.faces = []
+		self.edges = []
+		self.adj_points = dict()
+		self.adj_faces = dict()
 		vert_fn_ = filename + '.vertices'
 		face_fn_ = filename + '.faces'
 		verts = open(vert_fn_, 'w')

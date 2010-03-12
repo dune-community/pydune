@@ -93,6 +93,21 @@ class ControlPanel(QtGui.QWidget):
 		groupBox3.setLayout( grid3 )
 		box.addWidget( groupBox3 )
 		
+		grid4 = QtGui.QGridLayout()
+		groupBox4 = QtGui.QGroupBox("Save/Load");
+		reloadButton = QtGui.QPushButton("Re&load")
+		reloadButton.setFocusPolicy(QtCore.Qt.NoFocus)
+		reloadButton.clicked.connect(self.viewer.reload)
+		grid4.addWidget( reloadButton, 0,0 )
+		#self.draw_bounding_box = QtGui.QCheckBox("Show &bounding box", self)
+		#self.draw_bounding_box.stateChanged.connect(self.viewer.setOptions)
+		#grid4.addWidget( self.draw_bounding_box, 1,0 )
+		#self.draw_mesh = QtGui.QCheckBox("Show &mesh", self)
+		#self.draw_mesh.stateChanged.connect(self.viewer.setOptions)
+		#grid4.addWidget( self.draw_mesh, 2,0 )
+		groupBox4.setLayout( grid4 )
+		box.addWidget( groupBox4 )
+		
 		self.setLayout(box)
 
 
@@ -219,14 +234,13 @@ class MeshWidget(QtOpenGL.QGLWidget):
 		self.update()
 		event.accept()
 		
-	def __init__(self, parent):
+	def __init__(self, parent,filename):
 		super(QtOpenGL.QGLWidget, self).__init__(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
 		#super(GLWidget, self).__init__(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
 		self.setMinimumSize(1024, 768)
 		self.count = 0
 		self.draw_bounding_box = self.draw_octree = False
 		self.draw_mesh = True
-		filename = sys.argv[1]
 
 		self.mesh = mesh.Mesh( 3 )
 		dd = filename.find('phantom') != -1
@@ -247,7 +261,8 @@ class MeshViewer(QtGui.QMainWindow):
 	
 	def __init__(self):
 		QtGui.QMainWindow.__init__(self)
-		self.widget = MeshWidget(self)
+		self.filename = sys.argv[1]
+		self.widget = MeshWidget(self,self.filename)
 		self.setCentralWidget(self.widget)
 		self.cp = ControlPanel(self)
 		self.cp.draw_bounding_box.setChecked( self.widget.draw_bounding_box )
@@ -307,6 +322,11 @@ class MeshViewer(QtGui.QMainWindow):
 
 	def noise(s):
 		s.widget.mesh.noise( s.cp.lambdaSpinBox.value())
+		s.widget.update()
+
+	def reload(s):
+		s.widget.mesh.parseSMESH(s.filename,False)
+		s.widget.mesh.prepDraw()
 		s.widget.update()
 		
 if __name__ == '__main__':
