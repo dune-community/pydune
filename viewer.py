@@ -62,7 +62,7 @@ class ControlPanel(QtGui.QWidget):
 		
 		grid2 = QtGui.QGridLayout()
 		groupBox2 = QtGui.QGroupBox("Smoothing algorithm");
-		laplaceButton = QtGui.QPushButton("&Laplace")
+		laplaceButton = QtGui.QPushButton("L&aplace")
 		laplaceButton.setFocusPolicy(QtCore.Qt.NoFocus)
 		laplaceButton.clicked.connect(self.viewer.smoothLaplace)
 		grid2.addWidget( laplaceButton, 0,0 )
@@ -95,16 +95,18 @@ class ControlPanel(QtGui.QWidget):
 		
 		grid4 = QtGui.QGridLayout()
 		groupBox4 = QtGui.QGroupBox("Save/Load");
-		reloadButton = QtGui.QPushButton("Re&load")
+		loadButton = QtGui.QPushButton("&Load")
+		loadButton.setFocusPolicy(QtCore.Qt.NoFocus)
+		loadButton.clicked.connect(self.viewer.load)
+		grid4.addWidget( loadButton, 0,0 )
+		saveButton = QtGui.QPushButton("Sa&ve")
+		saveButton.setFocusPolicy(QtCore.Qt.NoFocus)
+		saveButton.clicked.connect(self.viewer.save)
+		grid4.addWidget( saveButton, 1,0 )
+		reloadButton = QtGui.QPushButton("R&eload")
 		reloadButton.setFocusPolicy(QtCore.Qt.NoFocus)
 		reloadButton.clicked.connect(self.viewer.reload)
-		grid4.addWidget( reloadButton, 0,0 )
-		#self.draw_bounding_box = QtGui.QCheckBox("Show &bounding box", self)
-		#self.draw_bounding_box.stateChanged.connect(self.viewer.setOptions)
-		#grid4.addWidget( self.draw_bounding_box, 1,0 )
-		#self.draw_mesh = QtGui.QCheckBox("Show &mesh", self)
-		#self.draw_mesh.stateChanged.connect(self.viewer.setOptions)
-		#grid4.addWidget( self.draw_mesh, 2,0 )
+		grid4.addWidget( reloadButton, 2,0 )
 		groupBox4.setLayout( grid4 )
 		box.addWidget( groupBox4 )
 		
@@ -328,6 +330,15 @@ class MeshViewer(QtGui.QMainWindow):
 		s.widget.mesh.parseSMESH(s.filename,False)
 		s.widget.mesh.prepDraw()
 		s.widget.update()
+
+	def save(s):
+		s.filename = str(QtGui.QFileDialog.getSaveFileName(s,'Select file to save to'))
+		s.widget.mesh.write( s.filename )
+		s.widget.update()
+
+	def load(s):
+		s.filename = str(QtGui.QFileDialog.getOpenFileName(s,'Select file to load'))
+		s.reload()
 		
 if __name__ == '__main__':
 	app = QtGui.QApplication(['MeshViewer'])
