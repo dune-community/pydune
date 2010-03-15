@@ -269,12 +269,7 @@ class Mesh():
 		if self.draw_faces:
 			glBegin(GL_TRIANGLES)					# Start Drawing The Pyramid
 			for f in self.faces:
-				n = f.n
-				#if i % 2 == 0:
-					#n *= -1
-				glNormal3f(n.x,n.y,n.z)
-				for v in f.v:
-					glVertex3f(v.x, v.y, v.z )
+				self.drawFace(f)
 				i += 1
 			glEnd()
 
@@ -283,6 +278,16 @@ class Mesh():
 				glColor4f(0.0,0,0,opacity)
 				self.drawOutline(f)
 		glEndList()
+
+	def drawFaceIdx(s,idx):
+		f = s.faces[idx]
+		s.drawFace(f)
+		
+	def drawFace(s,f):
+		n = f.n
+		glNormal3f(n.x,n.y,n.z)
+		for v in f.v:
+			glVertex3f(v.x, v.y, v.z )
 
 	def write(self,fn):
 		out = None

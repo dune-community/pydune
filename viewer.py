@@ -90,6 +90,19 @@ class ControlPanel(QtGui.QWidget):
 		self.draw_mesh = QtGui.QCheckBox("Show &mesh", self)
 		self.draw_mesh.stateChanged.connect(self.viewer.setOptions)
 		grid3.addWidget( self.draw_mesh, 2,0 )
+		subbox1 = QtGui.QGroupBox("Restrict");
+		subgrid1 = QtGui.QGridLayout()
+		self.enable_restrict = QtGui.QCheckBox("Enable", self)
+		self.enable_restrict.stateChanged.connect(self.viewer.enable_restrict)
+		subgrid1.addWidget(  self.enable_restrict, 0, 0 )
+		self.slider_min = QtGui.QSlider(QtCore.Qt.Horizontal)
+		self.slider_max = QtGui.QSlider(QtCore.Qt.Horizontal)
+		self.setMinMaxSlider()
+		subgrid1.addWidget(  self.slider_min, 1, 0 )
+		subgrid1.addWidget(  self.slider_max, 2, 0 )
+		subbox1.setLayout( subgrid1 )
+		grid3.addWidget( subbox1, 3,0 )
+		
 		groupBox3.setLayout( grid3 )
 		box.addWidget( groupBox3 )
 		
@@ -111,6 +124,23 @@ class ControlPanel(QtGui.QWidget):
 		box.addWidget( groupBox4 )
 		
 		self.setLayout(box)
+
+		#connect only now lest be called on manual set
+		self.slider_max.valueChanged.connect(self.viewer.set_restrict)
+		self.slider_min.valueChanged.connect(self.viewer.set_restrict)
+
+	def setMinMaxSlider(s):
+		mx = len(s.viewer.widget.mesh.faces)
+		for sl in [ s.slider_min , s.slider_max ]:
+			sl.setMinimum( 0 )
+			sl.setMaximum( mx )
+			sl.setFocusPolicy(QtCore.Qt.StrongFocus)
+			sl.setTickInterval(10)
+			sl.setSingleStep(1)
+		s.slider_min.setValue(0)
+		s.slider_min.setTickPosition(QtGui.QSlider.TicksAbove)
+		s.slider_max.setTickPosition(QtGui.QSlider.TicksBelow)
+		s.slider_max.setValue(mx)
 
 
 class MeshWidget(QtOpenGL.QGLWidget):
@@ -184,7 +214,13 @@ class MeshWidget(QtOpenGL.QGLWidget):
 		glTranslatef(center.x,center.y,center.z)
 
 		if self.draw_mesh:
-			self.mesh.draw(1.0)
+			if self.enable_restrict:
+				for i in self.restricted:
+					glBegin(GL_TRIANGLES)
+					self.mesh.drawFaceIdx(i)
+					glEnd()
+			else:
+				self.mesh.draw(1.0)
 		if self.draw_bounding_box:
 			self.mesh.bounding_box.draw()
 		if self.draw_octree:
@@ -250,6 +286,8 @@ class MeshWidget(QtOpenGL.QGLWidget):
 		self.setAutoBufferSwap(True)
 		self.initializeGL()
 		self.zoom = -self.mesh.bounding_box.minViewDistance()
+		self.enable_restrict = False
+		self.restricted = range(len(self.mesh.faces))
 
 	def reset(s):
 		s.rotation=[0,0]
@@ -315,7 +353,9 @@ class MeshViewer(QtGui.QMainWindow):
 		self.widget.update()
 
 	def reset(self):
+		self.cp.setMinMaxSlider()
 		self.widget.reset()
+		self.widget.update()
 
 	def setOptions(s):
 		s.widget.draw_bounding_box = s.cp.draw_bounding_box.isChecked()
@@ -339,6 +379,14 @@ class MeshViewer(QtGui.QMainWindow):
 	def load(s):
 		s.filename = str(QtGui.QFileDialog.getOpenFileName(s,'Select file to load'))
 		s.reload()
+
+	def enable_restrict(s):
+		pass
+
+	def set_restrict(s,k):
+		s.widget.enable_restrict = s.cp.enable_restrict.isChecked()
+		s.widget.restricted = range( s.cp.slider_min.value(), s.cp.slider_max.value() )
+		s.widget.update()
 		
 if __name__ == '__main__':
 	app = QtGui.QApplication(['MeshViewer'])
