@@ -364,7 +364,7 @@ class MeshViewer(QtGui.QMainWindow):
 		s.widget.update()
 
 	def noise(s):
-		for i in range(self.cp.iterationsSpinBox.value()):
+		for i in range(s.cp.iterationsSpinBox.value()):
 			s.widget.mesh.noise( s.cp.lambdaSpinBox.value() )
 			s.widget.update()
 
