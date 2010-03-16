@@ -135,7 +135,7 @@ class ControlPanel(QtGui.QWidget):
 			sl.setMinimum( 0 )
 			sl.setMaximum( mx )
 			sl.setFocusPolicy(QtCore.Qt.StrongFocus)
-			sl.setTickInterval(10)
+			sl.setTickInterval(mx/10)
 			sl.setSingleStep(1)
 		s.slider_min.setValue(0)
 		s.slider_min.setTickPosition(QtGui.QSlider.TicksAbove)
@@ -346,11 +346,12 @@ class MeshViewer(QtGui.QMainWindow):
 	def smoothLaplace(self):
 		for i in range(self.cp.iterationsSpinBox.value()):
 			self.widget.mesh.smooth(self.cp.lambdaSpinBox.value())
-		self.widget.update()
+			self.widget.update()
 
 	def smoothMeanNormal(self):
-		self.widget.mesh.smooth2(self.cp.iterationsSpinBox.value())
-		self.widget.update()
+		for i in range(self.cp.iterationsSpinBox.value()):
+			self.widget.mesh.smooth2()
+			self.widget.update()
 
 	def reset(self):
 		self.cp.setMinMaxSlider()
@@ -363,8 +364,9 @@ class MeshViewer(QtGui.QMainWindow):
 		s.widget.update()
 
 	def noise(s):
-		s.widget.mesh.noise( s.cp.lambdaSpinBox.value())
-		s.widget.update()
+		for i in range(self.cp.iterationsSpinBox.value()):
+			s.widget.mesh.noise( s.cp.lambdaSpinBox.value() )
+			s.widget.update()
 
 	def reload(s):
 		s.widget.mesh.parseSMESH(s.filename,False)

@@ -220,32 +220,31 @@ class Mesh():
 		self.scale( 1.0*avg )
 		self.prepDraw()
 
-	def smooth2(self,steps):
+	def smooth2(self):
 		n = 0
 		avg = 0.0
-		for j in range(steps):
-			for f in self.faces:
-				m = Vector3()
-				area_sum = 0
-				for f_n_id in self.adj[f.id]:
-					f_n = self.faces[f_n_id]
-					m += f_n.n * f_n.area
-					area_sum += f_n.area
-				m /= float(area_sum)
-				self.faces[f_n_id].m = m / abs(m)
-				for i in range(3):
-					p_old_i = f.v[i]
-					displacement = Vector3()
-					area_n_sum = 0
-					for t_id in self.adj_faces[f.idx[i]]:
-						t = self.faces[t_id]
-						area_n_sum += t.area
-						v_t = (t.center - p_old_i).dot(t.m)*t.m
-						displacement += t.area * v_t
-					displacement /= area_n_sum
-					p_new = self.vertices.verts[f.idx[i]] + displacement
-					self.vertices.verts[f.idx[i]] = p_new
-				self.faces[f.id].reset(self.vertices)
+		for f in self.faces:
+			m = Vector3()
+			area_sum = 0
+			for f_n_id in self.adj[f.id]:
+				f_n = self.faces[f_n_id]
+				m += f_n.n * f_n.area
+				area_sum += f_n.area
+			m /= float(area_sum)
+			self.faces[f_n_id].m = m / abs(m)
+			for i in range(3):
+				p_old_i = f.v[i]
+				displacement = Vector3()
+				area_n_sum = 0
+				for t_id in self.adj_faces[f.idx[i]]:
+					t = self.faces[t_id]
+					area_n_sum += t.area
+					v_t = (t.center - p_old_i).dot(t.m)*t.m
+					displacement += t.area * v_t
+				displacement /= area_n_sum
+				p_new = self.vertices.verts[f.idx[i]] + displacement
+				self.vertices.verts[f.idx[i]] = p_new
+			self.faces[f.id].reset(self.vertices)
 		self.prepDraw()
 		print 'smooth2 done'
 
