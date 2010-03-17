@@ -300,7 +300,7 @@ def vector( x,y,z=None ):
 	if z:
 		return Vector3( float(x),float(y),float(z) )
 	else:
-		return Vector2( float(x),float(y) )
+		return Vector3( float(x),float(y), 0.0 )
 
 class adaptVec(list):
 	def __init__(s,v):

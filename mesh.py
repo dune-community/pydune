@@ -89,7 +89,7 @@ class Mesh():
 			line = fd.readline()
 			if line.startswith( '#' ):
 				continue
-			if len(line.split()) < self.dim + 1:
+			if len(line.split()) < self.dim + 0:
 				break
 			verts.write(line)
 		print 'vertice writing complete'
@@ -100,7 +100,7 @@ class Mesh():
 			line = fd.readline()
 			if line.startswith( '#' ):
 				continue
-			if len(line.split()) < self.dim + 2:
+			if len(line.split()) < self.dim + 1:
 				break
 			faces.write(line)
 		print 'face writing complete'
@@ -117,7 +117,7 @@ class Mesh():
 		for line in fn.readlines():
 			line = line.split()
 			#this way I can use vector for either dim
-			line.append(None)
+			line.append(0)
 			v = vector( line[1], line[2], line[3] )
 			self.vertices.appendVert( v )
 		print 'read %d vertices'%len(self.vertices)
@@ -128,7 +128,7 @@ class Mesh():
 		for line in fn.readlines():
 			line = line.split()
 			#this way I can use vector for either dim
-			line.append(None)
+			line.append(0)
 			if zero_based_idx:
 				v0 = int(line[1]) + 1
 				v1 = int(line[2]) + 1
