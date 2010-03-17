@@ -220,33 +220,32 @@ class Mesh():
 		self.scale( 1.0*avg )
 		self.prepDraw()
 
-	def smooth2(self,steps):
+	def smooth2(self):
 		n = 0
 		avg = 0.0
-		for j in range(steps):
-			for f in self.faces:
-				m = Vector3()
-				area_sum = 0
-				for f_n_id in self.adj[f.id]:
-					f_n = self.faces[f_n_id]
-					m += f_n.n * f_n.area
-					area_sum += f_n.area
-				m /= float(area_sum)
-				self.faces[f_n_id].m = m / abs(m)
-				displacement = [Vector3(),Vector3(),Vector3()]
-				for i in range(3):
-					p_old_i = f.v[i]
-					area_n_sum = 0
-					for t_id in self.adj_faces[f.idx[i]]:
-						t = self.faces[t_id]
-						area_n_sum += t.area
-						v_t = (t.center - p_old_i).dot(t.m)*t.m
-						displacement[i] += t.area * v_t
-					displacement[i] /= area_n_sum
-				for i in range(3):
-					p_new = self.vertices.verts[f.idx[i]] + displacement[i]
-					self.vertices.verts[f.idx[i]] = p_new
-				#self.faces[f.id].reset(self.vertices)
+		for f in self.faces:
+			m = Vector3()
+			area_sum = 0
+			for f_n_id in self.adj[f.id]:
+				f_n = self.faces[f_n_id]
+				m += f_n.n * f_n.area
+				area_sum += f_n.area
+			m /= float(area_sum)
+			self.faces[f_n_id].m = m / abs(m)
+			displacement = [Vector3(),Vector3(),Vector3()]
+			for i in range(3):
+				p_old_i = f.v[i]
+				area_n_sum = 0
+				for t_id in self.adj_faces[f.idx[i]]:
+					t = self.faces[t_id]
+					area_n_sum += t.area
+					v_t = (t.center - p_old_i).dot(t.m)*t.m
+					displacement[i] += t.area * v_t
+				displacement[i] /= area_n_sum
+			for i in range(3):
+				p_new = self.vertices.verts[f.idx[i]] + displacement[i]
+				self.vertices.verts[f.idx[i]] = p_new
+			#self.faces[f.id].reset(self.vertices)
 		self.prepDraw()
 		print 'smooth2 done'
 
@@ -270,12 +269,7 @@ class Mesh():
 		if self.draw_faces:
 			glBegin(GL_TRIANGLES)					# Start Drawing The Pyramid
 			for f in self.faces:
-				n = f.n
-				#if i % 2 == 0:
-					#n *= -1
-				glNormal3f(n.x,n.y,n.z)
-				for v in f.v:
-					glVertex3f(v.x, v.y, v.z )
+				self.drawFace(f)
 				i += 1
 			glEnd()
 
@@ -284,6 +278,16 @@ class Mesh():
 				glColor4f(0.0,0,0,opacity)
 				self.drawOutline(f)
 		glEndList()
+
+	def drawFaceIdx(s,idx):
+		f = s.faces[idx]
+		s.drawFace(f)
+		
+	def drawFace(s,f):
+		n = f.n
+		glNormal3f(n.x,n.y,n.z)
+		for v in f.v:
+			glVertex3f(v.x, v.y, v.z )
 
 	def write(self,fn):
 		out = None
