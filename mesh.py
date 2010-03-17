@@ -233,19 +233,20 @@ class Mesh():
 					area_sum += f_n.area
 				m /= float(area_sum)
 				self.faces[f_n_id].m = m / abs(m)
+				displacement = [Vector3(),Vector3(),Vector3()]
 				for i in range(3):
 					p_old_i = f.v[i]
-					displacement = Vector3()
 					area_n_sum = 0
 					for t_id in self.adj_faces[f.idx[i]]:
 						t = self.faces[t_id]
 						area_n_sum += t.area
 						v_t = (t.center - p_old_i).dot(t.m)*t.m
-						displacement += t.area * v_t
-					displacement /= area_n_sum
-					p_new = self.vertices.verts[f.idx[i]] + displacement
+						displacement[i] += t.area * v_t
+					displacement[i] /= area_n_sum
+				for i in range(3):
+					p_new = self.vertices.verts[f.idx[i]] + displacement[i]
 					self.vertices.verts[f.idx[i]] = p_new
-				self.faces[f.id].reset(self.vertices)
+				#self.faces[f.id].reset(self.vertices)
 		self.prepDraw()
 		print 'smooth2 done'
 
