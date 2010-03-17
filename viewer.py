@@ -373,9 +373,9 @@ class MeshViewer(QtGui.QMainWindow):
 
 	def reload(s):
 		if s.filename.endswith( '.ply' ):
-			self.mesh.parsePLY( s.filename )
+			s.mesh.parsePLY( s.filename )
 		else:
-			self.mesh.parseSMESH( s.filename, dd )
+			s.mesh.parseSMESH( s.filename, False )
 		s.widget.mesh.prepDraw()
 		s.widget.update()
 
