@@ -23,6 +23,20 @@ to the extent permitted by applicable law.
 
   0. You just DO WHAT THE FUCK YOU WANT TO.
 """
+
+ply_header_tpl = """ply
+format ascii 1.0
+comment made by anonymous
+comment this file is a cube
+element vertex %d
+property float32 x
+property float32 y
+property float32 z
+element face %d
+property list uint8 int32 vertex_index
+end_header
+"""
+
 from gridhelper import *
 from quadtree import Quadtree,Box
 from euclid import *
@@ -75,7 +89,7 @@ class Mesh():
 			line = fd.readline()
 			if line.startswith( '#' ):
 				continue
-			if len(line.split()) < self.dim + 1:
+			if len(line.split()) < self.dim + 0:
 				break
 			verts.write(line)
 		print 'vertice writing complete'
@@ -86,7 +100,7 @@ class Mesh():
 			line = fd.readline()
 			if line.startswith( '#' ):
 				continue
-			if len(line.split()) < self.dim + 2:
+			if len(line.split()) < self.dim + 1:
 				break
 			faces.write(line)
 		print 'face writing complete'
@@ -103,7 +117,7 @@ class Mesh():
 		for line in fn.readlines():
 			line = line.split()
 			#this way I can use vector for either dim
-			line.append(None)
+			line.append(0)
 			v = vector( line[1], line[2], line[3] )
 			self.vertices.appendVert( v )
 		print 'read %d vertices'%len(self.vertices)
@@ -114,7 +128,7 @@ class Mesh():
 		for line in fn.readlines():
 			line = line.split()
 			#this way I can use vector for either dim
-			line.append(None)
+			line.append(0)
 			if zero_based_idx:
 				v0 = int(line[1]) + 1
 				v1 = int(line[2]) + 1
@@ -232,19 +246,20 @@ class Mesh():
 				area_sum += f_n.area
 			m /= float(area_sum)
 			self.faces[f_n_id].m = m / abs(m)
+			displacement = [Vector3(),Vector3(),Vector3()]
 			for i in range(3):
 				p_old_i = f.v[i]
-				displacement = Vector3()
 				area_n_sum = 0
 				for t_id in self.adj_faces[f.idx[i]]:
 					t = self.faces[t_id]
 					area_n_sum += t.area
 					v_t = (t.center - p_old_i).dot(t.m)*t.m
-					displacement += t.area * v_t
-				displacement /= area_n_sum
-				p_new = self.vertices.verts[f.idx[i]] + displacement
+					displacement[i] += t.area * v_t
+				displacement[i] /= area_n_sum
+			for i in range(3):
+				p_new = self.vertices.verts[f.idx[i]] + displacement[i]
 				self.vertices.verts[f.idx[i]] = p_new
-			self.faces[f.id].reset(self.vertices)
+			#self.faces[f.id].reset(self.vertices)
 		self.prepDraw()
 		print 'smooth2 done'
 
@@ -311,6 +326,74 @@ class Mesh():
 			out.write( '%d %d %d %d %d\n'%(3,f.idx[0],f.idx[1],f.idx[2],f.boundaryId)  )
 
 		out.write( '%d\n'%(0))
+
+	def writePLY(self,fn):
+		out = None
+		if not fn.endswith( '.ply' ):
+			fn += '.ply'
+		try:
+			out = open(fn,'w')
+		except:
+			raise ImpossibleException()
+		out.write( ply_header_tpl%(len(PLCPointList.global_vertices),len(self.faces) ) ) 
+		for v in PLCPointList.global_vertices:
+				out.write( '%f %f %f\n'%(v.x,v.y,v.z) )
+
+		for f in self.faces:
+			assert isinstance( f, Simplex3 )
+			out.write( '%d %d %d %d\n'%(3,f.idx[0]-1,f.idx[1]-1,f.idx[2]-1)  )
+
+		out.flush()
+		out.close()
+
+	def parsePLY(self,fn):
+		fd = open( fn, 'r' )
+		PLCPointList.global_vertices = []
+		self.vertices = PLCPointList(self.dim)
+		self.faces = []
+		self.edges = []
+		self.adj_points = dict()
+		self.adj_faces = dict()
+		num_verts = 0
+		num_faces = 0
+		#for line in fd.readlines():
+		while fd:
+			line = fd.readline()
+			if line.startswith( 'end_header' ):
+				break
+			if line.startswith( 'element vertex' ):
+				num_verts = int(line.split()[2])
+				continue
+			if line.startswith( 'element face' ):
+				num_faces = int(line.split()[2])
+				continue
+		print 'read %d faces, %d vertices'%(num_faces,num_verts)
+		for i in range(num_verts):
+			line = fd.readline().split()
+			try:
+				v = vector( line[0], line[1], line[2] )
+				self.vertices.appendVert( v )
+			except:
+				print line
+				break
+		for i in range(num_faces):
+			line = fd.readline().split()
+			v0 = int(line[1])+1
+			v1 = int(line[2])+1
+			v2 = int(line[3])+1
+			b_id = 1 #int(line[4])
+			s = Simplex3(v0,v1,v2,self.vertices,len(self.faces),b_id )
+			self.faces.append( s )
+			for v in [v0,v1,v2]:
+				if self.adj_points.has_key(v) :
+					self.adj_points[v] += [v0,v1,v2]
+				else:
+					self.adj_points[v] = [v0,v1,v2]
+				self.adj_points[v].remove(v)
+				if self.adj_faces.has_key(v):
+					self.adj_faces[v].append( len(self.faces) - 1 )
+				else:
+					self.adj_faces[v] = [ len(self.faces) - 1 ]
 
 class BoundingVolume:
 	def __init__(s,mesh):

@@ -1,0 +1,18 @@
+# commandline: ./tube.py
+# options: {'num_verts': 6, 'area': 3.1415926535897931, 'num_spoke_points': 2, 'tube_length': 10, 'filename': 'out.smesh', 'hyp_fac': 4.0, 'hyp_add': 1.0, 'num_midrings': 0}
+26 3 0 3
+# all vertices
+#
+1 0 0
+2 1 0 
+3 0 1
+4 1 1
+
+# number of facets (= number of triangles), border marker
+#
+48 1
+# all faces
+#
+3 1 2 3 1
+3 4 3 2 1
+0

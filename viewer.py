@@ -295,7 +295,10 @@ class MeshWidget(QtOpenGL.QGLWidget):
 
 		self.mesh = mesh.Mesh( 3 )
 		dd = filename.find('phantom') != -1
-		self.mesh.parseSMESH( filename, dd )
+		if filename.endswith( '.ply' ):
+			self.mesh.parsePLY( filename )
+		else:
+			self.mesh.parseSMESH( filename, dd )
 		self.setAutoBufferSwap(True)
 		self.initializeGL()
 		self.zoom = -self.mesh.bounding_box.minViewDistance()
@@ -383,13 +386,19 @@ class MeshViewer(QtGui.QMainWindow):
 			s.widget.update()
 
 	def reload(s):
-		s.widget.mesh.parseSMESH(s.filename,False)
+		if s.filename.endswith( '.ply' ):
+			s.mesh.parsePLY( s.filename )
+		else:
+			s.mesh.parseSMESH( s.filename, False )
 		s.widget.mesh.prepDraw()
 		s.widget.update()
 
 	def save(s):
 		s.filename = str(QtGui.QFileDialog.getSaveFileName(s,'Select file to save to'))
-		s.widget.mesh.write( s.filename )
+		if s.filename.endswith( '.ply' ):
+			s.widget.mesh.writePLY( s.filename )
+		else:
+			s.widget.mesh.write( s.filename )
 		s.widget.update()
 
 	def load(s):
