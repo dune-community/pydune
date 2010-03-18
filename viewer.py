@@ -90,6 +90,12 @@ class ControlPanel(QtGui.QWidget):
 		self.draw_mesh = QtGui.QCheckBox("Show &mesh", self)
 		self.draw_mesh.stateChanged.connect(self.viewer.setOptions)
 		grid3.addWidget( self.draw_mesh, 2,0 )
+		#self.point_num = QtGui.QSpinBox()
+		#self.point_num.setRange(0, 8000.0)
+		#self.point_num.setSingleStep(1)
+		#self.point_num.setValue(1)
+		#self.point_num.valueChanged.connect(self.viewer.setPointDraw)
+		#grid3.addWidget( self.point_num, 2,0 )
 		subbox1 = QtGui.QGroupBox("Restrict");
 		subgrid1 = QtGui.QGridLayout()
 		self.enable_restrict = QtGui.QCheckBox("Enable", self)
@@ -226,6 +232,13 @@ class MeshWidget(QtOpenGL.QGLWidget):
 		if self.draw_octree:
 			self.mesh.quad.draw()
 
+		glPushMatrix(  )
+		s = self.mesh.vertices.verts[self.point_draw]
+		glTranslatef(s.x,s.y,s.z)
+		q = gluNewQuadric()
+		gluSphere( q, GLdouble(0.65), GLint(10), GLint(10) )
+		glPopMatrix(  )
+		
 
 		#self.mesh.drawAdjacentFaces( self.count )
 		#self.count += 1
@@ -288,6 +301,7 @@ class MeshWidget(QtOpenGL.QGLWidget):
 		self.zoom = -self.mesh.bounding_box.minViewDistance()
 		self.enable_restrict = False
 		self.restricted = range(len(self.mesh.faces))
+		self.point_draw = 1
 
 	def reset(s):
 		s.rotation=[0,0]
@@ -388,6 +402,11 @@ class MeshViewer(QtGui.QMainWindow):
 	def set_restrict(s,k):
 		s.widget.enable_restrict = s.cp.enable_restrict.isChecked()
 		s.widget.restricted = range( s.cp.slider_min.value(), s.cp.slider_max.value() )
+		s.widget.update()
+		print  s.cp.slider_min.value(), s.cp.slider_max.value()
+
+	def setPointDraw(s):
+		s.widget.point_draw = s.cp.point_num.value()
 		s.widget.update()
 		
 if __name__ == '__main__':
