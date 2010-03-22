@@ -303,7 +303,7 @@ class Mesh():
 		for v in f.v:
 			glVertex3f(v.x, v.y, v.z )
 
-	def write(self,fn):
+	def write(self,fn,bidMapper=ColorToBoundaryIdMapper()):
 		out = None
 		if not fn.endswith( '.smesh' ):
 			fn += '.smesh'
@@ -323,7 +323,7 @@ class Mesh():
 		
 		for f in self.faces:
 			assert isinstance( f, Simplex3 )
-			out.write( '%d %d %d %d %d\n'%(3,f.idx[0],f.idx[1],f.idx[2],f.boundaryId)  )
+			out.write( '%d %d %d %d %d\n'%(3,f.idx[0],f.idx[1],f.idx[2],bidMapper.getID(f.color))  )
 
 		out.write( '%d\n'%(0))
 
@@ -341,7 +341,7 @@ class Mesh():
 
 		for f in self.faces:
 			assert isinstance( f, Simplex3 )
-			out.write( '%d %d %d %d\n'%(3,f.idx[0]-1,f.idx[1]-1,f.idx[2]-1)  )
+			out.write( '%d %d %d %d\n'%(3,f.idx[0],f.idx[1],f.idx[2])  )
 
 		out.flush()
 		out.close()
@@ -372,17 +372,21 @@ class Mesh():
 			line = fd.readline().split()
 			try:
 				v = vector( line[0], line[1], line[2] )
-				self.vertices.appendVert( v )
-			except:
+				if len(line) > 5:
+					c = Vector3(line[3],line[4],line[5])
+				else:
+					c = Vector3()
+				self.vertices.appendVert( v,c )
+			except Exception, e:
+				print e
 				print line
 				break
 		for i in range(num_faces):
 			line = fd.readline().split()
-			v0 = int(line[1])+1
-			v1 = int(line[2])+1
-			v2 = int(line[3])+1
-			b_id = 1 #int(line[4])
-			s = Simplex3(v0,v1,v2,self.vertices,len(self.faces),b_id )
+			v0 = int(line[1])
+			v1 = int(line[2])
+			v2 = int(line[3])
+			s = Simplex3(v0,v1,v2,self.vertices,len(self.faces) )
 			self.faces.append( s )
 			for v in [v0,v1,v2]:
 				if self.adj_points.has_key(v) :

@@ -33,6 +33,16 @@ class ImpossibleException(Exception):
 import math, copy
 from euclid import *
 
+class ColorToBoundaryIdMapper:
+	def __init__(self):
+		self.known_colors = []
+
+	def getID(self, color):
+		assert isinstance( color, Vector3 )
+		if not color in self.known_colors:
+			self.known_colors.append(color)
+		return self.known_colors.index(color) + 1
+
 class PLCPointList:
 	"""static var numbering all vertices"""
 	global_vertices = []
@@ -40,14 +50,22 @@ class PLCPointList:
 	def __init__(self, dim ):
 		self.dim = dim
 		self.verts = dict()
+		self.attribs = dict()
+		#set to -1 so we get a 0-based index for verts dict
+		self.duplicate_count = -1
+		#alias -> real vertex id mapping
+		self.aliases = dict()
 
-	def appendVert(self,x):
+	def appendVert(self,x,c):
 		if not x in PLCPointList.global_vertices:
 			PLCPointList.global_vertices.append(x)
-			glob_idx = len(PLCPointList.global_vertices)
 		else:
-			glob_idx = PLCPointList.global_vertices.index(x)
+			self.duplicate_count += 1
+			self.aliases[len(PLCPointList.global_vertices) + self.duplicate_count] \
+				= PLCPointList.global_vertices.index(x)
+		glob_idx = len(PLCPointList.global_vertices) + self.duplicate_count
 		self.verts[glob_idx] = x
+		self.attribs[glob_idx] = c
 		assert isinstance( glob_idx, int )
 		return glob_idx
 
@@ -59,6 +77,12 @@ class PLCPointList:
 
 	def __len__(self):
 		return len(self.verts)
+
+	def unalias(self,idx):
+		if self.aliases.has_key(idx):
+			return self.aliases[idx]
+		else:
+			return idx
 
 class Simplex:
 	def __init__(self,v1,v2,v3):
@@ -262,18 +286,23 @@ class BoundarySurface:
 		self.vertex_idx = self.outer_vertices_idx
 
 class Simplex3:
-	def __init__(self,a,b,c,pl,f_id,boundaryId=1):
+	def __init__(self,a,b,c,pl,f_id):
 		assert isinstance(pl,PLCPointList)
 		assert isinstance(a,int)
 		assert isinstance(b,int)
 		assert isinstance(c,int)
 		assert a!=b and b !=c and b!=c
+		self.attribs = ( pl.attribs[a], pl.attribs[b], pl.attribs[c] )
+		#use the real ids for drawing and morphing stuff
+		a = pl.unalias(a)
+		b = pl.unalias(b)
+		c = pl.unalias(c)
 		self.idx = ( a,b,c )
 		self.edge_idx = ( (a,b), (b,c), (c,a) )
-		self.boundaryId = boundaryId
 		self.id = f_id
 		self.reset(pl)
 		self.m = Vector3()
+		self.color = self.attribs[0]
 		
 	def reset(self,pl):
 		self.v = []
@@ -289,7 +318,8 @@ class Simplex3:
 		else:
 			self.n = (self.v[0] - self.v[1] ).cross(   self.v[1] - self.v[2] ) 
 		n_abs = abs(self.n)
-		self.n /= n_abs
+		if n_abs != 0.0:
+			self.n /= n_abs
 		self.edges = ( self.v[1] - self.v[0], self.v[2] - self.v[1], self.v[0] - self.v[2] )
 		self.area  = n_abs * 0.5
 

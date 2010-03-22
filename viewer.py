@@ -232,14 +232,14 @@ class MeshWidget(QtOpenGL.QGLWidget):
 		if self.draw_octree:
 			self.mesh.quad.draw()
 
-		glPushMatrix(  )
-		s = self.mesh.vertices.verts[self.point_draw]
-		glTranslatef(s.x,s.y,s.z)
-		q = gluNewQuadric()
-		gluSphere( q, GLdouble(0.65), GLint(10), GLint(10) )
-		glPopMatrix(  )
+		#single vertex marker
+		#glPushMatrix(  )
+		#s = self.mesh.vertices.verts[self.point_draw]
+		#glTranslatef(s.x,s.y,s.z)
+		#q = gluNewQuadric()
+		#gluSphere( q, GLdouble(0.65), GLint(10), GLint(10) )
+		#glPopMatrix(  )
 		
-
 		#self.mesh.drawAdjacentFaces( self.count )
 		#self.count += 1
 		#if self.count == len(self.mesh.faces):
@@ -387,9 +387,9 @@ class MeshViewer(QtGui.QMainWindow):
 
 	def reload(s):
 		if s.filename.endswith( '.ply' ):
-			s.mesh.parsePLY( s.filename )
+			s.widget.mesh.parsePLY( s.filename )
 		else:
-			s.mesh.parseSMESH( s.filename, False )
+			s.widget.mesh.parseSMESH( s.filename, False )
 		s.widget.mesh.prepDraw()
 		s.widget.update()
 
