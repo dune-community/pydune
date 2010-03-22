@@ -91,9 +91,8 @@ def getColourPaletteCheat( size, filter_colors=[] ):
 	org_size = size
 	while len(k) < org_size:
 		size += 1
-		k = set( getColourPalette( size ) )
-	k = list(k)
-	return filter(lambda p: p not in filter_colors,k)
+		k = filter(lambda p: p not in filter_colors, set( getColourPalette( size ) ))
+	return list(k)
 
 if __name__ == '__main__':
 	#k = getColourPalette( 9 )

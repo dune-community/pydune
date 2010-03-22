@@ -81,7 +81,7 @@ else:
 	functor = IdentityFunctor()
 	print "using identity functor"
 
-bidMapper = BoundaryIdToColorMapper(3)
+bidMapper = BoundaryIdToColorMapper(5)
 """left boundary area"""
 
 origin_L = Vector3(0,0,0)

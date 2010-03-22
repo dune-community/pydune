@@ -161,15 +161,13 @@ class MeshWidget(QtOpenGL.QGLWidget):
 
 		glEnable(GL_NORMALIZE)
 		light_position = ( 0., 0., 1., 0. )
-		white_light = ( 1., 1., 1., 0.01 )
-		d_light = ( 1., 1., 1., 0.1 )
-		red_light = ( 1., 0., 0., 0.7 )
-		glLightfv(GL_LIGHT0, GL_POSITION, light_position)
-		glLightfv(GL_LIGHT1, GL_POSITION, light_position)
-		glLightfv(GL_LIGHT0, GL_AMBIENT, white_light)
-		#glLightfv(GL_LIGHT1, GL_AMBIENT, ( 1., 1., 1., 0.8 ) )
-		glLightfv(GL_LIGHT1, GL_SPECULAR, red_light)
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, d_light)
+		white_light = ( 1., 1., 1., 0.501 )
+		d_light = ( 1., 1., 1., 0.01 )
+		spec = ( 1., 1., 1., 0.08 )
+		glLightfv(GL_LIGHT0, GL_POSITION, light_position )
+		glLightfv(GL_LIGHT0, GL_AMBIENT,  white_light )
+		#glLightfv(GL_LIGHT0, GL_DIFFUSE,  d_light )
+		glLightfv(GL_LIGHT0, GL_SPECULAR, spec )
 
 		glEnable(GL_LIGHTING)
 		glEnable(GL_LIGHT0)
@@ -294,11 +292,10 @@ class MeshWidget(QtOpenGL.QGLWidget):
 		self.draw_mesh = True
 
 		self.mesh = mesh.Mesh( 3 )
-		dd = filename.find('phantom') != -1
 		if filename.endswith( '.ply' ):
 			self.mesh.parsePLY( filename )
 		else:
-			self.mesh.parseSMESH( filename, dd )
+			self.mesh.parseSMESH( filename )
 		self.setAutoBufferSwap(True)
 		self.initializeGL()
 		self.zoom = -self.mesh.bounding_box.minViewDistance()
@@ -389,7 +386,7 @@ class MeshViewer(QtGui.QMainWindow):
 		if s.filename.endswith( '.ply' ):
 			s.widget.mesh.parsePLY( s.filename )
 		else:
-			s.widget.mesh.parseSMESH( s.filename, False )
+			s.widget.mesh.parseSMESH( s.filename )
 		s.widget.mesh.prepDraw()
 		s.widget.update()
 
