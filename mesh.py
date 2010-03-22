@@ -119,11 +119,12 @@ class Mesh():
 			#this way I can use vector for either dim
 			line.append(0)
 			v = vector( line[1], line[2], line[3] )
-			self.vertices.appendVert( v )
+			#use a dummy color
+			self.vertices.appendVert( v, Vector3() )
 		print 'read %d vertices'%len(self.vertices)
 		fn.close()
 
-	def parseSMESH_faces(self,filename,zero_based_idx):
+	def parseSMESH_faces(self,filename,zero_based_idx,bidToColorMapper=BoundaryIdToColorMapper(5)):
 		fn = open( filename, 'r' )
 		for line in fn.readlines():
 			line = line.split()
@@ -151,7 +152,8 @@ class Mesh():
 				s2 = Simplex3(v2,v0,c_id,self.vertices,len(self.faces),b_id )
 				self.faces.append( s2 )
 			else:
-				s = Simplex3(v0,v1,v2,self.vertices,len(self.faces),b_id )
+				color = bidToColorMapper.getColor( b_id )
+				s = Simplex3(v0,v1,v2,self.vertices,len(self.faces),color )
 				self.faces.append( s )
 				for v in [v0,v1,v2]:
 					if self.adj_points.has_key(v) :
@@ -278,18 +280,15 @@ class Mesh():
 		self.bounding_box = BoundingVolume( self )
 		self.quad = Quadtree(self)
 		glNewList(self.dl,GL_COMPILE)
-		glColor4f(1.0,0,0,opacity)
-		i = 0
 		if self.draw_faces:
 			glBegin(GL_TRIANGLES)					# Start Drawing The Pyramid
 			for f in self.faces:
 				self.drawFace(f)
-				i += 1
 			glEnd()
 
 		if self.draw_outline:
 			for f in self.faces:
-				glColor4f(0.0,0,0,opacity)
+				glColor4f(0,0,0,opacity)
 				self.drawOutline(f)
 		glEndList()
 
@@ -300,6 +299,8 @@ class Mesh():
 	def drawFace(s,f):
 		n = f.n
 		glNormal3f(n.x,n.y,n.z)
+		c = (f.color.x,f.color.y,f.color.z)
+		glColor(c)
 		for v in f.v:
 			glVertex3f(v.x, v.y, v.z )
 
@@ -373,7 +374,7 @@ class Mesh():
 			try:
 				v = vector( line[0], line[1], line[2] )
 				if len(line) > 5:
-					c = Vector3(line[3],line[4],line[5])
+					c = vector(line[3],line[4],line[5])
 				else:
 					c = Vector3()
 				self.vertices.appendVert( v,c )

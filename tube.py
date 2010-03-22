@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 tube.py (c) 2009 rene.milk@uni-muenster.de
@@ -81,11 +81,12 @@ else:
 	functor = IdentityFunctor()
 	print "using identity functor"
 
+bidMapper = BoundaryIdToColorMapper(3)
 """left boundary area"""
 
 origin_L = Vector3(0,0,0)
 L = functor.scale( Vector3( L_x, 0, 0 ) )
-bound_L = BoundarySurface( origin_L, L, num_spoke_points, num_verts, 2 )
+bound_L = BoundarySurface( bidMapper, origin_L, L, num_spoke_points, num_verts, 2 )
 
 grid = FullGrid( bound_L, 4 )
 
@@ -107,7 +108,7 @@ kipp_mat = Matrix4.new_rotatey( math.radians(15) )
 
 origin_R = Vector3(0,0,tube_length )
 R = functor.scale( Vector3( L_x, 0, tube_length ) )
-bound_R = BoundarySurface( origin_R, R, num_spoke_points, num_verts, 3, True )
+bound_R = BoundarySurface( bidMapper, origin_R, R, num_spoke_points, num_verts, 3, True )
 
 grid.connect(bound_R)
 grid.outputPLC( options.filename, sys.argv, options )

@@ -32,6 +32,7 @@ class ImpossibleException(Exception):
 
 import math, copy
 from euclid import *
+import utils
 
 class ColorToBoundaryIdMapper:
 	def __init__(self):
@@ -42,6 +43,18 @@ class ColorToBoundaryIdMapper:
 		if not color in self.known_colors:
 			self.known_colors.append(color)
 		return self.known_colors.index(color) + 1
+
+class BoundaryIdToColorMapper:
+	def __init__(self,expected=4):
+		self.bids = []
+		self.expected = expected
+		self.colormap = utils.getColourPaletteCheat(expected,[(0.0,0,0.0)])
+       
+	def getColor(self, bid):
+		if not bid in self.bids:
+			self.bids.append(bid)
+		c = self.colormap[ self.bids.index(bid) ]
+		return Vector3( c[0], c[1], c[2] )
 
 class PLCPointList:
 	"""static var numbering all vertices"""
@@ -225,7 +238,8 @@ class FullGrid:
 		out.write( '%d\n'%(0))
 
 class BoundarySurface:
-	def __init__(self, mid, first, count_inner_rings, count_spokes, bid, flip_face_def=False ):
+	def __init__(self, bidMapper, mid, first, count_inner_rings, count_spokes, bid, flip_face_def=False ):
+		self.color				= bidMapper.getColor(bid)
 		self.mid 				= mid
 		self.first 				= first
 		self.count_inner_rings 	= count_inner_rings
@@ -239,7 +253,7 @@ class BoundarySurface:
 		self.inner_vertices_idx 	= []
 		self.vertices 				= PLCPointList( 3 )
 		self.spokes					= []
-		self.mid_idx 				= self.vertices.appendVert( self.mid )
+		self.mid_idx 				= self.vertices.appendVert( self.mid, self.color )
 		
 		rot_mat = Matrix4.new_rotatez( self.alpha )
 		
@@ -250,7 +264,7 @@ class BoundarySurface:
 				L -= z_offset
 				L = rot_mat * L
 				L += z_offset
-			L_idx = self.vertices.appendVert( L )
+			L_idx = self.vertices.appendVert( L, self.color )
 			self.outer_vertices_idx.append( L_idx )
 			spoke_direction = self.mid - L 
 			assert self.mid.z == L.z
@@ -259,7 +273,7 @@ class BoundarySurface:
 			spoke_add  = spoke_direction / float( self.count_inner_rings )
 			for i in range( 1, self.count_inner_rings ):
 				p = L + ( i * spoke_add )
-				spoke_vertex_idx.append( self.vertices.appendVert( p ) )
+				spoke_vertex_idx.append( self.vertices.appendVert( p, self.color ) )
 			self.inner_vertices_idx.append( spoke_vertex_idx[-1] )
 			self.spokes.append( spoke_vertex_idx )
 
@@ -286,7 +300,7 @@ class BoundarySurface:
 		self.vertex_idx = self.outer_vertices_idx
 
 class Simplex3:
-	def __init__(self,a,b,c,pl,f_id):
+	def __init__(self,a,b,c,pl,f_id,color=None):
 		assert isinstance(pl,PLCPointList)
 		assert isinstance(a,int)
 		assert isinstance(b,int)
@@ -302,7 +316,10 @@ class Simplex3:
 		self.id = f_id
 		self.reset(pl)
 		self.m = Vector3()
-		self.color = self.attribs[0]
+		if color != None:
+			self.color = color
+		else:
+			self.color = self.attribs[0]/255.0
 		
 	def reset(self,pl):
 		self.v = []
