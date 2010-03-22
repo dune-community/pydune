@@ -71,7 +71,7 @@ class Mesh():
 		self.dl = None
 		self.refine = False
 
-	def parseSMESH(self, filename,zero_based_idx):
+	def parseSMESH(self, filename):
 		PLCPointList.global_vertices = []
 		self.vertices = PLCPointList(self.dim)
 		self.faces = []
@@ -85,12 +85,16 @@ class Mesh():
 		fd = open( filename, 'r' )
 		fd = skipCommentsAndEmptyLines( fd )
 		print fd.readline()
+		first = True
 		while fd:
 			line = fd.readline()
 			if line.startswith( '#' ):
 				continue
 			if len(line.split()) < self.dim + 0:
 				break
+			if first:
+				zero_based_idx = line.startswith('0')
+				first = False
 			verts.write(line)
 		print 'vertice writing complete'
 		#if zero_based_idx:
@@ -124,16 +128,16 @@ class Mesh():
 		print 'read %d vertices'%len(self.vertices)
 		fn.close()
 
-	def parseSMESH_faces(self,filename,zero_based_idx,bidToColorMapper=BoundaryIdToColorMapper(5)):
+	def parseSMESH_faces(self,filename,zero_based_idx,bidToColorMapper=BoundaryIdToColorMapper()):
 		fn = open( filename, 'r' )
 		for line in fn.readlines():
 			line = line.split()
 			#this way I can use vector for either dim
 			line.append(0)
-			if zero_based_idx:
-				v0 = int(line[1]) + 1
-				v1 = int(line[2]) + 1
-				v2 = int(line[3]) + 1
+			if not zero_based_idx:
+				v0 = int(line[1]) - 1
+				v1 = int(line[2]) - 1
+				v2 = int(line[3]) - 1
 			else:
 				v0 = int(line[1])
 				v1 = int(line[2])
@@ -189,7 +193,7 @@ class Mesh():
 		glEnd()
 
 	def drawOutline(self,f,opacity=1):
-		glLineWidth(1)
+		glLineWidth(4)
 		glBegin(GL_LINE_LOOP)
 		n = f.n
 		#glNormal3f(n.x,n.y,n.z)

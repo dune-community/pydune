@@ -45,7 +45,7 @@ class ColorToBoundaryIdMapper:
 		return self.known_colors.index(color) + 1
 
 class BoundaryIdToColorMapper:
-	def __init__(self,expected=4):
+	def __init__(self,expected=11):
 		self.bids = []
 		self.expected = expected
 		self.colormap = utils.getColourPaletteCheat(expected,[(0.0,0,0.0)])
@@ -53,8 +53,13 @@ class BoundaryIdToColorMapper:
 	def getColor(self, bid):
 		if not bid in self.bids:
 			self.bids.append(bid)
-		c = self.colormap[ self.bids.index(bid) ]
-		return Vector3( c[0], c[1], c[2] )
+		try:
+			c = self.colormap[ self.bids.index(bid) ]
+			return Vector3( c[0], c[1], c[2] )
+		except Exception, e:
+			print e
+			print bid
+			return Vector3()
 
 class PLCPointList:
 	"""static var numbering all vertices"""
