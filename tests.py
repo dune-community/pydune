@@ -35,9 +35,30 @@ def parseWriteDiff(filename):
 	fn2 = m.write( t.name )
 	#diff = difflib.unified_diff( open( filename ).readlines(), open( fn2 ).readlines() )
 	diff = difflib.HtmlDiff().make_file( open( filename ).readlines(), open( fn2 ).readlines() )
-	open( 'diff' ,'w' ).writelines(diff)
+	open( '%s.diff.html'%filename ,'w' ).writelines(diff)
 	m.parse( fn2 )
 
+def convertDiff(filename):
+	m = Mesh(3)
+	sf = filename[filename.rindex('.'):]
+	if sf == '.smesh':
+		sf_o = '.ply'
+	else:
+		sf_o = '.smesh'
+	m.parse( filename )
+	t = NamedTemporaryFile(suffix=sf_o)
+	m.write( t.name )
+	m.parse( t.name )
+	t2 = NamedTemporaryFile(suffix=sf)
+	fn2 = m.write( t2.name )
+	#diff = difflib.unified_diff( open( filename ).readlines(), open( fn2 ).readlines() )
+	diff = difflib.HtmlDiff().make_file( open( filename ).readlines(), open( fn2 ).readlines() )
+	open( '%s.convert.diff.html'%filename ,'w' ).writelines(diff)
+
 if __name__ == '__main__':
-	filename = sys.argv[1]
-	parseWriteDiff( filename )
+	for fn in ['test_grids/tube.smesh', 'test_grids/aorta_dune.smesh' ]:
+		print 'testing %s '%fn, '-'*50
+		print '-'*10 , 'parseWriteDiff'
+		parseWriteDiff( fn )
+		print '-'*10 , 'convertDiff'
+		convertDiff( fn )
