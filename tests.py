@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+gridhelper.py (c) 2009 rene.milk@uni-muenster.de
+
+It is licensed to you under the terms of the WTFPLv2 (see below).
+
+This program is free software. It comes with no warranty,
+to the extent permitted by applicable law.
+
+
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+                    Version 2, December 2004
+
+ Copyright (C) 2004 Sam Hocevar
+  14 rue de Plaisance, 75014 Paris, France
+ Everyone is permitted to copy and distribute verbatim or modified
+ copies of this license document, and changing it is allowed as long
+ as the name is changed.
+
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+  0. You just DO WHAT THE FUCK YOU WANT TO.
+"""
+
+import sys,difflib
+from mesh import Mesh
+from tempfile import NamedTemporaryFile
+
+def parseWriteDiff(filename):
+	m = Mesh(3)
+	m.parse( filename )
+	t = NamedTemporaryFile(suffix=filename[filename.rindex('.'):])
+	fn2 = m.write( t.name )
+	#diff = difflib.unified_diff( open( filename ).readlines(), open( fn2 ).readlines() )
+	diff = difflib.HtmlDiff().make_file( open( filename ).readlines(), open( fn2 ).readlines() )
+	open( 'diff' ,'w' ).writelines(diff)
+	m.parse( fn2 )
+
+if __name__ == '__main__':
+	filename = sys.argv[1]
+	parseWriteDiff( filename )
