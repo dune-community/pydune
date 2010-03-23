@@ -34,9 +34,9 @@ def parseWriteDiff(filename):
 	t = NamedTemporaryFile(suffix=filename[filename.rindex('.'):])
 	fn2 = m.write( t.name )
 	#diff = difflib.unified_diff( open( filename ).readlines(), open( fn2 ).readlines() )
+	print '-'*20 , 'generating diff output, parseWriteDiff'
 	diff = difflib.HtmlDiff().make_file( open( filename ).readlines(), open( fn2 ).readlines() )
 	open( '%s.diff.html'%filename ,'w' ).writelines(diff)
-	m.parse( fn2 )
 
 def convertDiff(filename):
 	m = Mesh(3)
@@ -52,11 +52,16 @@ def convertDiff(filename):
 	t2 = NamedTemporaryFile(suffix=sf)
 	fn2 = m.write( t2.name )
 	#diff = difflib.unified_diff( open( filename ).readlines(), open( fn2 ).readlines() )
+	print '-'*20 , 'generating diff output, convertDiff'
 	diff = difflib.HtmlDiff().make_file( open( filename ).readlines(), open( fn2 ).readlines() )
 	open( '%s.convert.diff.html'%filename ,'w' ).writelines(diff)
 
 if __name__ == '__main__':
-	for fn in ['test_grids/tube.smesh', 'test_grids/aorta_dune.smesh' ]:
+	if len(sys.argv) > 1:
+		grids = sys.argv[1:]
+	else:
+		grids = ['test_grids/tube.smesh', 'test_grids/aorta_dune.smesh' ]
+	for fn in grids:
 		print 'testing %s '%fn, '-'*50
 		print '-'*10 , 'parseWriteDiff'
 		parseWriteDiff( fn )
