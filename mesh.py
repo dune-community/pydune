@@ -26,14 +26,15 @@ to the extent permitted by applicable law.
 
 ply_header_tpl = """ply
 format ascii 1.0
-comment made by anonymous
-comment this file is a cube
 element vertex %d
-property float32 x
-property float32 y
-property float32 z
+property float x
+property float y
+property float z
+property uchar red
+property uchar green
+property uchar blue
 element face %d
-property list uint8 int32 vertex_index
+property list uchar uint vertex_index
 end_header
 """
 
@@ -107,7 +108,7 @@ class Mesh():
 			if len(line.split()) < self.dim + 0:
 				break
 			if first_vert:
-				zero_based_idx = line.startswith('0')
+				self.zero_based_idx = line.startswith('0')
 				first_vert = False
 			verts.write(line)
 		print 'vertice writing complete'
@@ -128,7 +129,7 @@ class Mesh():
 		faces.seek(0)
 		self.parseSMESH_vertices( verts )
 		print 'vert parsing complete'
-		self.parseSMESH_faces( faces, zero_based_idx)
+		self.parseSMESH_faces( faces )
 		print 'face parsing complete'
 		self.buildAdjacencyList()
 
@@ -142,12 +143,12 @@ class Mesh():
 			self.vertices.appendVert( v, Vector3() )
 		print 'read %d vertices'%len(self.vertices)
 
-	def parseSMESH_faces(self,fn,zero_based_idx,bidToColorMapper=BoundaryIdToColorMapper()):
+	def parseSMESH_faces(self,fn,bidToColorMapper=BoundaryIdToColorMapper()):
 		for line in fn.readlines():
 			line = line.split()
 			#this way I can use vector for either dim
 			line.append(0)
-			if not zero_based_idx:
+			if not self.zero_based_idx:
 				v0 = int(line[1]) - 1
 				v1 = int(line[2]) - 1
 				v2 = int(line[3]) - 1
@@ -267,7 +268,7 @@ class Mesh():
 			raise ImpossibleException()
 		out.write( '#\n%d 3 0 %d\n'%(len(PLCPointList.global_vertices),3) )#3 bids
 		out.write( '# all vertices\n#\n' )
-		cVert = 1
+		cVert = int(not self.zero_based_idx)
 		for v in PLCPointList.global_vertices:
 				out.write( '%d %f %f %f\n'%(cVert,v.x,v.y,v.z) )
 				cVert += 1
@@ -292,7 +293,8 @@ class Mesh():
 		except:
 			raise ImpossibleException()
 		out.write( ply_header_tpl%(len(PLCPointList.global_vertices),len(self.faces) ) )
-		for v in PLCPointList.global_vertices:
+		for v in self.vertices.verts:
+				#out.write( '%f %f %f %d %d %d\n'%(v.x,v.y,v.z,c.x,c.y.c.z ) )
 				out.write( '%f %f %f\n'%(v.x,v.y,v.z) )
 
 		for f in self.faces:
