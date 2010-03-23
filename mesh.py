@@ -44,6 +44,12 @@ import random
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+try:
+	#the spooled variant is new in 2.6
+	from tempfile import SpooledTemporaryFile as TemporaryFile
+except:
+	from tempfile import TemporaryFile
+
 def skipCommentsAndEmptyLines(fd):
 	while fd:
 		line = fd.readline()
@@ -71,6 +77,12 @@ class Mesh():
 		self.dl = None
 		self.refine = False
 
+	def parse(self, filename):
+		if filename.endswith( '.ply' ):
+			self.parsePLY( filename )
+		else:
+			self.parseSMESH( filename )
+
 	def parseSMESH(self, filename):
 		PLCPointList.global_vertices = []
 		self.vertices = PLCPointList(self.dim)
@@ -80,8 +92,8 @@ class Mesh():
 		self.adj_faces = dict()
 		vert_fn_ = filename + '.vertices'
 		face_fn_ = filename + '.faces'
-		verts = open(vert_fn_, 'w')
-		faces = open(face_fn_, 'w')
+		verts = TemporaryFile(mode='w+r')
+		faces = TemporaryFile(mode='w+r')
 		fd = open( filename, 'r' )
 		fd = skipCommentsAndEmptyLines( fd )
 		print fd.readline()
@@ -108,16 +120,16 @@ class Mesh():
 				break
 			faces.write(line)
 		print 'face writing complete'
-		verts.close()
-		faces.close()
-		self.parseSMESH_vertices(vert_fn_)
+		verts.seek(0)
+		faces.seek(0)
+		self.parseSMESH_vertices( verts )
 		print 'vert parsing complete'
-		self.parseSMESH_faces(face_fn_, zero_based_idx)
+		self.parseSMESH_faces( faces, zero_based_idx)
 		print 'face parsing complete'
 		self.buildAdjacencyList()
 
-	def parseSMESH_vertices(self,filename):
-		fn = open( filename, 'r' )
+	def parseSMESH_vertices(self,fn):
+		#fn = open( filename, 'r' )
 		for line in fn.readlines():
 			line = line.split()
 			#this way I can use vector for either dim
@@ -128,8 +140,8 @@ class Mesh():
 		print 'read %d vertices'%len(self.vertices)
 		fn.close()
 
-	def parseSMESH_faces(self,filename,zero_based_idx,bidToColorMapper=BoundaryIdToColorMapper()):
-		fn = open( filename, 'r' )
+	def parseSMESH_faces(self,fn,zero_based_idx,bidToColorMapper=BoundaryIdToColorMapper()):
+		#fn = open( filename, 'r' )
 		for line in fn.readlines():
 			line = line.split()
 			#this way I can use vector for either dim
@@ -309,6 +321,12 @@ class Mesh():
 			glVertex3f(v.x, v.y, v.z )
 
 	def write(self,fn,bidMapper=ColorToBoundaryIdMapper()):
+		if fn.endswith( '.ply' ):
+			self.mesh.writePLY( filename )
+		else:
+			self.mesh.writeSMESH( filename, bidMapper )
+	
+	def writeSMESH(self,fn,bidMapper=ColorToBoundaryIdMapper()):
 		out = None
 		if not fn.endswith( '.smesh' ):
 			fn += '.smesh'
