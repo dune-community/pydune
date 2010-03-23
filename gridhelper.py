@@ -222,7 +222,7 @@ class FullGrid:
 		out.write( '# options: %s\n'%options )
 		out.write( '%d 3 0 %d\n'%(len(PLCPointList.global_vertices),3) )#3 bids
 		out.write( '# all vertices\n#\n' )
-		cVert = 1
+		cVert = 0
 		for v in PLCPointList.global_vertices:
 				out.write( '%d %f %f %f\n'%(cVert,v.x,v.y,v.z) )
 				cVert += 1
