@@ -386,7 +386,7 @@ class MeshViewer(QtGui.QMainWindow):
 
 	def save(s):
 		s.filename = str(QtGui.QFileDialog.getSaveFileName(s,'Select file to save to'))
-		s.widget.mesh.write( s.filename )
+		s.filename = s.widget.mesh.write( s.filename )
 		s.widget.update()
 
 	def load(s):

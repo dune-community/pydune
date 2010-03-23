@@ -253,9 +253,9 @@ class Mesh():
 
 	def write(self,fn,bidMapper=ColorToBoundaryIdMapper()):
 		if fn.endswith( '.ply' ):
-			self.mesh.writePLY( filename )
+			return self.writePLY( fn )
 		else:
-			self.mesh.writeSMESH( filename, bidMapper )
+			return self.writeSMESH( fn, bidMapper )
 
 	def writeSMESH(self,fn,bidMapper=ColorToBoundaryIdMapper()):
 		out = None
@@ -280,6 +280,8 @@ class Mesh():
 			out.write( '%d %d %d %d %d\n'%(3,f.idx[0],f.idx[1],f.idx[2],bidMapper.getID(f.color))  )
 
 		out.write( '%d\n'%(0))
+		out.close()
+		return fn
 
 	def writePLY(self,fn):
 		out = None
@@ -299,6 +301,7 @@ class Mesh():
 
 		out.flush()
 		out.close()
+		return fn
 
 # ----------Drawing-------------------------------------------------------------------------------------- #
 
