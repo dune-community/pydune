@@ -75,6 +75,7 @@ class PLCPointList:
 		self.aliases = dict()
 
 	def appendVert(self,x,c):
+		assert isinstance( c, Vector3 )
 		if not x in PLCPointList.global_vertices:
 			PLCPointList.global_vertices.append(x)
 		else:

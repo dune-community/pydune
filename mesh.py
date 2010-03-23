@@ -157,12 +157,13 @@ class Mesh():
 				v1 = int(line[2])
 				v2 = int(line[3])
 			boundary_id = int(line[4])
+			color = bidToColorMapper.getColor( boundary_id )
 			if self.refine:
 				d0 = self.vertices.verts[v0]
 				d1 = self.vertices.verts[v1]
 				d2 = self.vertices.verts[v2]
 				c = (d0+d1+d2)/3.0
-				c_id = self.vertices.appendVert( c )
+				c_id = self.vertices.appendVert( c, color )
 				s0 = Simplex3(v0,v1,c_id,self.vertices,len(self.faces),boundary_id )
 				self.faces.append( s0 )
 				s1 = Simplex3(v1,v2,c_id,self.vertices,len(self.faces),boundary_id )
@@ -170,7 +171,6 @@ class Mesh():
 				s2 = Simplex3(v2,v0,c_id,self.vertices,len(self.faces),boundary_id )
 				self.faces.append( s2 )
 			else:
-				color = bidToColorMapper.getColor( boundary_id )
 				s = Simplex3(v0,v1,v2,self.vertices,len(self.faces),color )
 				self.faces.append( s )
 				for v in [v0,v1,v2]:
@@ -293,9 +293,10 @@ class Mesh():
 		except:
 			raise ImpossibleException()
 		out.write( ply_header_tpl%(len(PLCPointList.global_vertices),len(self.faces) ) )
-		for v in self.vertices.verts:
-				#out.write( '%f %f %f %d %d %d\n'%(v.x,v.y,v.z,c.x,c.y.c.z ) )
-				out.write( '%f %f %f\n'%(v.x,v.y,v.z) )
+		for i,v in self.vertices.verts.iteritems():
+				c = self.vertices.attribs[i]
+				#this will generate all black vertices, but conforms to format
+				out.write( '%f %f %f %d %d %d\n'%(v.x,v.y,v.z,c.x,c.y,c.z ) )
 
 		for f in self.faces:
 			assert isinstance( f, Simplex3 )
