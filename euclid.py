@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # euclid graphics maths module
 #
@@ -543,6 +544,9 @@ class Vector3:
         return Vector3(self.x - d * normal.x,
                        self.y - d * normal.y,
                        self.z - d * normal.z)
+
+    def __call__(s):
+        return [s.x,s.y,s.z]
 
 # a b c 
 # e f g 

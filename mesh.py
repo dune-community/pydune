@@ -305,10 +305,9 @@ class Mesh():
 	def drawOutline(self,f,opacity=1):
 		glLineWidth(2)
 		glBegin(GL_LINE_LOOP)
-		n = f.n
-		glNormal3f(n.x,n.y,n.z)
+		glNormal3fv(f.n())
 		for v in f.v:
-			glVertex3f(v.x, v.y, v.z )
+			glVertex(v())
 		glEnd()
 				
 	def drawAdjacentFaces( self, face_idx ):
@@ -348,11 +347,10 @@ class Mesh():
 
 	def drawFace(s,f):
 		n = f.n
-		glNormal3f(n.x,n.y,n.z)
-		c = (f.color.x,f.color.y,f.color.z)
-		glColor(c)
+		glNormal3fv(f.n())
+		glColor(f.color())
 		for v in f.v:
-			glVertex3f(v.x, v.y, v.z )
+			glVertex(v())
 
 # ----------Mesh deformation-------------------------------------------------------------------------------------- #
 
