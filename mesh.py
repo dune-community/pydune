@@ -187,6 +187,8 @@ class Mesh():
 
 	def parsePLY(self,fn):
 		fd = open( fn, 'r' )
+		#a rather hard assumption...
+		self.zero_based_idx = True
 		PLCPointList.global_vertices = []
 		self.vertices = PLCPointList(self.dim)
 		self.faces = []
