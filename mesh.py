@@ -99,7 +99,8 @@ class Mesh():
 		faces = TemporaryFile(mode='w+r')
 		fd = open( filename, 'r' )
 		fd = skipCommentsAndEmptyLines( fd )
-		print fd.readline()
+		#skip one more line..
+		dummy = fd.readline()
 		first_vert = True
 		while fd:
 			line = fd.readline()
@@ -114,7 +115,8 @@ class Mesh():
 		print 'vertice writing complete'
 
 		fd = skipCommentsAndEmptyLines( fd )
-		print fd.readline()
+		#skip one more line..
+		dummy = fd.readline()
 		while fd:
 			line = fd.readline()
 			if line.startswith( '#' ):

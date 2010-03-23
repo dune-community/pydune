@@ -311,7 +311,10 @@ class Simplex3:
 		assert isinstance(a,int)
 		assert isinstance(b,int)
 		assert isinstance(c,int)
-		assert a!=b and b !=c and b!=c
+		assert a!=b and b !=c and b!=c, 'degenerated simplex'
+		assert a > -1, 'negative vertex id: %d / %d / %d'%(a,b,c)
+		assert b > -1, 'negative vertex id: %d / %d / %d'%(a,b,c)
+		assert c > -1, 'negative vertex id: %d / %d / %d'%(a,b,c)
 		self.attribs = ( pl.attribs[a], pl.attribs[b], pl.attribs[c] )
 		#use the real ids for drawing and morphing stuff
 		a = pl.unalias(a)
