@@ -366,7 +366,7 @@ class Mesh():
 	def drawFace(s,f):
 		n = f.n
 		glNormal3fv(f.n())
-		glColor(f.color())
+		glColor3fv(f.color())
 		for v in f.v:
 			glVertex(v())
 
