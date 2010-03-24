@@ -120,7 +120,7 @@ def vector( x,y,z=None ):
 
 class MeshVertexList(object):
 	def __init__(self, dim=3):
-		self.__vertices = []
+		self.__vertices = dict()
 		self.attribs = dict()
 		#alias -> real vertex id mapping
 		self.aliases = dict()
@@ -132,7 +132,7 @@ class MeshVertexList(object):
 		next_vertex_id = len(self.__vertices) + len(self.duplicates)
 
 		if not v in self.__vertices:
-			self.__vertices.append(v)
+			self.__vertices[next_vertex_id] = v
 			self.aliases[next_vertex_id] = next_vertex_id
 		else:
 			self.duplicates.append(v)
@@ -143,7 +143,7 @@ class MeshVertexList(object):
 	def __getitem__(self,idx):
 		assert idx in self.aliases.keys()
 		real_idx = self.aliases[idx]
-		assert len(self.__vertices) >  real_idx , 'v %d -- r %d| len %d'%(idx, real_idx,len(self.__vertices))
+		#assert len(self.__vertices) >  real_idx , 'v %d -- r %d| len %d'%(idx, real_idx,len(self.__vertices))
 		return self.__vertices[real_idx]
 
 	def __setitem__(self,idx,v):
@@ -164,4 +164,8 @@ class MeshVertexList(object):
 		return len(self.__vertices)
 
 	def getVertices(s):
-		return s.__vertices[:]
+		return s.__vertices.values()[:]
+
+def find_key(dic, val):
+	"""return the key of dictionary dic given the value"""
+	return [k for k, v in dic.iteritems() if v == val][0]

@@ -34,10 +34,6 @@ import math, copy
 from euclid import Vector3
 import utils
 
-def find_key(dic, val):
-	"""return the key of dictionary dic given the value"""
-	return [k for k, v in d.iteritems() if v == val][0]
-
 class PLCPointList:
 	"""static var numbering all vertices"""
 	global_vertices = []

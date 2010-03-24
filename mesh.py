@@ -39,7 +39,7 @@ end_header
 """
 
 from meshutil import MeshVertexList, Simplex3, BoundaryIdToColorMapper, \
-	ColorToBoundaryIdMapper, vector
+	ColorToBoundaryIdMapper, vector, find_key
 from quadtree import Quadtree,Box
 from euclid import Vector3
 import random
@@ -230,8 +230,8 @@ class Mesh():
 				print e
 				print line
 				raise e
-		print len(self.vertex_list.duplicates),self.vertex_list.duplicates
-		
+		#print len(self.vertex_list.duplicates),self.vertex_list.duplicates
+		print filter( lambda (i,v): i != v, self.vertex_list.aliases.iteritems() )
 		for i in range(num_faces):
 			line = map( lambda p: self.vertex_list.realIndex(int(p)), fd.readline().split()[1:] )
 			v0 = line[0]
