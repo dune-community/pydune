@@ -89,8 +89,7 @@ class Mesh():
 			self.parseSMESH( filename )
 
 	def parseSMESH(self, filename):
-		MeshVertexList.global_vertices = []
-		self.plc_pointlist = MeshVertexList(self.dim)
+		self.vertex_list = MeshVertexList(self.dim)
 		self.faces = []
 		self.edges = []
 		self.adj_points = dict()
@@ -144,22 +143,22 @@ class Mesh():
 			line.append(0)
 			v = vector( line[1], line[2], line[3] )
 			#use a dummy color
-			self.plc_pointlist.addVertex( v, Vector3() )
-		print 'read %d vertices'%len(self.plc_pointlist)
+			self.vertex_list.addVertex( v, Vector3() )
+		print 'read %d vertices'%len(self.vertex_list)
 
 	def parseSMESH_faces(self,fn,bidToColorMapper=BoundaryIdToColorMapper()):
 		for line in fn.readlines():
 			line = line.split()
 			#if not self.zero_based_idx:
-				#v = map( lambda p: self.plc_pointlist.realIndex(int(p) -1 ), line[1:4] )
+				#v = map( lambda p: self.vertex_list.realIndex(int(p) -1 ), line[1:4] )
 			#else:
-				#v = map( lambda p: self.plc_pointlist.realIndex(int(p) ), line[1:4] )
+				#v = map( lambda p: self.vertex_list.realIndex(int(p) ), line[1:4] )
 			line.append(0)
 			if not self.zero_based_idx:
 				v0 = int(line[1]) - 1
 				v1 = int(line[2]) - 1
 				v2 = int(line[3]) - 1
-				#v = map( lambda p: self.plc_pointlist.realIndex(int(p) -1 ), line[1:4] )
+				#v = map( lambda p: self.vertex_list.realIndex(int(p) -1 ), line[1:4] )
 			else:
 				v0 = int(line[1])
 				v1 = int(line[2])
@@ -169,19 +168,19 @@ class Mesh():
 			color = bidToColorMapper.getColor( boundary_id )
 			if self.refine:
 				assert False
-				d0 = self.plc_pointlist.verts[v0]
-				d1 = self.plc_pointlist.verts[v1]
-				d2 = self.plc_pointlist.verts[v2]
+				d0 = self.vertex_list.verts[v0]
+				d1 = self.vertex_list.verts[v1]
+				d2 = self.vertex_list.verts[v2]
 				c = (d0+d1+d2)/3.0
-				c_id = self.plc_pointlist.addVertex( c, color )
-				s0 = Simplex3(v0,v1,c_id,self.plc_pointlist,len(self.faces),boundary_id )
+				c_id = self.vertex_list.addVertex( c, color )
+				s0 = Simplex3(v0,v1,c_id,self.vertex_list,len(self.faces),boundary_id )
 				self.faces.append( s0 )
-				s1 = Simplex3(v1,v2,c_id,self.plc_pointlist,len(self.faces),boundary_id )
+				s1 = Simplex3(v1,v2,c_id,self.vertex_list,len(self.faces),boundary_id )
 				self.faces.append( s1 )
-				s2 = Simplex3(v2,v0,c_id,self.plc_pointlist,len(self.faces),boundary_id )
+				s2 = Simplex3(v2,v0,c_id,self.vertex_list,len(self.faces),boundary_id )
 				self.faces.append( s2 )
 			else:
-				s = Simplex3(v[0],v[1],v[2],self.plc_pointlist,len(self.faces),color )
+				s = Simplex3(v[0],v[1],v[2],self.vertex_list,len(self.faces),color )
 				self.faces.append( s )
 				for one_v in v:
 					if self.adj_points.has_key(one_v) :
@@ -199,8 +198,7 @@ class Mesh():
 		fd = open( fn, 'r' )
 		#a rather hard assumption...
 		self.zero_based_idx = True
-		MeshVertexList.global_vertices = []
-		self.plc_pointlist = MeshVertexList(self.dim)
+		self.vertex_list = MeshVertexList(self.dim)
 		self.faces = []
 		self.edges = []
 		self.adj_points = dict()
@@ -227,17 +225,17 @@ class Mesh():
 					c = vector(line[3],line[4],line[5])
 				else:
 					c = Vector3()
-				self.plc_pointlist.addVertex( v,c )
+				self.vertex_list.addVertex( v,c )
 			except Exception, e:
 				print e
 				print line
 				raise e
 		for i in range(num_faces):
-			line = map( lambda p: self.plc_pointlist.realIndex(int(p)), fd.readline().split() )
+			line = map( lambda p: self.vertex_list.realIndex(int(p)), fd.readline().split() )
 			v0 = line[1]
 			v1 = line[2]
 			v2 = line[3]
-			s = Simplex3(v0,v1,v2,self.plc_pointlist,len(self.faces) )
+			s = Simplex3(v0,v1,v2,self.vertex_list,len(self.faces) )
 			self.faces.append( s )
 			for v in [v0,v1,v2]:
 				if self.adj_points.has_key(v) :
@@ -305,8 +303,8 @@ class Mesh():
 		except:
 			raise ImpossibleException()
 		out.write( ply_header_tpl%(len(MeshVertexList.global_vertices),len(self.faces) ) )
-		for i,v in self.plc_pointlist.verts.iteritems():
-				c = self.plc_pointlist.attribs[i]
+		for i,v in self.vertex_list.verts.iteritems():
+				c = self.vertex_list.attribs[i]
 				#this will generate all black vertices, but conforms to format
 				out.write( '%f %f %f %d %d %d\n'%(v.x,v.y,v.z,c.x,c.y,c.z ) )
 
@@ -340,7 +338,7 @@ class Mesh():
 
 	def prepDraw(self,opacity=1.):
 		for f in self.faces:
-			f.reset(self.plc_pointlist)
+			f.reset(self.vertex_list)
 		if self.dl :
 			glDeleteLists( self.dl, 1 )
 		self.dl = glGenLists(1)
@@ -377,24 +375,24 @@ class Mesh():
 		s = Vector3()
 		if n > 0:
 			for j in N_1_p:
-				s += self.plc_pointlist[j] - p
+				s += self.vertex_list[j] - p
 			s /= float(n)
 		return s
 
 	def scale(self,factor):
-		for i in range(len(self.plc_pointlist)):
-			self.plc_pointlist[i] *= factor
+		for i in range(len(self.vertex_list)):
+			self.vertex_list[i] *= factor
 		self.prepDraw()
 
 	def smooth(self,step):
 		n = 0
 		avg = 0.0
-		for i in range( len(self.plc_pointlist) ):
+		for i in range( len(self.vertex_list) ):
 			if self.adj_points.has_key(i):
-				p_old = self.plc_pointlist[i]
-				displacement = step * self.laplacianDisplacement( self.adj_points[i], self.plc_pointlist[i] )
-				p_new = self.plc_pointlist[i] + displacement
-				self.plc_pointlist[i] += displacement
+				p_old = self.vertex_list[i]
+				displacement = step * self.laplacianDisplacement( self.adj_points[i], self.vertex_list[i] )
+				p_new = self.vertex_list[i] + displacement
+				self.vertex_list[i] += displacement
 				avg = ( abs(p_old)/abs(p_new) + n * avg ) / float( n + 1 )
 				n += 1
 		#self.scale( 0.91*avg )
@@ -424,14 +422,14 @@ class Mesh():
 					displacement[i] += t.area * v_t
 				displacement[i] /= area_n_sum
 			for i in range(3):
-				p_new = self.plc_pointlist[f.idx[i]] + displacement[i]
-				self.plc_pointlist[f.idx[i]] = p_new
-			#self.faces[f.id].reset(self.plc_pointlist)
+				p_new = self.vertex_list[f.idx[i]] + displacement[i]
+				self.vertex_list[f.idx[i]] = p_new
+			#self.faces[f.id].reset(self.vertex_list)
 		self.prepDraw()
 		print 'smooth2 done'
 
 	def noise(self,factor):
-		for i in range( len(self.plc_pointlist) ):
-			#self.plc_pointlist.verts[i] += random.gauss( factor, 1 ) * self.plc_pointlist.verts[i]
-			self.plc_pointlist.verts[i] += random.random( ) * factor * self.plc_pointlist.verts[i]
+		for i in range( len(self.vertex_list) ):
+			#self.vertex_list.verts[i] += random.gauss( factor, 1 ) * self.vertex_list.verts[i]
+			self.vertex_list.verts[i] += random.random( ) * factor * self.vertex_list.verts[i]
 		self.prepDraw()

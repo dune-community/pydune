@@ -68,16 +68,12 @@ class Simplex3:
 		assert isinstance(b,int)
 		assert isinstance(c,int)
 		assert a!=b and b !=c and b!=c, 'degenerated simplex'
-		assert a > -1, 'negative vertex id: %d / %d / %d'%(a,b,c)
-		assert b > -1, 'negative vertex id: %d / %d / %d'%(a,b,c)
-		assert c > -1, 'negative vertex id: %d / %d / %d'%(a,b,c)
+		max_id = len(pl)
+		assert a > -1 and a <= max_id, 'negative vertex id: %d / %d / %d'%(a,b,c)
+		assert b > -1 and b <= max_id, 'negative vertex id: %d / %d / %d'%(a,b,c)
+		assert c > -1 and c <= max_id, 'negative vertex id: %d / %d / %d'%(a,b,c)
 		self.attribs = ( pl.attribs[a], pl.attribs[b], pl.attribs[c] )
 		self.idx = ( a,b,c )
-		ok = []
-		#if oa != a or ob != b or oc != c:
-			#for id in ( (a,oa) ,(b,ob),(c,oc)):
-				#assert pl.verts[id[0]] == pl.verts[id[1]] , '%s%s%s -- %s\n%s'%(pl.verts[id[0]], ' -- ', pl.verts[id[1]], id, ok)
-				#ok.append( id )
 		self.edge_idx = ( (a,b), (b,c), (c,a) )
 		self.id = f_id
 		self.reset(pl)
@@ -97,7 +93,6 @@ class Simplex3:
 			except IndexError, e:
 				print self.idx, id
 				raise e
-
 		self.center /= 3.0
 		if self.v[0] < self.v[1]  and self.v[1] < self.v[2]:
 			self.n = ( - self.v[0] + self.v[1] ).cross( - self.v[0] + self.v[2] )
@@ -121,12 +116,9 @@ def vector( x,y,z=None ):
 		return Vector3( float(x),float(y), 0.0 )
 
 class MeshVertexList(object):
-	def __init__(self, dim):
-		self.dim = dim
-		self.vertices = []
+	def __init__(self, dim=3):
+		self.__vertices = []
 		self.attribs = dict()
-		#set to -1 so we get a 0-based index for verts dict
-		self.duplicate_count = -1
 		#alias -> real vertex id mapping
 		self.aliases = dict()
 		self.duplicates = []
@@ -134,27 +126,29 @@ class MeshVertexList(object):
 	def addVertex(self,v,c):
 		assert isinstance( c, Vector3 )
 		assert isinstance( v, Vector3 )
-		next_vertex_id = len(self.vertices) + len(self.duplicates)
+		next_vertex_id = len(self.__vertices) + len(self.duplicates)
 
-		if not v in self.vertices:
-			self.vertices.append(v)
+		if not v in self.__vertices:
+			self.__vertices.append(v)
 			self.aliases[next_vertex_id] = next_vertex_id
 		else:
 			self.duplicates.append(v)
-			self.aliases[next_vertex_id] = self.vertices.index( v )
+			self.aliases[next_vertex_id] = self.__vertices.index( v )
 		self.attribs[next_vertex_id] = c
 		return next_vertex_id
 
 	def __getitem__(self,idx):
+		assert idx in self.aliases.keys()
 		idx = self.aliases[idx]
-		return self.vertices[idx]
+		return self.__vertices[idx]
 
 	def __setitem__(self,idx,v):
 		assert isinstance(idx,int)
 		assert idx > -1
 		assert isinstance(v, Vector3)
 		idx = self.aliases[idx]
-		self.vertices[idx] = v
+		print v, ' -- ', self.__vertices[idx]
+		self.__vertices[idx] = v
 
 	def realIndex(self,idx):
 		if '__getitem__' in dir(idx):
@@ -163,4 +157,7 @@ class MeshVertexList(object):
 			return self.aliases[idx]
 
 	def __len__(self):
-		return len(self.vertices)
+		return len(self.__vertices)
+
+	def getVertices(s):
+		return s.__vertices[:]
