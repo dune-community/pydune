@@ -31,7 +31,7 @@ class ImpossibleException(Exception):
 	pass
 
 import math, copy
-from euclid import Vector3
+from euclid import Vector3, Matrix4
 import utils
 
 class PLCPointList:

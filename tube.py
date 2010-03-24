@@ -28,6 +28,7 @@ from gridhelper import *
 from functors import *
 from optparse import OptionParser
 import math, copy, sys
+from meshutil import BoundaryIdToColorMapper
 
 use_hyperbole_functor = False
 def functor_callback(option, opt_str, value, parser):
