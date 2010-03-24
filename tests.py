@@ -27,18 +27,21 @@ to the extent permitted by applicable law.
 import sys,difflib
 from mesh import Mesh
 from tempfile import NamedTemporaryFile
+from PyQt4 import QtGui
+from viewer import MeshViewer
 
-def parseWriteDiff(filename):
+def parseWriteDiff(filename,do_diff=False):
 	m = Mesh(3)
 	m.parse( filename )
 	t = NamedTemporaryFile(suffix=filename[filename.rindex('.'):])
 	fn2 = m.write( t.name )
 	#diff = difflib.unified_diff( open( filename ).readlines(), open( fn2 ).readlines() )
-	print '-'*20 , 'generating diff output, parseWriteDiff'
-	diff = difflib.HtmlDiff().make_file( open( filename ).readlines(), open( fn2 ).readlines() )
-	open( '%s.diff.html'%filename ,'w' ).writelines(diff)
+	if do_diff:
+		print '-'*15 , 'generating diff output, parseWriteDiff'
+		diff = difflib.HtmlDiff().make_file( open( filename ).readlines(), open( fn2 ).readlines() )
+		open( '%s.diff.html'%filename ,'w' ).writelines(diff)
 
-def convertDiff(filename):
+def convertDiff(filename,do_diff=False):
 	m = Mesh(3)
 	sf = filename[filename.rindex('.'):]
 	if sf == '.smesh':
@@ -52,18 +55,28 @@ def convertDiff(filename):
 	t2 = NamedTemporaryFile(suffix=sf)
 	fn2 = m.write( t2.name )
 	#diff = difflib.unified_diff( open( filename ).readlines(), open( fn2 ).readlines() )
-	print '-'*20 , 'generating diff output, convertDiff'
-	diff = difflib.HtmlDiff().make_file( open( filename ).readlines(), open( fn2 ).readlines() )
-	open( '%s.convert.diff.html'%filename ,'w' ).writelines(diff)
+	if do_diff:
+		print '-'*15 , 'generating diff output, convertDiff'
+		diff = difflib.HtmlDiff().make_file( open( filename ).readlines(), open( fn2 ).readlines() )
+		open( '%s.convert.diff.html'%filename ,'w' ).writelines(diff)
+
+def viewerTest(filename):
+	app = QtGui.QApplication(['MeshViewer'])
+	window = MeshViewer(filename)
+	window.show()
+	#app.exec_()
 
 if __name__ == '__main__':
+	do_diff = False
 	if len(sys.argv) > 1:
 		grids = sys.argv[1:]
 	else:
-		grids = ['test_grids/tube.smesh', 'test_grids/aorta_dune.smesh' ]
+		grids = ['test_grids/colored_aorta.ply','test_grids/tube.smesh', 'test_grids/aorta_dune.smesh' ]
 	for fn in grids:
-		print 'testing %s '%fn, '-'*50
+		print '-'*5, 'testing %s '%fn
 		print '-'*10 , 'parseWriteDiff'
-		parseWriteDiff( fn )
+		parseWriteDiff( fn, do_diff )
 		print '-'*10 , 'convertDiff'
-		convertDiff( fn )
+		convertDiff( fn, do_diff )
+		print '-'*10 , 'viewerTest'
+		viewerTest(fn)

@@ -28,7 +28,6 @@ import mesh,sys,time,math
 from OpenGL.GL import *
 #from OpenGL.GLUT import *
 from OpenGL.GLU import *
-from PyQt4 import QtGui
 from PyQt4 import QtCore, QtGui, QtOpenGL
 
 class ControlPanel(QtGui.QWidget):
@@ -310,9 +309,12 @@ class MeshWidget(QtOpenGL.QGLWidget):
 class MeshViewer(QtGui.QMainWindow):
 	ESCAPE = '\033'
 	
-	def __init__(self):
+	def __init__(self,filename=None):
 		QtGui.QMainWindow.__init__(self)
-		self.filename = sys.argv[1]
+		if filename:
+			self.filename = filename
+		else:
+			self.filename = sys.argv[1]
 		self.widget = MeshWidget(self,self.filename)
 		self.setCentralWidget(self.widget)
 		self.cp = ControlPanel(self)
