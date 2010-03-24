@@ -34,6 +34,10 @@ import math, copy
 from euclid import *
 import utils
 
+def find_key(dic, val):
+	"""return the key of dictionary dic given the value"""
+	return [k for k, v in dic.iteritems() if v == val][0]
+
 class ColorToBoundaryIdMapper:
 	def __init__(self):
 		self.known_colors = []
@@ -73,19 +77,22 @@ class PLCPointList:
 		self.duplicate_count = -1
 		#alias -> real vertex id mapping
 		self.aliases = dict()
+		self.duplicates = []
 
 	def appendVert(self,x,c):
 		assert isinstance( c, Vector3 )
+		glob_idx = len(PLCPointList.global_vertices) + len(self.aliases) 
 		if not x in PLCPointList.global_vertices:
 			PLCPointList.global_vertices.append(x)
 		else:
-			self.duplicate_count += 1
-			self.aliases[len(PLCPointList.global_vertices) + self.duplicate_count] \
-				= PLCPointList.global_vertices.index(x)
-		glob_idx = len(PLCPointList.global_vertices) + self.duplicate_count
+			assert x not in self.duplicates
+			self.duplicates.append( x )
+			x_id = find_key(self.verts, x)
+			self.aliases[glob_idx] = x_id
+			assert self.verts[x_id] == x, '%d -- %d | %s -- %s'%(glob_idx,x_id, x, self.verts[x_id] )
+		
 		self.verts[glob_idx] = x
 		self.attribs[glob_idx] = c
-		assert isinstance( glob_idx, int )
 		return glob_idx
 
 	def simpleString(self):
@@ -317,10 +324,18 @@ class Simplex3:
 		assert c > -1, 'negative vertex id: %d / %d / %d'%(a,b,c)
 		self.attribs = ( pl.attribs[a], pl.attribs[b], pl.attribs[c] )
 		#use the real ids for drawing and morphing stuff
+		oa = a
+		ob = b
+		oc = c
 		a = pl.unalias(a)
 		b = pl.unalias(b)
 		c = pl.unalias(c)
 		self.idx = ( a,b,c )
+		ok = []
+		if oa != a or ob != b or oc != c:
+			for id in ( (a,oa) ,(b,ob),(c,oc)):
+				assert pl.verts[id[0]] == pl.verts[id[1]] , '%s%s%s -- %s\n%s'%(pl.verts[id[0]], ' -- ', pl.verts[id[1]], id, ok)
+				ok.append( id )
 		self.edge_idx = ( (a,b), (b,c), (c,a) )
 		self.id = f_id
 		self.reset(pl)
