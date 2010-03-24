@@ -41,7 +41,7 @@ if __name__ == '__main__':
 		convert( sys.argv[1], sys.argv[2] )
 
 	except Exception,e:
-		print 'conversion failed, ecpetion was:'
+		print 'conversion failed, exception was:'
 		print e
 		print usage%sys.argv[0]
 		
