@@ -330,30 +330,6 @@ class MeshViewer(QtGui.QMainWindow):
 		# If escape is pressed, kill everything.
 		if args[0] == MeshViewer.ESCAPE:
 			sys.exit()
-		if args[0] == '1':
-			self.widget.mesh.smooth(0.1)
-		if args[0] == '3':
-			c = 40
-			for i in range(c):
-				self.widget.mesh.smooth(0.01)
-			print '%d smooth1 iterations completed'%c
-		if args[0] == '2':
-			self.widget.mesh.smooth2(10)
-		if args[0] == 'n':
-			self.widget.mesh.noise(0.1)
-		if args[0] == '+':
-			self.widget.zoom += 5
-		if args[0] == '-':
-			self.widget.zoom -= 5
-		if args[0] == 'b':
-			self.widget.draw_bounding_box = not self.widget.draw_bounding_box
-		if args[0] == 'o':
-			self.widget.draw_octree = not self.widget.draw_octree
-		if args[0] == 'm':
-			self.widget.draw_mesh = not self.widget.draw_mesh
-		if args[0] == 'c':
-			glEnable(GL_COLOR_MATERIAL)
-		self.widget.update()
 		event.accept()
 
 	def smoothLaplace(self):
