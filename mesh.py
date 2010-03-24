@@ -38,7 +38,7 @@ property list uchar uint vertex_index
 end_header
 """
 
-from gridhelper import MeshVertexList, Simplex3, BoundaryIdToColorMapper, \
+from meshutil import MeshVertexList, Simplex3, BoundaryIdToColorMapper, \
 	ColorToBoundaryIdMapper, vector
 from quadtree import Quadtree,Box
 from euclid import Vector3
@@ -46,6 +46,7 @@ import random
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from bounding import BoundingVolume
+#from meshutil import *
 
 try:
 	#the spooled variant is new in 2.6
