@@ -230,11 +230,13 @@ class Mesh():
 				print e
 				print line
 				raise e
+		print len(self.vertex_list.duplicates),self.vertex_list.duplicates
+		
 		for i in range(num_faces):
-			line = map( lambda p: self.vertex_list.realIndex(int(p)), fd.readline().split() )
-			v0 = line[1]
-			v1 = line[2]
-			v2 = line[3]
+			line = map( lambda p: self.vertex_list.realIndex(int(p)), fd.readline().split()[1:] )
+			v0 = line[0]
+			v1 = line[1]
+			v2 = line[2]
 			s = Simplex3(v0,v1,v2,self.vertex_list,len(self.faces) )
 			self.faces.append( s )
 			for v in [v0,v1,v2]:
@@ -276,12 +278,13 @@ class Mesh():
 			out = open(fn,'w')
 		except:
 			raise ImpossibleException()
-		out.write( '#\n%d 3 0 %d\n'%(len(MeshVertexList.global_vertices),3) )#3 bids
+		out.write( '#\n%d 3 0 %d\n'%(len(self.vertex_list),3) )#3 bids
 		out.write( '# all vertices\n#\n' )
 		cVert = int(not self.zero_based_idx)
-		for i,v in MeshVertexList.global_vertices:
-				out.write( '%d %f %f %f\n'%(cVert,v.x,v.y,v.z) )
-				cVert += 1
+		for i in range( len(self.vertex_list) ):
+			v = self.vertex_list[i]
+			out.write( '%d %f %f %f\n'%(cVert,v.x,v.y,v.z) )
+			cVert += 1
 
 		out.write( '\n# number of facets (= number of triangles), border marker\n#\n%d 1\n'%(len(self.faces)) )
 		out.write( '# all faces\n#\n' )
@@ -302,8 +305,9 @@ class Mesh():
 			out = open(fn,'w')
 		except:
 			raise ImpossibleException()
-		out.write( ply_header_tpl%(len(MeshVertexList.global_vertices),len(self.faces) ) )
-		for i,v in self.vertex_list.verts.iteritems():
+		out.write( ply_header_tpl%(len(self.vertex_list),len(self.faces) ) )
+		for i in range( len(self.vertex_list) ):
+				v = self.vertex_list[i]
 				c = self.vertex_list.attribs[i]
 				#this will generate all black vertices, but conforms to format
 				out.write( '%f %f %f %d %d %d\n'%(v.x,v.y,v.z,c.x,c.y,c.z ) )

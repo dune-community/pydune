@@ -86,11 +86,14 @@ class Simplex3:
 	def reset(self,pl):
 		self.v = []
 		self.center = Vector3()
+		
 		for id in self.idx:
 			try:
 				self.v.append( pl[id] )
 				self.center += pl[id]
 			except IndexError, e:
+				import traceback
+				print traceback.format_exc()
 				print self.idx, id
 				raise e
 		self.center /= 3.0
@@ -139,8 +142,9 @@ class MeshVertexList(object):
 
 	def __getitem__(self,idx):
 		assert idx in self.aliases.keys()
-		idx = self.aliases[idx]
-		return self.__vertices[idx]
+		real_idx = self.aliases[idx]
+		assert len(self.__vertices) >  real_idx , 'v %d -- r %d| len %d'%(idx, real_idx,len(self.__vertices))
+		return self.__vertices[real_idx]
 
 	def __setitem__(self,idx,v):
 		assert isinstance(idx,int)
