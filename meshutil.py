@@ -82,6 +82,7 @@ class Simplex3:
 			self.color = color
 		else:
 			self.color = self.attribs[0]/255.0
+		print self.color
 
 	def reset(self,pl):
 		self.v = []

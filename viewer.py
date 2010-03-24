@@ -152,7 +152,7 @@ class MeshWidget(QtOpenGL.QGLWidget):
 	GL_MULTISAMPLE = 0x809D
 	
 	def initializeGL(self):				# We call this right after our OpenGL window is created.
-		glClearColor(0.0, 0.0, 0.0, 1.0)	# This Will Clear The Background Color To Black
+		glClearColor(1.0, 1.0, 1.0, 1.0)	# This Will Clear The Background Color To Black
 		glClearDepth(1.0)					# Enables Clearing Of The Depth Buffer
 		glDepthFunc(GL_LESS)				# The Type Of Depth Test To Do
 		glEnable(GL_DEPTH_TEST)				# Enables Depth Testing
