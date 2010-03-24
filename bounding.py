@@ -33,7 +33,7 @@ import math
 class BoundingVolume:
 	def __init__(s,mesh):
 		s.outline_color = ( 1,1,1 )
-		vertices = mesh.plc_pointlist.verts.values()
+		vertices = mesh.plc_pointlist.vertices
 		minV = Vector3()
 		maxV = Vector3()
 		vertices.sort( lambda x, y: cmp(y.x, x.x ) )

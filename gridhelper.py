@@ -36,7 +36,7 @@ import utils
 
 def find_key(dic, val):
 	"""return the key of dictionary dic given the value"""
-	return [k for k, v in dic.iteritems() if v == val][0]
+	return [k for k, v in d.iteritems() if v == val][0]
 
 class ColorToBoundaryIdMapper:
 	def __init__(self):
@@ -82,6 +82,7 @@ class PLCPointList:
 	def appendVert(self,x,c):
 		assert isinstance( c, Vector3 )
 		glob_idx = len(PLCPointList.global_vertices) + len(self.aliases) 
+		#PLCPointList.global_vertices.append(x)
 		if not x in PLCPointList.global_vertices:
 			PLCPointList.global_vertices.append(x)
 		else:
@@ -110,6 +111,51 @@ class PLCPointList:
 		else:
 			return idx
 
+class MeshVertexList(object):
+	def __init__(self, dim):
+		self.dim = dim
+		self.vertices = []
+		self.attribs = dict()
+		#set to -1 so we get a 0-based index for verts dict
+		self.duplicate_count = -1
+		#alias -> real vertex id mapping
+		self.aliases = dict()
+		self.duplicates = []
+
+	def addVertex(self,v,c):
+		assert isinstance( c, Vector3 )
+		assert isinstance( v, Vector3 )
+		next_vertex_id = len(self.vertices) + len(self.duplicates)
+		
+		if not v in self.vertices:
+			self.vertices.append(v)
+			self.aliases[next_vertex_id] = next_vertex_id
+		else:
+			self.duplicates.append(v)
+			self.aliases[next_vertex_id] = self.vertices.index( v )
+		self.attribs[next_vertex_id] = c
+		return next_vertex_id
+
+	def __getitem__(self,idx):
+		idx = self.aliases[idx]
+		return self.vertices[idx]
+
+	def __setitem__(self,idx,v):
+		assert isinstance(idx,int)
+		assert idx > -1
+		assert isinstance(v, Vector3)
+		idx = self.aliases[idx]
+		self.vertices[idx] = v
+
+	def realIndex(self,idx):
+		if '__getitem__' in dir(idx):
+			return map( lambda i: self.aliases[i], idx)
+		else:
+			return self.aliases[idx]
+
+	def __len__(self):
+		return len(self.vertices)
+		
 class Simplex:
 	def __init__(self,v1,v2,v3):
 		assert isinstance( v1, int )
@@ -314,7 +360,7 @@ class BoundarySurface:
 
 class Simplex3:
 	def __init__(self,a,b,c,pl,f_id,color=None):
-		assert isinstance(pl,PLCPointList)
+		assert isinstance(pl,MeshVertexList)
 		assert isinstance(a,int)
 		assert isinstance(b,int)
 		assert isinstance(c,int)
@@ -323,19 +369,12 @@ class Simplex3:
 		assert b > -1, 'negative vertex id: %d / %d / %d'%(a,b,c)
 		assert c > -1, 'negative vertex id: %d / %d / %d'%(a,b,c)
 		self.attribs = ( pl.attribs[a], pl.attribs[b], pl.attribs[c] )
-		#use the real ids for drawing and morphing stuff
-		oa = a
-		ob = b
-		oc = c
-		a = pl.unalias(a)
-		b = pl.unalias(b)
-		c = pl.unalias(c)
 		self.idx = ( a,b,c )
 		ok = []
-		if oa != a or ob != b or oc != c:
-			for id in ( (a,oa) ,(b,ob),(c,oc)):
-				assert pl.verts[id[0]] == pl.verts[id[1]] , '%s%s%s -- %s\n%s'%(pl.verts[id[0]], ' -- ', pl.verts[id[1]], id, ok)
-				ok.append( id )
+		#if oa != a or ob != b or oc != c:
+			#for id in ( (a,oa) ,(b,ob),(c,oc)):
+				#assert pl.verts[id[0]] == pl.verts[id[1]] , '%s%s%s -- %s\n%s'%(pl.verts[id[0]], ' -- ', pl.verts[id[1]], id, ok)
+				#ok.append( id )
 		self.edge_idx = ( (a,b), (b,c), (c,a) )
 		self.id = f_id
 		self.reset(pl)
@@ -349,8 +388,13 @@ class Simplex3:
 		self.v = []
 		self.center = Vector3()
 		for id in self.idx:
-			self.v.append( pl.verts[id] )
-			self.center += pl.verts[id]
+			try:
+				self.v.append( pl[id] )
+				self.center += pl[id]
+			except IndexError, e:
+				print self.idx, id
+				raise e
+				
 		self.center /= 3.0
 		if self.v[0] < self.v[1]  and self.v[1] < self.v[2]:
 			self.n = ( - self.v[0] + self.v[1] ).cross( - self.v[0] + self.v[2] )

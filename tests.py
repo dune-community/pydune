@@ -24,7 +24,7 @@ to the extent permitted by applicable law.
   0. You just DO WHAT THE FUCK YOU WANT TO.
 """
 
-import sys,difflib
+import sys,difflib,traceback
 from mesh import Mesh
 from tempfile import NamedTemporaryFile
 from PyQt4 import QtGui
@@ -48,12 +48,18 @@ def convertDiff(filename,do_diff=False):
 		sf_o = '.ply'
 	else:
 		sf_o = '.smesh'
-	m.parse( filename )
-	t = NamedTemporaryFile(suffix=sf_o)
-	m.write( t.name )
-	m.parse( t.name )
-	t2 = NamedTemporaryFile(suffix=sf)
-	fn2 = m.write( t2.name )
+	try:
+		m.parse( filename )
+		t = NamedTemporaryFile(suffix=sf_o)
+		m.write( t.name )
+		m.parse( t.name )
+		t2 = NamedTemporaryFile(suffix=sf)
+		fn2 = m.write( t2.name )
+	except Exception, e:
+		t.seek(0)
+		open( '/tmp/error.log', 'w').writelines( t.readlines() )
+		print traceback.format_exc()
+		raise e
 	#diff = difflib.unified_diff( open( filename ).readlines(), open( fn2 ).readlines() )
 	if do_diff:
 		print '-'*15 , 'generating diff output, convertDiff'
