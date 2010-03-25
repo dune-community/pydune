@@ -7,3 +7,8 @@ refs
 *.faces
 *.vertices
 *.html
+
+#tetgen products
+*.ele
+*.face
+*.node

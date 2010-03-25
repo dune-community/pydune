@@ -152,7 +152,6 @@ class MeshVertexList(object):
 		assert idx > -1
 		assert isinstance(v, Vector3)
 		idx = self.aliases[idx]
-		print v, ' -- ', self.__vertices[idx]
 		self.__vertices[idx] = v
 
 	def realIndex(self,idx):
