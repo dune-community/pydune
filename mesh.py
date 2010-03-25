@@ -149,21 +149,10 @@ class Mesh():
 	def parseSMESH_faces(self,fn,bidToColorMapper=BoundaryIdToColorMapper()):
 		for line in fn.readlines():
 			line = line.split()
-			#if not self.zero_based_idx:
-				#v = map( lambda p: self.vertex_list.realIndex(int(p) -1 ), line[1:4] )
-			#else:
-				#v = map( lambda p: self.vertex_list.realIndex(int(p) ), line[1:4] )
-			line.append(0)
 			if not self.zero_based_idx:
-				v0 = int(line[1]) - 1
-				v1 = int(line[2]) - 1
-				v2 = int(line[3]) - 1
-				#v = map( lambda p: self.vertex_list.realIndex(int(p) -1 ), line[1:4] )
+				v = map( lambda p: self.vertex_list.realIndex(int(p) -1 ), line[1:4] )
 			else:
-				v0 = int(line[1])
-				v1 = int(line[2])
-				v2 = int(line[3])
-			v = [v0,v1,v2]
+				v = map( lambda p: self.vertex_list.realIndex(int(p) ), line[1:4] )
 			boundary_id = int(line[4])
 			color = bidToColorMapper.getColor( boundary_id )
 			if self.refine:
