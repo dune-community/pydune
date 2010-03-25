@@ -169,7 +169,7 @@ class Mesh():
 				s2 = Simplex3(v2,v0,c_id,self.vertex_list,len(self.faces),boundary_id )
 				self.faces.append( s2 )
 			else:
-				s = Simplex3(v[0],v[1],v[2],self.vertex_list,len(self.faces),color )
+				s = Simplex3(v[0],v[1],v[2],self.vertex_list,len(self.faces),color, boundary_id )
 				self.faces.append( s )
 				for one_v in v:
 					if self.adj_points.has_key(one_v) :
@@ -184,6 +184,7 @@ class Mesh():
 		print 'read %d faces'%len(self.faces)
 
 	def parsePLY(self,fn):
+		color_mapper = ColorToBoundaryIdMapper()
 		fd = open( fn, 'r' )
 		#a rather hard assumption...
 		self.zero_based_idx = True
@@ -224,7 +225,7 @@ class Mesh():
 			v0 = line[0]
 			v1 = line[1]
 			v2 = line[2]
-			s = Simplex3(v0,v1,v2,self.vertex_list,len(self.faces) )
+			s = Simplex3(v0,v1,v2,self.vertex_list,len(self.faces),None, color_mapper.getID( self.vertex_list.attribs[v0] ) )
 			self.faces.append( s )
 			for v in [v0,v1,v2]:
 				if self.adj_points.has_key(v) :
@@ -276,12 +277,25 @@ class Mesh():
 		out.write( '\n# number of facets (= number of triangles), border marker\n#\n%d 1\n'%(len(self.faces)) )
 		out.write( '# all faces\n#\n' )
 
+		#we store a running avg normal per bid
+		normals = dict()
 		for f in self.faces:
 			assert isinstance( f, Simplex3 )
-			out.write( '%d %d %d %d %d\n'%(3,f.idx[0],f.idx[1],f.idx[2],bidMapper.getID(f.color))  )
-
+			boundary_id = bidMapper.getID(f.color)
+			if normals.has_key( boundary_id ):
+				i,n = normals[boundary_id]
+				normals[boundary_id] = (i+1, ( n * i + f.n )/(i+1) )
+			else:
+				normals[boundary_id] = (1, f.n )
+			out.write( '%d %d %d %d %d\n'%(3,f.idx[0],f.idx[1],f.idx[2], boundary_id ) )
 		out.write( '%d\n'%(0))
 		out.close()
+		normals_file = open( fn + '.normals' ,'w')
+		for i,n in normals.iteritems():
+			#for m in [n[1],n[1]/abs(n[1])]:
+			m = n[1]
+			normals_file.write( 'gd_%d: %f;%f;%f\n'%(i,m.x,m.y,m.z) )
+		normals_file.close()
 		return fn
 
 	def writePLY(self,fn):

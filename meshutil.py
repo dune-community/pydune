@@ -62,7 +62,7 @@ class BoundaryIdToColorMapper:
 			return Vector3()
 
 class Simplex3:
-	def __init__(self,a,b,c,pl,f_id,color=None):
+	def __init__(self,a,b,c,pl,f_id,color=None,boundary_id=None):
 		assert isinstance(pl,MeshVertexList)
 		assert isinstance(a,int)
 		assert isinstance(b,int)
@@ -82,6 +82,7 @@ class Simplex3:
 			self.color = color
 		else:
 			self.color = self.attribs[0]/255.0
+		self.boundary_id = boundary_id
 
 	def reset(self,pl):
 		self.v = []
