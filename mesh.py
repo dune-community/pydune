@@ -315,7 +315,8 @@ class Mesh():
 
 		for f in self.faces:
 			assert isinstance( f, Simplex3 )
-			out.write( '%d %d %d %d\n'%(3,f.idx[0],f.idx[1],f.idx[2])  )
+			idx = map( lambda p: p + 1, f.idx )
+			out.write( '%d %d %d %d\n'%(3,idx[0],idx[1],idx[2])  )
 
 		out.flush()
 		out.close()

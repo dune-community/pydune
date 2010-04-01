@@ -37,12 +37,20 @@ import utils
 class ColorToBoundaryIdMapper:
 	def __init__(self):
 		self.known_colors = []
+		self.eps = 5e-1
 
 	def getID(self, color):
 		assert isinstance( color, Vector3 )
-		if not color in self.known_colors:
-			self.known_colors.append(color)
+		idx = -1
+		for c in self.known_colors:
+			if abs(c - color) < self.eps:
+				idx = self.known_colors.index(c)
+				return idx + 1
+		self.known_colors.append(color)
 		return self.known_colors.index(color) + 1
+
+	def __repr__(self):
+		return '%d Colors: '%(len(self.known_colors)) + ' '.join( map(lambda p: str(p), self.known_colors ) )
 
 class BoundaryIdToColorMapper:
 	def __init__(self,expected=11):
