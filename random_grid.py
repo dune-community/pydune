@@ -58,26 +58,39 @@ class RandomGrid( ml.delaunay.triangulate.Triangulation ):
 	def tris(self):
 		return self.xtris,self.ytris
 
-if False:
-	import matplotlib.gridspec as gridspec
-	gs = gridspec.GridSpec(1, 4,width_ratios=[1,1])
-	pp.figure(figsize=(12, 12))
-	for i in range(4):
-		grid = RandomGrid(  )
-		#grid.toSmesh("m.smesh")
-		xtris,ytris = grid.tris()
-		#pp.subplot(1,3,i)
-		pp.subplot(gs[0,i])
-		for xtips,ytips in zip(xtris,ytris):
-			pp.fill(xtips,ytips,facecolor='r',edgecolor='b')
-	
-	pp.title('Sequential Plotting')
-	pp.show()
-else:
-	grid = RandomGrid( 500, random.triangular )
-	grid.toDGF("m.1.dgf")
-	pp.figure(figsize=(12, 12))
-	xtris,ytris = grid.tris()
-	for xtips,ytips in zip(xtris,ytris):
-		pp.fill(xtips,ytips,facecolor='r',edgecolor='b')
-	pp.show()
+from optparse import OptionParser
+
+if __name__ == '__main__':
+	## global defines
+	parser = OptionParser()
+	parser.add_option("-p", "--points", dest="points", default=100,
+					help="points", type='int')
+	parser.add_option("-f", "--filename", dest="filename", default="random",
+					help="filename", type='string')
+	parser.add_option("-c", "--length_c", dest="length_c", default=0.2,
+					help="length_c", type='float')
+	(options, args) = parser.parse_args()
+
+	if False:
+		import matplotlib.gridspec as gridspec
+		gs = gridspec.GridSpec(1, 4,width_ratios=[1,1])
+		pp.figure(figsize=(12, 12))
+		for i in range(4):
+			grid = RandomGrid(  )
+			#grid.toSmesh("m.smesh")
+			xtris,ytris = grid.tris()
+			#pp.subplot(1,3,i)
+			pp.subplot(gs[0,i])
+			for xtips,ytips in zip(xtris,ytris):
+				pp.fill(xtips,ytips,facecolor='r',edgecolor='b')
+		pp.title('Sequential Plotting')
+		pp.show()
+	else:
+		grid = RandomGrid( options.points, random.triangular )
+		grid.toDGF("%s.dgf"%options.filename)
+		grid.toSmesh("%s.poly"%options.filename)
+		#pp.figure(figsize=(12, 12))
+		#xtris,ytris = grid.tris()
+		#for xtips,ytips in zip(xtris,ytris):
+			#pp.fill(xtips,ytips,facecolor='r',edgecolor='b')
+		#pp.show()
