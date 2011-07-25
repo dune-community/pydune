@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 """
-ii
 gridhelper.py (c) 2009 rene.milk@uni-muenster.de
 
 It is licensed to you under the terms of the WTFPLv2 (see below).
