@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 gridhelper.py (c) 2009 rene.milk@uni-muenster.de
 
