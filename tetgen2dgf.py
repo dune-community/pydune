@@ -29,51 +29,48 @@ def write_dgf_header( file ) :
 def write_vertices( file, node_file_name ) :
 	print 'writing vertices to %s...' %( file.name ),
 	file.write( 'VERTEX\t\t\t\t\t% the vertices of the grid\n' )
-	node_file = open( node_file_name, 'r' )
-	vertex_number = 0
-	
-	for line in node_file.readlines():
-		if vertex_number != 0:
-			if line.startswith( '#' ):
-				continue
-			line = line.split()
-			assert len(line) > 3
-			file.write( '%f\t%f\t%f\t%% vertex %i\n' %( float(line[ 1 ]), float(line[ 2 ]), float(line[ 3 ]), int(line[ 0 ]) -1 ) )
-		vertex_number += 1
-	file.write( '#\n' )
+	with open( node_file_name, 'r' ) as node_file:
+		vertex_number = 0
+		for line in node_file.readlines():
+			if vertex_number != 0:
+				if line.startswith( '#' ):
+					continue
+				line = line.split()
+				assert len(line) > 3
+				file.write( '%f\t%f\t%f\t%% vertex %i\n' %( float(line[ 1 ]), float(line[ 2 ]), float(line[ 3 ]), int(line[ 0 ]) -1 ) )
+			vertex_number += 1
+		file.write( '#\n' )
 
 # write simplices to dgf file
 def write_simplices( file, ele_file_name ) :
 	print 'writing simplices to %s...' %( file.name ),
 	file.write( 'SIMPLEX\t\t\t\t\t% the simplices of the grid\n' )
-	ele_file = open( ele_file_name, 'r' )
-	vertex_number = 0
-
-	for line in ele_file.readlines():
-		if vertex_number != 0:
-			if line.startswith( '#' ):
-				continue
-			line = line.split()
-			assert len(line) > 4 , line
-			file.write( '%i\t%i\t%i\t%i\t%% simplex %i\n' %( int(line[ 1 ]) -1 , int(line[ 2 ]) -1, int(line[ 3 ])-1, int(line[ 4 ])-1, int(line[ 0 ]) -1 ) )
-		vertex_number += 1
+	with open( ele_file_name, 'r' ) as ele_file:
+		vertex_number = 0
+		for line in ele_file.readlines():
+			if vertex_number != 0:
+				if line.startswith( '#' ):
+					continue
+				line = line.split()
+				assert len(line) > 4 , line
+				file.write( '%i\t%i\t%i\t%i\t%% simplex %i\n' %( int(line[ 1 ]) -1 , int(line[ 2 ]) -1, int(line[ 3 ])-1, int(line[ 4 ])-1, int(line[ 0 ]) -1 ) )
+			vertex_number += 1
 	file.write( '#\n' )
 
 # write boundary segments to dgf file
 def write_boundary_segments( file, face_file_name ) :
 	print 'writing boundary segments to %s...' %( file.name ),
 	file.write( 'BOUNDARYSEGMENTS\t\t% the boundary segments of the grid\n' )
-	face_file = open( face_file_name, 'r' )
-	vertex_number = 0
-
-	for line in face_file.readlines():
-		if vertex_number != 0:
-			if line.startswith( '#' ):
-				continue
-			line = line.split()
-			assert len(line) > 4 , line
-			file.write( '%i\t%i\t%i\t%i\t%% segment %i\n' %( int(line[ 4 ]), int(line[ 1 ]) -1 , int(line[ 2 ]) -1, int(line[ 3 ])-1, int(line[ 0 ]) -1 ) )
-		vertex_number += 1
+	with open( face_file_name, 'r' ) as face_file:
+		vertex_number = 0
+		for line in face_file.readlines():
+			if vertex_number != 0:
+				if line.startswith( '#' ):
+					continue
+				line = line.split()
+				assert len(line) > 4 , line
+				file.write( '%i\t%i\t%i\t%i\t%% segment %i\n' %( int(line[ 4 ]), int(line[ 1 ]) -1 , int(line[ 2 ]) -1, int(line[ 3 ])-1, int(line[ 0 ]) -1 ) )
+			vertex_number += 1
 	file.write( '#\n' )
 	file.write( '#\n' )
 	file.write( 'BOUNDARYDOMAIN\n' )
@@ -90,8 +87,8 @@ nodefile_filename = filename_prefix + '.node'
 facefile_filename = filename_prefix + '.face'
 elefile_filename = filename_prefix + '.ele'
 
-dgf_file = open( dgf_filename, 'w' )
-write_dgf_header( dgf_file )
-write_vertices( dgf_file, nodefile_filename )
-write_simplices( dgf_file, elefile_filename )
-write_boundary_segments( dgf_file, facefile_filename )
+with open( dgf_filename, 'w' ) as dgf_file:
+	write_dgf_header( dgf_file )
+	write_vertices( dgf_file, nodefile_filename )
+	write_simplices( dgf_file, elefile_filename )
+	write_boundary_segments( dgf_file, facefile_filename )
