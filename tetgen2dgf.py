@@ -10,12 +10,9 @@ triangle_nodefile_incorrect = 0
 triangle_polyfile_incorrect = 0
 triangle_elefile_incorrect = 0
 
-# about the filenames
-
-## done with global defines
-
-
-## function definitions
+def assert_line(line):
+	for el in line:
+		assert el >= -1,'line has element with negative index: %s'%' '.join(line)
 
 # write the dgf header into the dgf file
 def write_dgf_header( file ) :
@@ -35,9 +32,9 @@ def write_vertices( file, node_file_name ) :
 			if vertex_number != 0:
 				if line.startswith( '#' ):
 					continue
-				line = line.split()
+				line = [ float(el) for el in line.split() ]
 				assert len(line) > 3
-				file.write( '%f\t%f\t%f\t%% vertex %i\n' %( float(line[ 1 ]), float(line[ 2 ]), float(line[ 3 ]), int(line[ 0 ]) -1 ) )
+				file.write( '%f\t%f\t%f\t%% vertex %i\n' %( line[1], line[2], line[3], line[0] - 1 ) )
 			vertex_number += 1
 		file.write( '#\n' )
 
@@ -51,9 +48,11 @@ def write_simplices( file, ele_file_name ) :
 			if vertex_number != 0:
 				if line.startswith( '#' ):
 					continue
-				line = line.split()
+				offset = -1
+				line = [ int(el) + offset for el in line.split() ]
 				assert len(line) > 4 , line
-				file.write( '%i\t%i\t%i\t%i\t%% simplex %i\n' %( int(line[ 1 ]) -1 , int(line[ 2 ]) -1, int(line[ 3 ])-1, int(line[ 4 ])-1, int(line[ 0 ]) -1 ) )
+				assert_line(line)
+				file.write( '%i\t%i\t%i\t%i\t%% simplex %i\n' %( line[1] , line[2], line[3], line[4], line[0]))
 			vertex_number += 1
 	file.write( '#\n' )
 
@@ -67,9 +66,9 @@ def write_boundary_segments( file, face_file_name ) :
 			if vertex_number != 0:
 				if line.startswith( '#' ):
 					continue
-				line = line.split()
+				line = [ int(el) for el in line.split() ]
 				assert len(line) > 4 , line
-				file.write( '%i\t%i\t%i\t%i\t%% segment %i\n' %( int(line[ 4 ]), int(line[ 1 ]) -1 , int(line[ 2 ]) -1, int(line[ 3 ])-1, int(line[ 0 ]) -1 ) )
+				file.write( '%i\t%i\t%i\t%i\t%% segment %i\n' %( line[4], line[1] - 1 , line[ 2 ] - 1, line[3] - 1, line[0] - 1 ))
 			vertex_number += 1
 	file.write( '#\n' )
 	file.write( '#\n' )
