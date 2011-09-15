@@ -48,7 +48,7 @@ class PLCPointList:
 		self.aliases = dict()
 		self.duplicates = []
 
-	def appendVert(self,x,c):
+	def appendVert(self,x,c=Vector3(0,0,0)):
 		assert isinstance( c, Vector3 )
 		glob_idx = len(PLCPointList.global_vertices) + len(self.aliases) 
 		#PLCPointList.global_vertices.append(x)
@@ -100,6 +100,7 @@ class FanningSimplexList:
 		self.vertex_idx = []
 
 	def addVertex(self,v_idx):
+		assert v_idx >= 0
 		self.vertex_idx.append( v_idx )
 		if len(self.vertex_idx) > 1:
 			self.simplices.append( Simplex( self.center_idx, self.vertex_idx[-1], self.vertex_idx[-2]  ) )

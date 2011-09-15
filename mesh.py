@@ -46,7 +46,7 @@ import random
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from bounding import BoundingVolume
-#from meshutil import *
+from collections import defaultdict
 
 try:
 	#the spooled variant is new in 2.6
@@ -79,6 +79,8 @@ class Mesh():
 		self.outline_color = ( 1,1,1 )
 		self.dl = None
 		self.refine = False
+		self.bid_color_mapping = defaultdict(list)
+		
 
 # ---------------Parsing--------------------------------------------------------------------------------- #
 
@@ -87,6 +89,9 @@ class Mesh():
 			self.parsePLY( filename )
 		else:
 			self.parseSMESH( filename )
+		self.bid_color_mapping = defaultdict(list)
+		for f in self.faces:
+			self.bid_color_mapping[f.boundary_id].append(f.color)
 
 	def parseSMESH(self, filename):
 		self.vertex_list = MeshVertexList(self.dim)

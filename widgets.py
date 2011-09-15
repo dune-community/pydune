@@ -30,8 +30,14 @@ import Image
 from OpenGL.GLU import *
 from PyQt4 import QtCore, QtGui, QtOpenGL
 
+class BidPanel(object):
+	def __init__(self, parent, mesh):
+		super(BidPanel, self).__init__()
+		for bid,colors in mesh.bid_color_mapping.iteritems():
+			print('BID %d: %s' % (bid,' '.join(set([str((255*c.x,255*c.y,255*c.z)) for c in colors])) ))
+		
 class ControlPanel(QtGui.QWidget):
-	def __init__(self, parent):
+	def __init__(self, parent,bid_widget):
 		super(ControlPanel, self).__init__(parent)
 		box = QtGui.QVBoxLayout();
 
@@ -132,6 +138,7 @@ class ControlPanel(QtGui.QWidget):
 		groupBox4.setLayout( grid4 )
 		box.addWidget( groupBox4 )
 
+		#box.addWidget(bid_widget)
 		self.setLayout(box)
 
 		#connect only now lest be called on manual set
@@ -266,7 +273,6 @@ class MeshWidget(QtOpenGL.QGLWidget):
 		if self.draw_mesh:
 			self.mesh.draw(0.5)
 
-
 	def wheelEvent( self, event):
 		self.zoom += ( event.delta() / 120 ) * 5
 		self.update()
@@ -317,8 +323,9 @@ class MeshViewer(QtGui.QMainWindow):
 		QtGui.QMainWindow.__init__(self)
 		self.filename = filename
 		self.widget = MeshWidget(self,self.filename)
+		self.bid_widget = BidPanel(self, self.widget.mesh)
 		self.setCentralWidget(self.widget)
-		self.cp = ControlPanel(self)
+		self.cp = ControlPanel(self,self.bid_widget)
 		self.cp.draw_bounding_box.setChecked( self.widget.draw_bounding_box )
 		self.cp.draw_mesh.setChecked( self.widget.draw_mesh )
 		cpDock = QtGui.QDockWidget("Control Panel", self)

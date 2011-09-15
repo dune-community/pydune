@@ -48,7 +48,7 @@ def write_simplices( file, ele_file_name ) :
 			if vertex_number != 0:
 				if line.startswith( '#' ):
 					continue
-				offset = -1
+				offset = 0
 				line = [ int(el) + offset for el in line.split() ]
 				assert len(line) > 4 , line
 				assert_line(line)
