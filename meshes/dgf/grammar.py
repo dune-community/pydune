@@ -4,22 +4,24 @@ from pyparsing import ( Optional, oneOf,
 	OneOrMore, ZeroOrMore, FollowedBy, Keyword,
 	Suppress,LineEnd, White,alphanums,alphas,
 	CaselessLiteral, Combine, nums, Or,
-	srange, Regex, Each,ParseException)
+	srange, Regex, Each,ParseFatalException)
 
 
-def indexCheck():
+def indexCheck(minval=0):
 	def indexCheckParseAction(string, loc, tokens):
 		parsedval = tokens[0]
-		if parsedval < 0:
-			raise ParseException(string, loc, 
+		print('dewip')
+		if parsedval < minval:
+			raise ParseFatalException(string, loc, 
 					"index %d must be >=0" % (parsedval))
+		return parsedval
 	return indexCheckParseAction
 
 e = CaselessLiteral('E')
 plusorminus = Literal('+') | Literal('-')
 number = Word(nums) 
 integer = Combine( Optional(plusorminus) + number ).setParseAction(lambda t:int(t[0]))
-#integer.addParseAction(indexCheck())
+index = integer.copy().addParseAction(indexCheck(0))
 floatnumber = Combine( integer +
                        Optional( Literal('.') + Optional(number) ) +
                        Optional( e + integer )
@@ -34,11 +36,11 @@ vertex = (Group( OneOrMore( floatnumber('point') + OneOrMore( White() ).suppress
 vertex_header = (Keyword('VERTEX') + linend).suppress()
 vertex_section = vertex_header + Group(OneOrMore( vertex ))('vertices') + section_end
 
-simplex = (Group( OneOrMore( integer('index') + OneOrMore( White() ).suppress() ) ) + linend)('simplex')
+simplex = (Group( OneOrMore( index('index') + OneOrMore( White() ).suppress() ) ) + linend)('simplex')
 simplex_header = (Keyword('SIMPLEX') + linend).suppress()
 simplex_section = simplex_header + Group(OneOrMore( simplex ))('simplices') + section_end
 
-boundarysegment = (Group( integer('id') + OneOrMore( integer('index') + OneOrMore( White() ).suppress() ) ) + linend)('boundarysegment')
+boundarysegment = (Group( index('id') + OneOrMore( index('index') + OneOrMore( White() ).suppress() ) ) + linend)('boundarysegment')
 boundarysegment_header = (Keyword('BOUNDARYSEGMENTS') + linend).suppress()
 boundarysegment_section = boundarysegment_header+ Dict(OneOrMore( boundarysegment ))('boundarysegments') + section_end
 
