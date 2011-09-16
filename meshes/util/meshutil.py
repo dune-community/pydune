@@ -24,15 +24,16 @@ to the extent permitted by applicable law.
   0. You just DO WHAT THE FUCK YOU WANT TO.
 """
 
+import math
+import copy
+from euclid import *
+import colors
+
 class DimensionIncompatibleException(Exception):
 	pass
 
 class ImpossibleException(Exception):
 	pass
-
-import math, copy
-from euclid import *
-import utils
 
 class ColorToBoundaryIdMapper:
 	def __init__(self):
@@ -56,7 +57,7 @@ class BoundaryIdToColorMapper:
 	def __init__(self,expected=11):
 		self.bids = []
 		self.expected = expected
-		self.colormap = utils.getColourPaletteCheat(expected,[(0.0,0,0.0)])
+		self.colormap = colors.getColourPaletteCheat(expected,[(0.0,0,0.0)])
 
 	def getColor(self, bid):
 		if not bid in self.bids:

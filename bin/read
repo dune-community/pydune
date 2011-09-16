@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+from meshes import SurfaceMesh
+import meshes.smesh as smesh
+s = SurfaceMesh(3)
+smesh.read(s,'test/grids/aorta_dune.smesh')
+print s
