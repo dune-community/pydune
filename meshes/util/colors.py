@@ -24,6 +24,10 @@ to the extent permitted by applicable law.
   0. You just DO WHAT THE FUCK YOU WANT TO.
 """
 
+from euclid import Vector3
+
+constants = { 'black': Vector3(0,0,0), 'white':Vector3(255,255,255)}
+
 def getHueVector( amount ):
 	level = 0;
 	while (1 << level) < amount:
