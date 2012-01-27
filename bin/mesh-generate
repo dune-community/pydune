@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+nesh-generate (c) 2012 rene.milk@uni-muenster.de
+
+It is licensed to you under the terms of the WTFPLv2.
+"""
+
+import sys
+	
+if __name__ == '__main__':
+	try:
+		module_name = sys.argv[1]
+		module = __import__("dune.mesh.generators.%s" % module_name, 
+								fromlist=["dune.mesh.generators"])
+	except (ImportError, IndexError) as e:
+		import dune.mesh.generators
+		print("Usage is %s MODULE [options]\nwith MODULE being one of %s" %
+				( sys.argv[0], dune.mesh.generators.available ))
+		print e
+	else:
+		del sys.argv[1]
+		module.generate()

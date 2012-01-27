@@ -1,0 +1,5 @@
+#!/usr/bin/env python
+from dune.mesh.converter import triangle2dgf
+	
+if __name__ == '__main__':
+	triangle2dgf.main()

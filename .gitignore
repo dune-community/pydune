@@ -12,3 +12,6 @@ refs
 *.ele
 *.face
 *.node
+
+#bin
+bin/mesh-viewerc
