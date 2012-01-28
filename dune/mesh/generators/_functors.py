@@ -1,3 +1,8 @@
+"""
+grammar.py (c) 2011 rene.milk@uni-muenster.de
+Licence: WTFPLv2, see LICENSE.txt
+"""
+
 import math
 
 class IFunctor:

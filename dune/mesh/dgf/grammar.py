@@ -1,3 +1,7 @@
+"""
+grammar.py (c) 2011 rene.milk@uni-muenster.de
+Licence: WTFPLv2, see LICENSE.txt
+"""
 
 from pyparsing import ( Optional, oneOf, 
 	Dict, Literal, Word, printables, Group, 

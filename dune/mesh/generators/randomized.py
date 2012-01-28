@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Created on Wed May 25 20:09:10 2011
-
-@author: rene.milk
+randomized.py (c) 2010 rene.milk@uni-muenster.de
+Licence: WTFPLv2, see LICENSE.txt
 """
+
 
 import matplotlib as ml
 import matplotlib.pyplot as pp

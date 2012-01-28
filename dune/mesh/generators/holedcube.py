@@ -1,58 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""
+grammar.py (c) 2011 rene.milk@uni-muenster.de,felix.albrecht@uni-muenster.de
+Licence: WTFPLv2, see LICENSE.txt
+"""
 
 import sys, math, os, time
 from optparse import OptionParser
-
-## global defines
-parser = OptionParser()
-parser.add_option("-x", "--length_x", dest="length_x", default=1.,
-                  help="rectangle length_x", type='float')
-parser.add_option("-y", "--length_y", dest="length_y", default=1.,
-                  help="rectangle length_y", type='float')
-parser.add_option("-p", "--porosity", dest="porosity", default=0.4,
-                  help="porosity", type='float')
-parser.add_option("-n", "--num_points", dest="number_of_points_per_quarter", default=5,
-                  help="number of points per quarter", type='int')
-parser.add_option("-f", "--filename", dest="filename", default='unit_sand_pore_in_2d.poly',
-                  help="output filename", type='string')
-(options, args) = parser.parse_args()
-
-# about the outer rectangle
-rectangle_length_x = options.length_x
-rectangle_length_y = options.length_y
-
-# about the inner ellipse
-# for different porosities
-# comment next three lines for manual radius
-porosity = options.porosity
-standard_cell_area = rectangle_length_x * rectangle_length_y
-ellipse_radius_x = math.sqrt( ( 1.0 - porosity ) * standard_cell_area * ( 1.0 / math.pi ) )
-ellipse_radius_y = math.sqrt( ( 1.0 - porosity ) * standard_cell_area * ( 1.0 / math.pi ) )
-
-# manual circle radius
-#ellipse_radius_x = 0.45
-#ellipse_radius_y = 0.25
-ellipse_center_x = rectangle_length_x / 2.0;
-ellipse_center_y = rectangle_length_y / 2.0;
-
-# about the number of points to approximate
-number_of_points_per_quarter = options.number_of_points_per_quarter
-
-# about the boundary ids
-id_of_ellipse_faces = 2
-id_of_bottom_rectangle_faces = 3
-id_of_right_rectangle_faces = 4
-id_of_top_rectangle_faces = 5
-id_of_left_rectangle_faces = 6
-
-# about the files to be written
-triangle_filename = options.filename
-
-## done with global defines
-
-
-## function definitions
 
 # calculate points on the inner circle,
 # beginning bottom left
@@ -148,6 +102,52 @@ def write_to_triangle( ellipse, rectangle, hole, triangle_filename ) :
 
 
 def generate():
+	parser = OptionParser()
+	parser.add_option("-x", "--length_x", dest="length_x", default=1.,
+					help="rectangle length_x", type='float')
+	parser.add_option("-y", "--length_y", dest="length_y", default=1.,
+					help="rectangle length_y", type='float')
+	parser.add_option("-p", "--porosity", dest="porosity", default=0.4,
+					help="porosity", type='float')
+	parser.add_option("-n", "--num_points", dest="number_of_points_per_quarter", default=5,
+					help="number of points per quarter", type='int')
+	parser.add_option("-f", "--filename", dest="filename", default='unit_sand_pore_in_2d.poly',
+					help="output filename", type='string')
+	(options, args) = parser.parse_args()
+
+	# about the outer rectangle
+	rectangle_length_x = options.length_x
+	rectangle_length_y = options.length_y
+
+	# about the inner ellipse
+	# for different porosities
+	# comment next three lines for manual radius
+	porosity = options.porosity
+	standard_cell_area = rectangle_length_x * rectangle_length_y
+	ellipse_radius_x = math.sqrt( ( 1.0 - porosity ) * standard_cell_area * ( 1.0 / math.pi ) )
+	ellipse_radius_y = math.sqrt( ( 1.0 - porosity ) * standard_cell_area * ( 1.0 / math.pi ) )
+
+	# manual circle radius
+	#ellipse_radius_x = 0.45
+	#ellipse_radius_y = 0.25
+	ellipse_center_x = rectangle_length_x / 2.0;
+	ellipse_center_y = rectangle_length_y / 2.0;
+
+	# about the number of points to approximate
+	number_of_points_per_quarter = options.number_of_points_per_quarter
+
+	# about the boundary ids
+	id_of_ellipse_faces = 2
+	id_of_bottom_rectangle_faces = 3
+	id_of_right_rectangle_faces = 4
+	id_of_top_rectangle_faces = 5
+	id_of_left_rectangle_faces = 6
+
+	# about the files to be written
+	triangle_filename = options.filename
+
+	## done with global defines
+
 	number_of_points = 4 * number_of_points_per_quarter
 	points_on_ellipse = generate_ellipse( ellipse_center_x, ellipse_center_y, ellipse_radius_x, ellipse_radius_y, id_of_ellipse_faces, number_of_points )
 	points_on_rectangle = generate_rectangle( rectangle_length_x, rectangle_length_y, [ id_of_bottom_rectangle_faces, id_of_right_rectangle_faces, id_of_top_rectangle_faces, id_of_left_rectangle_faces ] )

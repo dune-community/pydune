@@ -1,3 +1,8 @@
+"""
+read.py (c) 2010 rene.milk@uni-muenster.de
+Licence: WTFPLv2, see LICENSE.txt
+"""
+
 try:
 	#the spooled variant is new in 2.6
 	from tempfile import SpooledTemporaryFile as TemporaryFile

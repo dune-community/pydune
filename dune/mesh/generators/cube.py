@@ -1,5 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""
+grammar.py (c) 2011 rene.milk@uni-muenster.de,felix.albrecht@uni-muenster.de
+Licence: WTFPLv2, see LICENSE.txt
+"""
+
 
 import sys, math, os, time
 from optparse import OptionParser

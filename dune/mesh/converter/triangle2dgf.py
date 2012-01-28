@@ -1,4 +1,8 @@
 #!/usr/bin/python
+"""
+triangle2dgf.py (c) 2009 rene.milk@uni-muenster.de,felix.albrecht@uni-muenster.de
+Licence: WTFPLv2, see LICENSE.txt
+"""
 
 import sys
 import math
