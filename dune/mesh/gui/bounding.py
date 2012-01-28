@@ -16,7 +16,7 @@ import math
 
 class BoundingVolume:
 	def __init__(self,mesh):
-		self.outline_color = ( 1,1,1 )
+		self.outline_color = (1, 1, 1)
 		vertices = mesh.vertex_list.getVertices()
 		minV = Vector3()
 		maxV = Vector3()

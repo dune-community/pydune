@@ -14,7 +14,6 @@ from pyparsing import ( Optional,
 def index_check(minval=0):
 	def index_check_parseaction(string, loc, tokens):
 		parsedval = tokens[0]
-		print('dewip')
 		if parsedval < minval:
 			raise ParseFatalException(string, loc, 
 					"index %d must be >=0" % (parsedval))

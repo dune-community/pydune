@@ -15,4 +15,8 @@ refs
 
 #bin
 bin/mesh-viewerc
+
 test/.coverage
+README.txt
+build/
+dist/
