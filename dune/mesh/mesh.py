@@ -327,3 +327,10 @@ class Mesh():
 			#self.vertex_list.verts[i] += random.gauss( factor, 1 ) * self.vertex_list.verts[i]
 			self.vertex_list.verts[i] += random.random( ) * factor * self.vertex_list.verts[i]
 		self.prepDraw()
+
+	def equals(self,other):
+		lists = ['faces', 'edges']
+		for l in lists:
+			diff = set(getattr(self,l)) ^ set(getattr(other,l))
+			if len(diff) > 0:
+				return False
