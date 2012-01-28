@@ -3,7 +3,7 @@
 # Makefile for development purposes.
 #
 
-.PHONY: all pylint
+.PHONY: all pylint test
 
 all: README.txt README.html
 
@@ -17,3 +17,6 @@ README.html: README.markdown
 
 pylint:
 	pylint --indent-string='\t' dune
+
+test:
+	nosetests --with-cov --cov dune --cov-config .coveragerc test/

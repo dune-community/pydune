@@ -1,3 +1,12 @@
+
+import dune.mesh.dgf as dgf
+import dune.mesh.dgf.grammar as dgfgrammar
+from dune.mesh import Mesh
+import unittest
+import os
+import tempfile
+import pyparsing
+
 test = """DGF						% comment
 VERTEX					% the vertices of the grid
 0.000000	0.000000	0.000000	% vertex -1
@@ -16,7 +25,6 @@ BOUNDARYDOMAIN
 default 1
 #"""
 
-import dune.mesh.dgf.grammar
 
 class TestConvert(unittest.TestCase):
 	grid_dir = os.path.join(os.path.dirname(__file__),"files")
@@ -30,20 +38,19 @@ class TestConvert(unittest.TestCase):
 		pass
 
 	def test_dgf(self):
-		#d = dgf.parseString(test)
-		d = grammar.instance().parseFile('out.dgf')
-		#print d
-		#not actually a surface mesh...
+		inst = dgf.grammar.instance()
+		d = inst.parseString(test)
 		m = Mesh(3)
-		#pprint.pprint(d.asDict())
-		#pprint.pprint(d)
-		parse(m,d.dgf)
-		print m
-		print d.dgf.asXML()
-			#for s in d.dgf:
-				#print s.getName()
-				#for e in s:
-					#print e.getName()
+		dgf.parse(m,d.dgf)
+		d = inst.parseFile(os.path.join(self.grid_dir,
+										'simplex.dgf'))
+		m = Mesh(3)
+		dgf.parse(m,d.dgf)
+
+	def test_dgf_fail(self):
+		inst = dgf.grammar.instance()
+		with self.assertRaises(pyparsing.ParseException):
+			inst.parseFile(os.path.join(self.grid_dir,'fail.dgf'))
 
 if __name__ == '__main__':
 	unittest.main()
