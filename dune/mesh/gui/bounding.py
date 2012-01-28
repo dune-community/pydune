@@ -5,15 +5,18 @@ mesh.py (c) 2009 rene.milk@uni-muenster.de
 Licence: WTFPLv2, see LICENSE.txt
 """
 
+from OpenGL.GL import (glBegin, glVertex3fv, glPushMatrix, glTranslatef,
+	glPopMatrix, glEndList, glCallList, glColor4f, glNewList, GL_COMPILE,
+	GL_LINE_STRIP, GL_LINES, glVertex, glEnd, glGenLists, glLineWidth,
+	GLdouble, GLint, glEnd)
+from OpenGL.GLU import (gluNewQuadric, gluSphere)
 from dune.mesh.util.euclid import Vector3
-from OpenGL.GL import *
-from OpenGL.GLU import *
 from dune.mesh.util.gridhelper import adaptVec
 import math
 
 class BoundingVolume:
-	def __init__(s,mesh):
-		s.outline_color = ( 1,1,1 )
+	def __init__(self,mesh):
+		self.outline_color = ( 1,1,1 )
 		vertices = mesh.vertex_list.getVertices()
 		minV = Vector3()
 		maxV = Vector3()
@@ -27,32 +30,32 @@ class BoundingVolume:
 		minV.z = vertices[0].z
 		maxV.z = vertices[-1].z
 
-		s.points = []
+		self.points = []
 		for i in range(8):
-			s.points.append(Vector3())
+			self.points.append(Vector3())
 		for i in range(2):
 			for j in range(2):
-				s.points[int('%d%d%d'%(0,i,j),2)].x = minV.x
-				s.points[int('%d%d%d'%(1,i,j),2)].x = maxV.x
-				s.points[int('%d%d%d'%(i,0,j),2)].y = minV.y
-				s.points[int('%d%d%d'%(i,1,j),2)].y = maxV.y
-				s.points[int('%d%d%d'%(i,j,0),2)].z = minV.z
-				s.points[int('%d%d%d'%(i,j,1),2)].z = maxV.z
+				self.points[int('%d%d%d'%(0,i,j),2)].x = minV.x
+				self.points[int('%d%d%d'%(1,i,j),2)].x = maxV.x
+				self.points[int('%d%d%d'%(i,0,j),2)].y = minV.y
+				self.points[int('%d%d%d'%(i,1,j),2)].y = maxV.y
+				self.points[int('%d%d%d'%(i,j,0),2)].z = minV.z
+				self.points[int('%d%d%d'%(i,j,1),2)].z = maxV.z
 
-		s.center = Vector3()
-		for p in s.points:
-			s.center += p
-		s.center /= float(8)
-		s.dl = glGenLists(1)
-		glNewList(s.dl,GL_COMPILE)
+		self.center = Vector3()
+		for p in self.points:
+			self.center += p
+		self.center /= float(8)
+		self.dl = glGenLists(1)
+		glNewList(self.dl,GL_COMPILE)
 		glLineWidth(5)
-		c = s.outline_color
+		c = self.outline_color
 		glColor4f(c[0],c[1],c[2],0.2)
 		glBegin(GL_LINE_STRIP)
-		for v in s.points:
+		for v in self.points:
 			glVertex(v())
 		glEnd()
-		c = s.points
+		c = self.points
 		glBegin(GL_LINES)
 
 		glVertex(c[0]())
@@ -87,23 +90,23 @@ class BoundingVolume:
 
 		glEnd()
 		glPushMatrix(  )
-		glTranslatef(s.center.x,s.center.y,s.center.z)
+		glTranslatef(self.center.x,self.center.y,self.center.z)
 		q = gluNewQuadric()
 		gluSphere( q, GLdouble(0.25), GLint(10), GLint(10) )
 		glPopMatrix(  )
 		glEndList()
 
-	def draw(s):
-		glCallList(s.dl)
+	def draw(self):
+		glCallList(self.dl)
 
-	def __repr__(s):
+	def __repr__(self):
 		ret = 'bounding box\n'
-		for p in s.points:
+		for p in self.points:
 			ret += '%s\n'%str(p)
 		ret += '---\n'
 		return ret
 
-	def minViewDistance(s,viewangle=45.0):
-		r = abs(s.center - s.points[0] )
+	def minViewDistance(self, viewangle=45.0):
+		r = abs(self.center - self.points[0] )
 		t = math.radians( (180 - viewangle)/ 2.0 )
 		return 1.12 * r * math.tan(t)

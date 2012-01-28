@@ -1,4 +1,3 @@
-# Copyright (C) 2010 Tobi Vollebregt
 
 import os
 import unittest

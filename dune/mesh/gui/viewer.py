@@ -12,10 +12,10 @@ usage = 'usage %s FILENAME'
 def main(argv):
 	app = QtGui.QApplication(['MeshViewer'])
 	if len(argv) < 2 :
-		print usage%argv[0]
+		print usage % argv[0]
 	else:
 		filename = argv[1]
-		window = MeshViewer( filename )
+		window = MeshViewer(filename)
 		window.show()
 		app.exec_()
 
