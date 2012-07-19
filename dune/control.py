@@ -19,10 +19,14 @@ class Dunecontrol(object):
 		return subprocess.check_output(cl, cwd=self._base_dir,stderr=subprocess.STDOUT)
 
 	def printdeps(self, module):
+		import pprint
+		pprint.pprint(self.dependencies(module))
+
+	def dependencies(self, module):
 		out = self._call(['--module=%s'%module, 'printdeps']).split('\n')[1:]
 		required = [ m.split()[0].strip() for m in out if 'required' in m ]
 		suggested = [ m.split()[0].strip() for m in out if 'suggested' in m ]
-		return (required, suggested)
+		return {'required':required, 'suggested': suggested}
 
 	def configure(self,module=None):
 		return self._call(['--module=%s'%module,'configure']).split()
