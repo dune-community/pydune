@@ -24,8 +24,10 @@ class Dunecontrol(object):
 
 	def dependencies(self, module):
 		out = self._call(['--module=%s'%module, 'printdeps']).split('\n')[1:]
-		required = [ m.split()[0].strip() for m in out if 'required' in m ]
-		suggested = [ m.split()[0].strip() for m in out if 'suggested' in m ]
+		def cleanup(name):
+			return m.split()[0].strip().replace('_', '-')
+		required = [cleanup(m) for m in out if 'required' in m ]
+		suggested = [cleanup(m) for m in out if 'suggested' in m ]
 		return {'required':required, 'suggested': suggested}
 
 	def configure(self,module=None):
