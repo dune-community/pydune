@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 
-import tempfile
 import os
-import random
-import string
 import subprocess
 
 class Dunecontrol(object):
