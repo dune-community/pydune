@@ -5,6 +5,7 @@ Requirements
 -  nosetest, nose-cov
 -  pyparsing (grammar based grid io)
 -  PyQT (grid viewer)
+-  GitPython (dune.supermodule)
 
 Homepage
 --------
@@ -19,4 +20,6 @@ Scripts
 -  mesh-viewer: pyQt based smesh/ply viewer
 -  tetgen2dgf
 -  triangle2dgf
+-  dune-supermodule: for a given dune.module creates a git supermodule
+   with all dune dependencies as git submodules
 
