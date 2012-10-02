@@ -19,3 +19,5 @@ bin/mesh-viewerc
 test/.coverage
 build/
 dist/
+MANIFEST
+.spyderproject

@@ -2,8 +2,6 @@
 import os
 import unittest
 import tempfile
-import shutil
-import filecmp
 from dune.mesh import Mesh
 
 class TestConvert(unittest.TestCase):
