@@ -17,6 +17,21 @@ import tempfile
 import control
 import subprocess
 import shutil
+import pprint
+import copy
+import logging
+
+CFG_TPL = u'''#This file is intended for use on buildbot, do NOT set any compiler here
+CONFIGURE_FLAGS="CXXFLAGS='-pedantic -DDEBUG -g3 -ggdb -O0 -std=c++0x -Wextra -Wall' \\
+    --enable-fieldvector-size-is-method \\
+    --disable-documentation "
+'''
+
+DOCS_TPL = u'''#This file is intended for use on buildbot
+CONFIGURE_FLAGS="CXXFLAGS='-w -O0' \\
+    --enable-fieldvector-size-is-method \\
+    --enable-documentation "
+'''
 
 def generate(module_url, module_name, new_dir):
     temporary_name = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(15))
@@ -32,14 +47,43 @@ def generate(module_url, module_name, new_dir):
     ctrl = control.Dunecontrol(ctrl_path)
 
     git.Repo.init(new_dir)
-    deps =  ctrl.dependencies(module_name)['required'] \
-            + ctrl.dependencies(module_name)['suggested']
+    m_deps = ctrl.dependencies(module_name)
+    deps = copy.deepcopy(m_deps)
     os.chdir(new_dir)
+
     def add_sub(dep, url=None):
         url = url or url_tpl % dep
-        subprocess.check_call(['git', 'submodule', 'add', url, dep])
-    for dep in set(deps):
-        add_sub(dep)
-    add_sub(module_name, module_url)
+        try:
+            subprocess.check_output(['git', 'submodule', 'add', url, dep],
+                                    stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError, e:
+            if e.output.find('already exists') < 0:
+                raise e
 
+    add_sub(module_name, module_url)
+    for dep in m_deps['required'] + m_deps['suggested']:
+        add_sub(dep)
+    ctrl_path = os.path.join(new_dir, 'dune-common', 'bin', 'dunecontrol')
+    ctrl = control.Dunecontrol(ctrl_path)
+    def add_recursive(dep, cat):
+        try:
+            return ctrl.dependencies(dep)[cat]
+        except control.ModuleMissing, m:
+            add_sub(m.name)
+            return add_recursive(dep,cat)
+    for cat in ['required', 'suggested']:
+        for dep in m_deps[cat]:
+            deps[cat] = list(set(deps[cat] + add_recursive(dep,cat)))
+
+    for dep in deps['suggested'] + deps['required']:
+        add_sub(dep)
+
+    for compiler in ['gcc-4.4', 'gcc-4.6', 'clang']:
+        open(os.path.join(new_dir, 'config.opts.%s' % compiler),
+             'wb').write(CFG_TPL)
+    open(os.path.join(new_dir, 'config.opts.docs'), 'wb').write(DOCS_TPL)
+    subprocess.check_output(['git', 'add', 'config*'],
+                            stderr=subprocess.STDOUT)
+    subprocess.check_output(['git', 'commit', '-m', 'intial commit'],
+                            stderr=subprocess.STDOUT)
     shutil.rmtree(temporary_dir)

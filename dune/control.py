@@ -2,6 +2,16 @@
 
 import os
 import subprocess
+import logging
+
+class ModuleMissing(Exception):
+
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return 'Missing module: %s' % self.name
+
 
 class Dunecontrol(object):
     def __init__(self,script_path):
@@ -13,14 +23,25 @@ class Dunecontrol(object):
             cl = [self._script_path] + args
         except:
             cl = [self._script_path] + args.split()
-        return subprocess.check_output(cl, cwd=self._base_dir,stderr=subprocess.STDOUT)
+        return subprocess.check_output(cl, cwd=self._base_dir,
+                                       stderr=subprocess.STDOUT)
 
     def printdeps(self, module):
         import pprint
         pprint.pprint(self.dependencies(module))
 
     def dependencies(self, module):
-        out = self._call(['--module=%s'%module, 'printdeps']).split('\n')[1:]
+        try:
+            out = self._call(['--module=%s'%module, 'printdeps']).split('\n')[1:]
+        except subprocess.CalledProcessError, e:
+            err_msg = 'ERROR: could not find module '
+            idx = e.output.find(err_msg)
+            if idx > -1:
+                idx += len(err_msg)
+                module = e.output[idx:e.output.find(',', idx)]
+                raise ModuleMissing(module)
+            raise e
+        #output looks like: 'dune_common (required)'
         def cleanup(name):
             return m.split()[0].strip().replace('_', '-')
         required = [cleanup(m) for m in out if 'required' in m ]

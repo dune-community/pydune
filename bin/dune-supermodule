@@ -12,7 +12,7 @@ It is licensed to you under the terms of the WTFPLv2.
 
 
 import sys
-from dune.submodule import generate
+from dune.supermodule import generate
 
 
 if __name__ == "__main__":
