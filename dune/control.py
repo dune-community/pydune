@@ -14,6 +14,12 @@ class ModuleMissing(Exception):
 
 
 class Dunecontrol(object):
+
+    @classmethod
+    def from_basedir(cls, basedir):
+        ctrl_path = os.path.join(basedir, 'dune-common', 'bin', 'dunecontrol')
+        return cls(ctrl_path)
+
     def __init__(self,script_path):
         self._script_path = script_path
         self._base_dir = os.path.join(os.path.dirname(script_path), '../..')

@@ -17,9 +17,7 @@ import tempfile
 import control
 import subprocess
 import shutil
-import pprint
 import copy
-import logging
 
 CFG_TPL = u'''#This file is intended for use on buildbot, do NOT set any compiler here
 CONFIGURE_FLAGS="CXXFLAGS='-pedantic -DDEBUG -g3 -ggdb -O0 -std=c++0x -Wextra -Wall' \\
@@ -87,3 +85,13 @@ def generate(module_url, module_name, new_dir):
     subprocess.check_output(['git', 'commit', '-m', 'intial commit'],
                             stderr=subprocess.STDOUT)
     shutil.rmtree(temporary_dir)
+
+def get_dune_stuff():
+    temporary_name = ''.join(random.choice(string.ascii_letters
+                                + string.digits) for x in range(15))
+    temporary_dir = os.path.join(tempfile.gettempdir(),
+                                 temporary_name)
+    url = 'http://users.dune-project.org/repositories/projects/dune-stuff.git'
+    module = 'dune-stuff'
+    generate(url, module, temporary_dir)
+    return temporary_dir
