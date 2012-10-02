@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
     name = 'pyDune',
-    version = '0.1.3a',
+    version = '0.1.4',
     author = 'Rene Milk',
     author_email = 'rene.milk@uni-muenster.de',
     packages = ['dune', 'dune.mesh', 'dune.mesh.gui', 'dune.mesh.dgf', 'dune.mesh.smesh',
