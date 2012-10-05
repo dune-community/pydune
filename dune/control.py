@@ -44,7 +44,10 @@ class Dunecontrol(object):
             idx = e.output.find(err_msg)
             if idx > -1:
                 idx += len(err_msg)
-                module = e.output[idx:e.output.find(',', idx)]
+                module = e.output[idx:e.output.find(',', idx)].split('\n')[0].strip()
+                if '\n' in module:
+                    logging.debug('MODULE: %s', module)
+                    raise e
                 raise ModuleMissing(module)
             raise e
         #output looks like: 'dune_common (required)'

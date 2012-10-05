@@ -18,6 +18,8 @@ import control
 import subprocess
 import shutil
 import copy
+import logging
+from collections import defaultdict
 
 CFG_TPL = u'''#This file is intended for use on buildbot, do NOT set any compiler here
 CONFIGURE_FLAGS="CXXFLAGS='-pedantic -DDEBUG -g3 -ggdb -O0 -std=c++0x -Wextra -Wall' \\
@@ -32,21 +34,13 @@ CONFIGURE_FLAGS="CXXFLAGS='-w -O0' \\
 '''
 
 def generate(module_url, module_name, new_dir):
-    temporary_name = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(15))
-    temporary_dir = os.path.join(tempfile.gettempdir(), temporary_name)
-
+    logging.basicConfig(level=logging.DEBUG)
     url_tpl = 'http://users.dune-project.org/repositories/projects/%s.git'
-    git.Repo.clone_from(module_url,
-                        to_path=os.path.join(temporary_dir, module_name))
-    common_path = os.path.join(temporary_dir, 'dune-common')
-    git.Repo.clone_from(url_tpl % 'dune-common',
-                        to_path=common_path)
-    ctrl_path = os.path.join(temporary_dir, 'dune-common', 'bin', 'dunecontrol')
-    ctrl = control.Dunecontrol(ctrl_path)
-
+    if not os.path.isdir(new_dir):
+        os.makedirs(new_dir)
     git.Repo.init(new_dir)
-    m_deps = ctrl.dependencies(module_name)
-    deps = copy.deepcopy(m_deps)
+    #m_deps = ctrl.dependencies(module_name)
+    #deps = copy.deepcopy(m_deps)
     os.chdir(new_dir)
 
     def add_sub(dep, url=None):
@@ -55,26 +49,30 @@ def generate(module_url, module_name, new_dir):
             subprocess.check_output(['git', 'submodule', 'add', url, dep],
                                     stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError, e:
-            if e.output.find('already exists') < 0:
-                raise e
+            logging.info(e.output)
+            logging.error(e)
 
+    add_sub('dune-common', url_tpl % 'dune-common')
     add_sub(module_name, module_url)
-    for dep in m_deps['required'] + m_deps['suggested']:
-        add_sub(dep)
+
     ctrl_path = os.path.join(new_dir, 'dune-common', 'bin', 'dunecontrol')
     ctrl = control.Dunecontrol(ctrl_path)
     def add_recursive(dep, cat):
         try:
             return ctrl.dependencies(dep)[cat]
         except control.ModuleMissing, m:
+            logging.info('Recursing for %s' % m.name)
             add_sub(m.name)
             return add_recursive(dep,cat)
+
+    deps = defaultdict(list)
+    import pprint
     for cat in ['required', 'suggested']:
-        for dep in m_deps[cat]:
-            deps[cat] = list(set(deps[cat] + add_recursive(dep,cat)))
+        deps[cat] = add_recursive(module_name, cat)
+        pprint.pprint(deps)
 
     for dep in deps['suggested'] + deps['required']:
-        add_sub(dep)
+        add_recursive(dep, 'required')
 
     for compiler in ['gcc-4.4', 'gcc-4.6', 'clang']:
         open(os.path.join(new_dir, 'config.opts.%s' % compiler),
@@ -84,7 +82,6 @@ def generate(module_url, module_name, new_dir):
                             stderr=subprocess.STDOUT)
     subprocess.check_output(['git', 'commit', '-m', 'intial commit'],
                             stderr=subprocess.STDOUT)
-    shutil.rmtree(temporary_dir)
 
 def get_dune_stuff():
     temporary_name = ''.join(random.choice(string.ascii_letters
@@ -95,3 +92,9 @@ def get_dune_stuff():
     module = 'dune-stuff'
     generate(url, module, temporary_dir)
     return temporary_dir
+
+if __name__ == "__main__":
+    import sys
+    if os.path.isdir(sys.argv[3]):
+        shutil.rmtree(sys.argv[3])
+    generate(sys.argv[1], sys.argv[2], sys.argv[3])
