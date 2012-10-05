@@ -34,13 +34,10 @@ CONFIGURE_FLAGS="CXXFLAGS='-w -O0' \\
 '''
 
 def generate(module_url, module_name, new_dir):
-    logging.basicConfig(level=logging.DEBUG)
     url_tpl = 'http://users.dune-project.org/repositories/projects/%s.git'
     if not os.path.isdir(new_dir):
         os.makedirs(new_dir)
     git.Repo.init(new_dir)
-    #m_deps = ctrl.dependencies(module_name)
-    #deps = copy.deepcopy(m_deps)
     os.chdir(new_dir)
 
     def add_sub(dep, url=None):
@@ -55,8 +52,8 @@ def generate(module_url, module_name, new_dir):
     add_sub('dune-common', url_tpl % 'dune-common')
     add_sub(module_name, module_url)
 
-    ctrl_path = os.path.join(new_dir, 'dune-common', 'bin', 'dunecontrol')
-    ctrl = control.Dunecontrol(ctrl_path)
+    ctrl = control.Dunecontrol.from_basedir(new_dir)
+
     def add_recursive(dep, cat):
         try:
             return ctrl.dependencies(dep)[cat]
@@ -69,8 +66,7 @@ def generate(module_url, module_name, new_dir):
     import pprint
     for cat in ['required', 'suggested']:
         deps[cat] = add_recursive(module_name, cat)
-        pprint.pprint(deps)
-
+        logging.info(pprint.pformat(deps))
     for dep in deps['suggested'] + deps['required']:
         add_recursive(dep, 'required')
 
@@ -78,6 +74,7 @@ def generate(module_url, module_name, new_dir):
         open(os.path.join(new_dir, 'config.opts.%s' % compiler),
              'wb').write(CFG_TPL)
     open(os.path.join(new_dir, 'config.opts.docs'), 'wb').write(DOCS_TPL)
+
     subprocess.check_output(['git', 'add', 'config*'],
                             stderr=subprocess.STDOUT)
     subprocess.check_output(['git', 'commit', '-m', 'intial commit'],
@@ -92,9 +89,3 @@ def get_dune_stuff():
     module = 'dune-stuff'
     generate(url, module, temporary_dir)
     return temporary_dir
-
-if __name__ == "__main__":
-    import sys
-    if os.path.isdir(sys.argv[3]):
-        shutil.rmtree(sys.argv[3])
-    generate(sys.argv[1], sys.argv[2], sys.argv[3])

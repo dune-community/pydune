@@ -5,7 +5,7 @@ tests_require = ['nose-cov', 'nose', 'nosehtmloutput', 'rednose']
 
 setup(
     name = 'pyDune',
-    version = '0.1.4',
+    version = '0.1.5',
     author = 'Rene Milk',
     author_email = 'rene.milk@uni-muenster.de',
     packages = ['dune', 'dune.mesh', 'dune.mesh.gui', 'dune.mesh.dgf', 'dune.mesh.smesh',
