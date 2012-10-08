@@ -16,7 +16,7 @@ README.html: README.markdown
 	pandoc -f markdown -t html $< > $@
 
 pylint:
-	pylint --indent-string='\t' dune
+	pylint dune
 
 test:
 	nosetests --with-cov --cov dune --cov-config .coveragerc test/

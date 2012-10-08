@@ -1,7 +1,7 @@
 import sys
 from distutils.core import setup
 
-tests_require = ['nose-cov', 'nose', 'nosehtmloutput', 'rednose']
+tests_require = ['pylint', 'nose-cov', 'nose', 'nosehtmloutput', 'rednose']
 
 setup(
     name = 'pyDune',

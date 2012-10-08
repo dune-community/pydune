@@ -22,3 +22,6 @@ dist/
 MANIFEST
 .spyderproject
 .coverage
+nosetests.xml
+nosetests/
+bin/dune-supermodulec
