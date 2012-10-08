@@ -41,7 +41,10 @@ def generate(module_url, module_name, new_dir):
     os.chdir(new_dir)
 
     def add_sub(dep, url=None):
-        url = url or url_tpl % dep
+        if dep == module_name:
+            url = module_url
+        else:
+            url = url or url_tpl % dep
         try:
             subprocess.check_output(['git', 'submodule', 'add', url, dep],
                                     stderr=subprocess.STDOUT)
@@ -58,6 +61,9 @@ def generate(module_url, module_name, new_dir):
         try:
             return ctrl.dependencies(dep)[cat]
         except control.ModuleMissing, m:
+            if m.name == dep:
+                logging.critical('FUBAR')
+                return []
             logging.info('Recursing for %s' % m.name)
             add_sub(m.name)
             return add_recursive(dep,cat)
