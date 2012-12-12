@@ -21,3 +21,6 @@ pylint:
 test:
 	py.test test
 	check-manifest
+
+doc:
+	sphinx-build docs _build
