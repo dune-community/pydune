@@ -31,21 +31,18 @@ def read_vertices(filename) :
     list_of_vertices = []
     file = open(filename, 'r')
     number_of_vertices = 0
-    number_of_vertices_set = 0  # worin besteht der Unterschied zwischen diesen beiden Variablen?
     vertex_number = 0
     for line in file.readlines():
         words = line.split()
-        #print('words: {}'.format(words))
         if len(words) == 4:
             number_of_vertices += 1
-            vertex_number = int(words[0]) #setze auf den Index, der in der Zeile als erstes drinsteht
+            vertex_number = int(words[0])
             if number_of_vertices == vertex_number:
                 x = float(words[1])
                 y = float(words[2])
                 z = float(words[3])
                 vertex = [x, y, z]
-                #print('vertex: {}'.format(vertex))
-                list_of_vertices.append(vertex)     # haengt vertex ans Ende der Liste
+                list_of_vertices.append(vertex)
             else:
                 starcd_vrtfile_incorrect += 1
         else:
@@ -67,10 +64,8 @@ def read_cells(filename) :
     number_of_cubes = 0
     number_of_prisms = 0
     cell_index = 0
-    #cell_number = 0
     for line in file.readlines():
         words = line.split()
-        #print('words: {}'.format(words))
         if len(words) == 9:             # cube (second line)
             if cell_index == int(words[0]):
                 number_of_cubes += 1
@@ -98,8 +93,6 @@ def read_cells(filename) :
     if (number_of_cubes+number_of_prisms) != number_of_cells:
         starcd_celfile_incorrect += 1
     print('\tfound {i} cells: {j} cubes and {k} prisms'.format(i=number_of_cells, j=number_of_cubes, k=number_of_prisms))
-    # wie erzeugt man eine Leerzeile?
-    #print('list_of_original_cells: {}'.format(list_of_original_cells)) #auskommentieren
     return list_of_original_cells 
         
         
@@ -108,7 +101,6 @@ def make_simplices(list_of_vertices, list_of_original_cells) :
     list_of_simplices = []
     map_of_faces = dict([])
     for cell in list_of_original_cells:
-        #print(cell)
         if len(cell) == 8:       # cube
             # creating simplices from a cube entity
             
@@ -124,18 +116,16 @@ def make_simplices(list_of_vertices, list_of_original_cells) :
                       [cell[0], cell[2], cell[6], cell[4]],
                       [cell[4], cell[5], cell[7], cell[6]],
                       [cell[2], cell[3], cell[7], cell[6]] ]
-            # for each rectangular face with the indices [i0, i1, i2, i3] for its 4 vertices    
+            # for each rectangular face  i3 ---- i2   with the indices [i0, i1, i2, i3] for its 4 vertices
+            #                            |        |
+            #                            i0 ---- i1
             for face in faces:
                 [i0, i1, i2, i3] = face
-                #print('face: {}'.format(face))
                 face_as_string = "".join((str(x)+' ') for x in sorted(face))
-                #print('face as string: {}'.format(face_as_string))
-            
-                if face_as_string not in map_of_faces:
+                
+                if face_as_string not in map_of_faces:                    
                     # calculate the barycenter of the face
                     center  = (np.asarray(list_of_vertices[i0]) + np.asarray(list_of_vertices[i2]))/2
-                    #print(center)
-                    #print(type(center))    #ist <type 'numpy.ndarray'>. welche Vor- und Nachteile gibt es zwischen list und np.array?
                     center2  = (np.asarray(list_of_vertices[i1]) + np.asarray(list_of_vertices[i3]))/2
                     if all(center != center2):
                         print('Error!')
@@ -145,10 +135,10 @@ def make_simplices(list_of_vertices, list_of_original_cells) :
                     map_of_faces[face_as_string] = len(list_of_vertices)-1
                     
                 # create the four simplices that belong to this cube and this face
-                list_of_simplices.append([i0, i2, map_of_faces[face_as_string], index_center_cube])
                 list_of_simplices.append([i0, i1, map_of_faces[face_as_string], index_center_cube])
-                list_of_simplices.append([i1, i3, map_of_faces[face_as_string], index_center_cube])
+                list_of_simplices.append([i1, i2, map_of_faces[face_as_string], index_center_cube])
                 list_of_simplices.append([i2, i3, map_of_faces[face_as_string], index_center_cube])
+                list_of_simplices.append([i3, i0, map_of_faces[face_as_string], index_center_cube])
             
         elif len(cell) == 6:       # prism
             # creating simplices from a prism entity
@@ -159,12 +149,13 @@ def make_simplices(list_of_vertices, list_of_original_cells) :
                       [cell[0], cell[1], cell[4], cell[3]] ]
             face_as_string = []
             ii = 0
-            # for each rectangular face with the indices [i0, i1, i2, i3] for its 4 vertices
+            # for each rectangular face  i3 ---- i2   with the indices [i0, i1, i2, i3] for its 4 vertices
+            #                            |        |
+            #                            i0 ---- i1
             for face in faces:
                 [i0, i1, i2, i3] = face
                 face_as_string.append( "".join((str(x)+' ') for x in sorted(face)) )
-                #print('face as string: {}'.format(face_as_string[ii]))
-            
+                
                 if face_as_string[ii] not in map_of_faces:
                     # calculate the barycenter of the face
                     center  = (np.asarray(list_of_vertices[i0]) + np.asarray(list_of_vertices[i2]))/2
@@ -188,7 +179,6 @@ def make_simplices(list_of_vertices, list_of_original_cells) :
             list_of_simplices.append([cell[3], cell[4], cell[5], map_of_faces[face_as_string[2]]])
             list_of_simplices.append([cell[0], cell[1], cell[2], map_of_faces[face_as_string[2]]])
 
-    #print('dict: {}'.format(map_of_faces))
     print('\tcreated {} simplices'.format(len(list_of_simplices)))
     return list_of_simplices
 
@@ -232,27 +222,6 @@ def write_simplices(simplices, file) :
         print('error: write_simplices() not implemented for nonconforming .cel file')
         sys.exit()
 
-## write boundary segments to dgf file
-#def write_boundary_segments( faces_with_ids, file ) :
-	#print 'writing boundary segments to %s...' %( file.name ),
-	#file.write( 'BOUNDARYSEGMENTS\t\t% the boundary segments of the grid\n' )
-        #if starcd_polyfile_incorrect == 0 :
-		#boundary_segment_number = 0
-		#for face_with_id in faces_with_ids :
-			#vertex_one = face_with_id[ 0 ]
-			#vertex_two = face_with_id[ 1 ]
-			#id = face_with_id[ 2 ]
-			#file.write( '%i\t%i\t%i\t\t\t\t%s boundary ID %i between vertices %i and %i\n' %( id, vertex_one, vertex_two, '%', id, vertex_one, vertex_two ) )
-			#boundary_segment_number += 1
-		#file.write( '#\n' )
-		#file.write( 'BOUNDARYDOMAIN\n' )
-		#file.write( 'default 1\n' )
-		#file.write( '#\n')
-		#print '\t%i boundary segments written' %( boundary_segment_number )
-	#else :
-		#print 'error: write_boundary_segments() not implemented for nonconforming .poly file'
-		#sys.exit()
-
 # done with function definitions
 
 
@@ -279,8 +248,6 @@ def main():
     write_dgf_header( dgf_file )
     write_vertices( vertices, dgf_file )
     write_simplices( simplices, dgf_file )
-    #write_boundary_segments( faces_with_boundary_ids, dgf_file )
-
-
-# ausfuehren der main
+    
+# run main()
 main()
