@@ -100,6 +100,8 @@ def make_simplices(list_of_vertices, list_of_original_cells) :
     print('creating simplices...')
     list_of_simplices = []
     map_of_faces = dict([])
+    normsum = 0
+    number_of_errors = 0
     for cell in list_of_original_cells:
         if len(cell) == 8:       # cube
             # creating simplices from a cube entity
@@ -126,20 +128,23 @@ def make_simplices(list_of_vertices, list_of_original_cells) :
                 if face_as_string not in map_of_faces:                    
                     # calculate the barycenter of the face
                     center  = (np.asarray(list_of_vertices[i0]) + np.asarray(list_of_vertices[i2]))/2
-                    center2  = (np.asarray(list_of_vertices[i1]) + np.asarray(list_of_vertices[i3]))/2
-                    if all(center != center2):
-                        print('Error!')
+                    center2 = (np.asarray(list_of_vertices[i1]) + np.asarray(list_of_vertices[i3]))/2
+                    norm = np.linalg.norm(center - center2)
+                    if norm > 0.01:
+                        print('Error! {}'.format(norm))
+                        normsum += norm
+                        number_of_errors += 1
                     # append the center to the list of vertices
                     list_of_vertices.append(center)
                     # append this face to the map_of_faces
                     map_of_faces[face_as_string] = len(list_of_vertices)-1
-                    
+                  
                 # create the four simplices that belong to this cube and this face
                 list_of_simplices.append([i0, i1, map_of_faces[face_as_string], index_center_cube])
                 list_of_simplices.append([i1, i2, map_of_faces[face_as_string], index_center_cube])
                 list_of_simplices.append([i2, i3, map_of_faces[face_as_string], index_center_cube])
                 list_of_simplices.append([i3, i0, map_of_faces[face_as_string], index_center_cube])
-            
+
         elif len(cell) == 6:       # prism
             # creating simplices from a prism entity
             
@@ -178,7 +183,9 @@ def make_simplices(list_of_vertices, list_of_original_cells) :
             
             list_of_simplices.append([cell[3], cell[4], cell[5], map_of_faces[face_as_string[2]]])
             list_of_simplices.append([cell[0], cell[1], cell[2], map_of_faces[face_as_string[2]]])
-
+    if normsum>0:
+        print('normsum: {}'.format(normsum))
+    print('number of errors: {}'.format(number_of_errors))
     print('\tcreated {} simplices'.format(len(list_of_simplices)))
     return list_of_simplices
 
