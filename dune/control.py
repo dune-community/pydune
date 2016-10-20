@@ -69,5 +69,5 @@ class Dunecontrol(object):
 if __name__ == "__main__":
     p = '/home/r_milk01/projekte/uni/dune/multiscale-super/dune-common/bin/dunecontrol'
     ctrl = Dunecontrol(p)
-    print ctrl.printdeps('dune-stuff')
+    print ctrl.printdeps('dune-xt-common')
 

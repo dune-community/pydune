@@ -14,8 +14,8 @@ class TestSuper(unittest.TestCase):
 
 
     def test_create(self):
-        stuff_dir = supermodule.get_dune_stuff()
-        self.assertFalse(os.path.isdir(stuff_dir))
+        xt_dir = supermodule.get_dune_xt_common()
+        self.assertFalse(os.path.isdir(xt_dir))
 
 
 if __name__ == '__main__':

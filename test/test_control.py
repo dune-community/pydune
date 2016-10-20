@@ -14,13 +14,13 @@ from dune.control import ModuleMissing, Dunecontrol
 class TestControl(unittest.TestCase):
 
     def setUp(self):
-        self.repo = supermodule.get_dune_stuff()
+        self.repo = supermodule.get_dune_xt_common()
 
     def test_control(self):
         self.assertTrue(os.path.isdir(self.repo))
         ctrl = Dunecontrol.from_basedir(self.repo)
         self.assertIn('dune-common',
-                      ctrl.dependencies('dune-stuff')['required'])
+                      ctrl.dependencies('dune-xt-common')['required'])
         with self.assertRaises(ModuleMissing):
             ctrl.dependencies('NONEXISTENT')
         ctrl.autogen('dune-common')

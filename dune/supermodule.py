@@ -34,7 +34,7 @@ CONFIGURE_FLAGS="CXXFLAGS='-w -O0' \\
 '''
 
 def generate(module_url, module_name, new_dir):
-    url_tpl = 'http://users.dune-project.org/repositories/projects/%s.git'
+    url_tpl = 'https://github.com/dune-community/%s.git'
     if not os.path.isdir(new_dir):
         os.makedirs(new_dir)
     git.Repo.init(new_dir)
@@ -86,12 +86,12 @@ def generate(module_url, module_name, new_dir):
     subprocess.check_output(['git', 'commit', '-m', 'intial commit'],
                             stderr=subprocess.STDOUT)
 
-def get_dune_stuff():
+def get_dune_xt_common():
     temporary_name = ''.join(random.choice(string.ascii_letters
                                 + string.digits) for x in range(15))
     temporary_dir = os.path.join(tempfile.gettempdir(),
                                  temporary_name)
-    url = 'http://users.dune-project.org/repositories/projects/dune-stuff.git'
-    module = 'dune-stuff'
+    url = 'https://github.com/dune-community/dune-xt-common.git'
+    module = 'dune-xt-common'
     generate(url, module, temporary_dir)
     return temporary_dir
