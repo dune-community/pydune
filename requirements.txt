@@ -1,0 +1,8 @@
+pylint
+nose-cov
+nose
+nosehtmloutput
+rednose
+matplotlib
+pyparsing
+GitPython
