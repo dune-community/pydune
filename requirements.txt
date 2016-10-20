@@ -6,3 +6,4 @@ rednose
 matplotlib
 pyparsing
 GitPython
+pyopengl
