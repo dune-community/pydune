@@ -8,6 +8,8 @@ addons:
     packages: &commonpackages
     - cmake
     - cmake-data
+    - python-pyqt4
+    - python3-pyqt4
 
 # before_install:
 # command to install dependencies
