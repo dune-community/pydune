@@ -1,9 +1,8 @@
 pylint
-nose-cov
-nose
-nosehtmloutput
-rednose
+pytest
+pytest-cov
 matplotlib
 pyparsing
 GitPython
 pyopengl
+check-manifest

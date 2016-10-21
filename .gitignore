@@ -25,3 +25,4 @@ MANIFEST
 nosetests.xml
 nosetests/
 bin/dune-supermodulec
+py2

@@ -19,4 +19,5 @@ pylint:
 	pylint dune
 
 test:
-	nosetests --with-cov --cov dune --cov-config .coveragerc test/
+	py.test test
+	check-manifest
