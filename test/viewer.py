@@ -25,11 +25,12 @@ to the extent permitted by applicable law.
 """
 
 import sys
-from PyQt4 import QtGui
-from viewer import MeshViewer
+import pytest
 
 
 def viewerTest(filename):
+    QtGui = pytest.importorskip('QtGui')
+    from viewer import MeshViewer
     app = QtGui.QApplication(['MeshViewer'])
     window = MeshViewer(filename)
     window.show()

@@ -8,13 +8,12 @@ addons:
     packages: &commonpackages
     - cmake
     - cmake-data
-    - python-pyqt4
-    - python3-pyqt4
 
 # before_install:
 # command to install dependencies
 install:
   - pip install -r requirements.txt
+  - sudo apt-get install -y python{,3}-pyqt5
 
 # before_script:
 
