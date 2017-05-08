@@ -5,7 +5,7 @@ colors.py (c) 2009 rene.milk@uni-muenster.de
 Licence: WTFPLv2, see LICENSE.txt
 """
 
-from euclid import Vector3
+from .euclid import Vector3
 
 constants = { 'black': Vector3(0,0,0), 'white':Vector3(255,255,255)}
 
@@ -76,7 +76,7 @@ def getColourPaletteCheat( size, filter_colors=[] ):
 	org_size = size
 	while len(k) < org_size:
 		size += 1
-		k = filter(lambda p: p not in filter_colors, set( getColourPalette( size ) ))
+		k = [p for p in set( getColourPalette( size ) ) if p not in filter_colors]
 	return list(k)
 
 if __name__ == '__main__':
@@ -84,5 +84,5 @@ if __name__ == '__main__':
 	#print k
 	#k = set(k)
 	#print k
-	print getColourPaletteCheat(4)
-	print getColourPaletteCheat(4,[(0.0,0,0.0)])
+	print(getColourPaletteCheat(4))
+	print(getColourPaletteCheat(4,[(0.0,0,0.0)]))

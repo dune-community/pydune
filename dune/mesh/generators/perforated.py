@@ -215,7 +215,7 @@ def generate():
 	id_of_left_rectangle_faces = 6
 
 			
-	print 'generating perforated domain with %i holes' %( number_of_cells_x * number_of_cells_y )
+	print('generating perforated domain with %i holes' %( number_of_cells_x * number_of_cells_y ))
 	#if ( number_of_cells_x * number_of_cells_y ) > 19 :
 		#print '\t[ generating                              ]'
 		#print '\t[',
@@ -247,7 +247,7 @@ def generate():
 
 	#if ( number_of_cells_x * number_of_cells_y ) > 19 :
 		#print ']'
-	print 'epsilon_suqare is %f' %( standard_cell_area )
+	print('epsilon_suqare is %f' %( standard_cell_area ))
 
 	# generate the outer rectangle
 	outer_rectangle = generate_rectangle( computed_length_domain_x, computed_length_domain_y, [ id_of_bottom_rectangle_faces, id_of_right_rectangle_faces, id_of_top_rectangle_faces, id_of_left_rectangle_faces ] )
@@ -268,5 +268,5 @@ def generate():
 			hole[ 1 ] += shift_y
 
 	# write to triangle .poly file
-	print 'writing to %s' %( triangle_filename )
+	print('writing to %s' %( triangle_filename ))
 	write_to_triangle( ellipsoids, outer_rectangle, holes, triangle_filename )

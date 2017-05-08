@@ -39,7 +39,7 @@ class Dunecontrol(object):
     def dependencies(self, module):
         try:
             out = self._call(['--module=%s'%module, 'printdeps']).split('\n')[1:]
-        except subprocess.CalledProcessError, e:
+        except subprocess.CalledProcessError as e:
             err_msg = 'ERROR: could not find module '
             idx = e.output.find(err_msg)
             if idx > -1:
@@ -69,5 +69,5 @@ class Dunecontrol(object):
 if __name__ == "__main__":
     p = '/home/r_milk01/projekte/uni/dune/multiscale-super/dune-common/bin/dunecontrol'
     ctrl = Dunecontrol(p)
-    print ctrl.printdeps('dune-xt-common')
+    print(ctrl.printdeps('dune-xt-common'))
 

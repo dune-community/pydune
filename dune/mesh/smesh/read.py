@@ -31,15 +31,15 @@ def _parseSMESH_vertices(self,fn):
 		v = vector( line[1], line[2], line[3] )
 		#use a dummy color
 		self.vertex_list.addVertex( v, Vector3() )
-	print 'read %d vertices'%len(self.vertex_list)
+	print('read %d vertices'%len(self.vertex_list))
 
 def _parseSMESH_faces(self,fn,bidToColorMapper=BoundaryIdToColorMapper()):
 	for line in fn.readlines():
 		line = line.split()
 		if not self.zero_based_idx:
-			v = map( lambda p: self.vertex_list.realIndex(int(p) -1 ), line[1:4] )
+			v = [self.vertex_list.realIndex(int(p) -1 ) for p in line[1:4]]
 		else:
-			v = map( lambda p: self.vertex_list.realIndex(int(p) ), line[1:4] )
+			v = [self.vertex_list.realIndex(int(p) ) for p in line[1:4]]
 		boundary_id = int(line[4])
 		color = bidToColorMapper.getColor( boundary_id )
 		if self.refine:
@@ -59,16 +59,16 @@ def _parseSMESH_faces(self,fn,bidToColorMapper=BoundaryIdToColorMapper()):
 			s = Simplex3(v[0],v[1],v[2],self.vertex_list,len(self.faces),color, boundary_id )
 			self.faces.append( s )
 			for one_v in v:
-				if self.adj_points.has_key(one_v) :
+				if one_v in self.adj_points :
 					self.adj_points[one_v] = self.adj_points[one_v].union( set(v) )
 				else:
 					self.adj_points[one_v] = set(v)
 
-				if self.adj_faces.has_key(one_v):
+				if one_v in self.adj_faces:
 					self.adj_faces[one_v].append( len(self.faces) - 1 )
 				else:
 					self.adj_faces[one_v] = [ len(self.faces) - 1 ]
-	print 'read %d faces'%len(self.faces)
+	print('read %d faces'%len(self.faces))
 
 
 def parseSMESH(self, filename):
@@ -91,7 +91,7 @@ def parseSMESH(self, filename):
 			self.zero_based_idx = line.startswith('0')
 			first_vert = False
 		verts.write(line)
-	print 'vertice writing complete'
+	print('vertice writing complete')
 
 	fd = _skipCommentsAndEmptyLines( fd )
 	#skip one more line..
@@ -103,13 +103,13 @@ def parseSMESH(self, filename):
 		if len(line.split()) < self.dim + 1:
 			break
 		faces.write(line)
-	print 'face writing complete'
+	print('face writing complete')
 
 	#we need the cursor at top for individual parsing
 	verts.seek(0)
 	faces.seek(0)
 	_parseSMESH_vertices(self,verts)
-	print 'vert parsing complete'
+	print('vert parsing complete')
 	_parseSMESH_faces(self, faces)
-	print 'face parsing complete'
+	print('face parsing complete')
 	self.buildAdjacencyList()

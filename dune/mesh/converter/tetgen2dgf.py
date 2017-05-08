@@ -28,7 +28,7 @@ def write_dgf_header( file ) :
 
 # write vertices to dgf file
 def write_vertices( file, node_file_name ) :
-	print 'writing vertices to %s...' %( file.name ),
+	print('writing vertices to %s...' %( file.name ), end=' ')
 	file.write( 'VERTEX\t\t\t\t\t% the vertices of the grid\n' )
 	with open( node_file_name, 'r' ) as node_file:
 		vertex_number = 0
@@ -44,7 +44,7 @@ def write_vertices( file, node_file_name ) :
 
 # write simplices to dgf file
 def write_simplices( file, ele_file_name ) :
-	print 'writing simplices to %s...' %( file.name ),
+	print('writing simplices to %s...' %( file.name ), end=' ')
 	file.write( 'SIMPLEX\t\t\t\t\t% the simplices of the grid\n' )
 	with open( ele_file_name, 'r' ) as ele_file:
 		vertex_number = 0
@@ -62,7 +62,7 @@ def write_simplices( file, ele_file_name ) :
 
 # write boundary segments to dgf file
 def write_boundary_segments( file, face_file_name ) :
-	print 'writing boundary segments to %s...' %( file.name ),
+	print('writing boundary segments to %s...' %( file.name ), end=' ')
 	file.write( 'BOUNDARYSEGMENTS\t\t% the boundary segments of the grid\n' )
 	with open( face_file_name, 'r' ) as face_file:
 		vertex_number = 0

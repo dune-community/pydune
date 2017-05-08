@@ -7,8 +7,8 @@ Licence: WTFPLv2, see LICENSE.txt
 
 import math
 import copy
-from euclid import *
-import colors
+from .euclid import *
+from . import colors
 
 class DimensionIncompatibleException(Exception):
 	pass
@@ -32,7 +32,7 @@ class ColorToBoundaryIdMapper:
 		return self.known_colors.index(color) + 1
 
 	def __repr__(self):
-		return '%d Colors: '%(len(self.known_colors)) + ' '.join( map(lambda p: str(p), self.known_colors ) )
+		return '%d Colors: '%(len(self.known_colors)) + ' '.join( [str(p) for p in self.known_colors] )
 
 class BoundaryIdToColorMapper:
 	def __init__(self,expected=11):
@@ -46,9 +46,9 @@ class BoundaryIdToColorMapper:
 		try:
 			c = self.colormap[ self.bids.index(bid) ]
 			return Vector3( c[0], c[1], c[2] )
-		except Exception, e:
-			print e
-			print bid
+		except Exception as e:
+			print(e)
+			print(bid)
 			return Vector3()
 
 class Simplex3:
@@ -82,10 +82,10 @@ class Simplex3:
 			try:
 				self.v.append( pl[id] )
 				self.center += pl[id]
-			except IndexError, e:
+			except IndexError as e:
 				import traceback
-				print traceback.format_exc()
-				print self.idx, id
+				print(traceback.format_exc())
+				print(self.idx, id)
 				raise e
 		self.center /= 3.0
 		if self.v[0] < self.v[1]  and self.v[1] < self.v[2]:
@@ -132,7 +132,7 @@ class MeshVertexList(object):
 		return next_vertex_id
 
 	def __getitem__(self,idx):
-		assert idx in self.aliases.keys()
+		assert idx in list(self.aliases.keys())
 		real_idx = self.aliases[idx]
 		#assert len(self.__vertices) >  real_idx , 'v %d -- r %d| len %d'%(idx, real_idx,len(self.__vertices))
 		return self.__vertices[real_idx]
@@ -146,7 +146,7 @@ class MeshVertexList(object):
 
 	def realIndex(self,idx):
 		if '__getitem__' in dir(idx):
-			return map( lambda i: self.aliases[i], idx)
+			return [self.aliases[i] for i in idx]
 		else:
 			return self.aliases[idx]
 
@@ -154,8 +154,8 @@ class MeshVertexList(object):
 		return len(self.__vertices)
 
 	def getVertices(s):
-		return s.__vertices.values()[:]
+		return list(s.__vertices.values())[:]
 
 def find_key(dic, val):
 	"""return the key of dictionary dic given the value"""
-	return [k for k, v in dic.iteritems() if v == val][0]
+	return [k for k, v in dic.items() if v == val][0]

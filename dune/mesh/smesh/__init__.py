@@ -1,1 +1,1 @@
-from read import parseSMESH as read
+from .read import parseSMESH as read

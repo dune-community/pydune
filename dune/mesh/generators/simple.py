@@ -43,7 +43,7 @@ def generate():
 				cVert += 1
 		out.write( '%d 1\n'%(nBsegs) )
 		cBseg = 0
-		for bid,vertIds in bSegs.items():
+		for bid,vertIds in list(bSegs.items()):
 			for seg in vertIds:
 				out.write( '%d %d %d %d\n'%(cBseg,seg[0],seg[1],bid)  )
 				cBseg += 1

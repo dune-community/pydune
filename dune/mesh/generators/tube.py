@@ -6,7 +6,7 @@ Licence: WTFPLv2, see LICENSE.txt
 """
 
 from dune.mesh.util.gridhelper import *
-from _functors import *
+from ._functors import *
 from optparse import OptionParser
 import math, copy, sys
 from dune.mesh.util.meshutil import BoundaryIdToColorMapper
@@ -60,10 +60,10 @@ def generate():
 	L_x = math.sqrt( area_one_tri / ( math.sin( alpha_half ) * math.cos( alpha_half ) ) )
 	if use_hyperbole_functor:
 		functor = HyperboleFunctorZ(tube_length, options.hyp_fac, options.hyp_add )
-		print "using hyperbole functor"
+		print("using hyperbole functor")
 	else:
 		functor = IdentityFunctor()
-		print "using identity functor"
+		print("using identity functor")
 
 	bidMapper = BoundaryIdToColorMapper(5)
 	"""left boundary area"""

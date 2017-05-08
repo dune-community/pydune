@@ -28,9 +28,9 @@ from dune.mesh import mesh
 class BidPanel(object):
 	def __init__(self, parent, mesh):
 		super(BidPanel, self).__init__()
-		for bid, colors in mesh.bid_color_mapping.iteritems():
-			print('BID %d: %s' % (bid,' '.join(set(
-						[str((255*c.x,255*c.y,255*c.z)) for c in colors])) ))
+		for bid, colors in mesh.bid_color_mapping.items():
+			print(('BID %d: %s' % (bid,' '.join(set(
+						[str((255*c.x,255*c.y,255*c.z)) for c in colors])) )))
 		
 class ControlPanel(QtGui.QWidget):
 	def __init__(self, parent, bid_widget):
@@ -303,7 +303,7 @@ class MeshWidget(QtOpenGL.QGLWidget):
 		self.initializeGL()
 		self.zoom = -self.mesh.bounding_box.minViewDistance()
 		self.enable_restrict = False
-		self.restricted = range(len(self.mesh.faces))
+		self.restricted = list(range(len(self.mesh.faces)))
 		self.point_draw = 1
 
 	def reset(self):
@@ -384,10 +384,10 @@ class MeshViewer(QtGui.QMainWindow):
 
 	def set_restrict(self,k):
 		self.widget.enable_restrict = self.cp.enable_restrict.isChecked()
-		self.widget.restricted = range( self.cp.slider_min.value(),
-									 self.cp.slider_max.value() )
+		self.widget.restricted = list(range( self.cp.slider_min.value(),
+									 self.cp.slider_max.value()))
 		self.widget.update()
-		print  self.cp.slider_min.value(), self.cp.slider_max.value()
+		print(self.cp.slider_min.value(), self.cp.slider_max.value())
 
 	def saveScreenshot(self):
 		filename = str(QtGui.QFileDialog.getSaveFileName(self,

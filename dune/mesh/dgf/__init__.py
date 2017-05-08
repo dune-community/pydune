@@ -1,1 +1,1 @@
-from read import parse
+from .read import parse

@@ -19,16 +19,16 @@ property list uchar uint vertex_index
 end_header
 """
 
-from util.meshutil import MeshVertexList, Simplex3, BoundaryIdToColorMapper, \
+from .util.meshutil import MeshVertexList, Simplex3, BoundaryIdToColorMapper, \
 	ColorToBoundaryIdMapper, vector, find_key
-from gui.quadtree import Quadtree,Box
-from util.euclid import Vector3
+from .gui.quadtree import Quadtree,Box
+from .util.euclid import Vector3
 import random
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from gui.bounding import BoundingVolume
+from .gui.bounding import BoundingVolume
 from collections import defaultdict
-import smesh
+from . import smesh
 
 try:
 	#the spooled variant is new in 2.6
@@ -106,7 +106,7 @@ class Mesh():
 			if line.startswith( 'element face' ):
 				num_faces = int(line.split()[2])
 				continue
-		print 'read %d faces, %d vertices'%(num_faces,num_verts)
+		print('read %d faces, %d vertices'%(num_faces,num_verts))
 		for i in range(num_verts):
 			line = fd.readline().split()
 			try:
@@ -116,24 +116,24 @@ class Mesh():
 				else:
 					c = Vector3()
 				self.vertex_list.addVertex( v,c )
-			except Exception, e:
-				print e
-				print line
+			except Exception as e:
+				print(e)
+				print(line)
 				raise e
 		for i in range(num_faces):
-			line = map( lambda p: self.vertex_list.realIndex(int(p)), fd.readline().split()[1:] )
+			line = [self.vertex_list.realIndex(int(p)) for p in fd.readline().split()[1:]]
 			v0 = line[0]
 			v1 = line[1]
 			v2 = line[2]
 			s = Simplex3(v0,v1,v2,self.vertex_list,len(self.faces),None, color_mapper.getID( self.vertex_list.attribs[v0] ) )
 			self.faces.append( s )
 			for v in [v0,v1,v2]:
-				if self.adj_points.has_key(v) :
+				if v in self.adj_points :
 					self.adj_points[v] += [v0,v1,v2]
 				else:
 					self.adj_points[v] = [v0,v1,v2]
 				self.adj_points[v].remove(v)
-				if self.adj_faces.has_key(v):
+				if v in self.adj_faces:
 					self.adj_faces[v].append( len(self.faces) - 1 )
 				else:
 					self.adj_faces[v] = [ len(self.faces) - 1 ]
@@ -170,7 +170,7 @@ class Mesh():
 		for f in self.faces:
 			assert isinstance( f, Simplex3 )
 			boundary_id = bidMapper.getID(f.color)
-			if normals.has_key( boundary_id ):
+			if boundary_id in normals:
 				i,n = normals[boundary_id]
 				normals[boundary_id] = (i+1, ( n * i + f.n )/(i+1) )
 			else:
@@ -179,7 +179,7 @@ class Mesh():
 		out.write( '%d\n'%(0))
 		out.close()
 		normals_file = open( fn + '.normals' ,'w')
-		for i,n in normals.iteritems():
+		for i,n in normals.items():
 			#for m in [n[1],n[1]/abs(n[1])]:
 			m = n[1]
 			normals_file.write( 'gd_%d: %f;%f;%f\n'%(i,m.x,m.y,m.z) )
@@ -203,7 +203,7 @@ class Mesh():
 
 		for f in self.faces:
 			assert isinstance( f, Simplex3 )
-			idx = map( lambda p: p + 1, f.idx )
+			idx = [p + 1 for p in f.idx]
 			out.write( '%d %d %d %d\n'%(3,idx[0],idx[1],idx[2])  )
 
 		out.flush()
@@ -282,7 +282,7 @@ class Mesh():
 		n = 0
 		avg = 0.0
 		for i in range( len(self.vertex_list) ):
-			if self.adj_points.has_key(i):
+			if i in self.adj_points:
 				p_old = self.vertex_list[i]
 				displacement = step * self.laplacianDisplacement( self.adj_points[i], self.vertex_list[i] )
 				p_new = self.vertex_list[i] + displacement
@@ -320,7 +320,7 @@ class Mesh():
 				self.vertex_list[f.idx[i]] = p_new
 			#self.faces[f.id].reset(self.vertex_list)
 		self.prepDraw()
-		print 'smooth2 done'
+		print('smooth2 done')
 
 	def noise(self,factor):
 		for i in range( len(self.vertex_list) ):

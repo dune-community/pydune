@@ -30,7 +30,7 @@ import pytest
 
 def viewerTest(filename):
     QtGui = pytest.importorskip('QtGui')
-    from viewer import MeshViewer
+    from .viewer import MeshViewer
     app = QtGui.QApplication(['MeshViewer'])
     window = MeshViewer(filename)
     window.show()

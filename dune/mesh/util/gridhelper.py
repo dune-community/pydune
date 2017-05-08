@@ -12,7 +12,7 @@ class ImpossibleException(Exception):
 	pass
 
 import math, copy
-from euclid import Vector3, Matrix4
+from .euclid import Vector3, Matrix4
 
 class PLCPointList:
 	"""static var numbering all vertices"""
@@ -47,7 +47,7 @@ class PLCPointList:
 
 	def simpleString(self):
 		ret = ''
-		for idx,p in self.verts.iteritems():
+		for idx,p in self.verts.items():
 			ret += 'Vertix %4d \t%s\n'% (idx,str(p))
 		return ret
 
@@ -55,7 +55,7 @@ class PLCPointList:
 		return len(self.verts)
 
 	def unalias(self,idx):
-		if self.aliases.has_key(idx):
+		if idx in self.aliases:
 			return self.aliases[idx]
 		else:
 			return idx
@@ -129,14 +129,14 @@ class FullGrid:
 	def connect(self,new_f):
 		f1 = f2 = None
 		if isinstance( new_f, InbetweenRing ):
-			print 'connecting InbetweenRing\n'
+			print('connecting InbetweenRing\n')
 			self.rings.append( new_f )
 			if len(self.rings) > 1:
 				f1 = self.rings[-2]
 			else:
 				f1 = self.fans[-1]
 		elif isinstance( new_f, BoundarySurface ):
-			print 'connecting BoundarySurface\n'
+			print('connecting BoundarySurface\n')
 			self.fans.append( new_f )
 			if len(self.rings) > 0:
 				f1 = self.rings[-1]

@@ -31,7 +31,7 @@ class TestConvert(unittest.TestCase):
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
-        print(self.tmpdir)
+        print((self.tmpdir))
 
     def tearDown(self):
         #shutil.rmtree(self.tmpdir)
