@@ -22,7 +22,7 @@ class Dunecontrol(object):
 
     def __init__(self,script_path):
         self._script_path = script_path
-        self._base_dir = os.path.join(os.path.dirname(script_path), '../..')
+        self._base_dir = os.path.join(os.path.dirname(script_path), '..', '..')
 
     def _call(self, args):
         try:
@@ -30,7 +30,7 @@ class Dunecontrol(object):
         except:
             cl = [self._script_path] + args.split()
         return subprocess.check_output(cl, cwd=self._base_dir,
-                                       stderr=subprocess.STDOUT)
+                                       stderr=subprocess.STDOUT, universal_newlines=True)
 
     def printdeps(self, module):
         import pprint
@@ -52,7 +52,7 @@ class Dunecontrol(object):
             raise e
         #output looks like: 'dune_common (required)'
         def cleanup(name):
-            return m.split()[0].strip().replace('_', '-')
+            return name.split()[0].strip().replace('_', '-')
         required = [cleanup(m) for m in out if 'required' in m ]
         suggested = [cleanup(m) for m in out if 'suggested' in m ]
         return {'required':required, 'suggested': suggested}

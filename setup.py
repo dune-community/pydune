@@ -1,13 +1,13 @@
 import sys
 from distutils.core import setup
 
-tests_require = ['pylint', 'pytest', 'pytest-cov']
+tests_require = ['pytest', 'pytest-cov']
 
 setup(
     name = 'pyDune',
     version = '0.1.5',
     author = 'Rene Milk',
-    author_email = 'rene.milk@uni-muenster.de',
+    author_email = 'rene.milk@wwu.de',
     packages = ['dune', 'dune.mesh', 'dune.mesh.gui', 'dune.mesh.dgf', 'dune.mesh.smesh',
         'dune.mesh.util', 'dune.mesh.converter', 'dune.mesh.generators'],
     scripts = ['bin/%s'%n for n in ['mesh-convert', 'mesh-generate', 'mesh-viewer', 'tetgen2dgf', 'triangle2dgf', 'dune-supermodule'] ],
